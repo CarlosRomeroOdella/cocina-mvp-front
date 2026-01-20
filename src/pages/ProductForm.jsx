@@ -1,46 +1,40 @@
-import { useState } from "react";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import ProductToggleCard from "../components/ProductToggleCard";
 
-export default function Home() {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Sandwich", available: true },
-    { id: 2, name: "Sincronizada", available: true },
-    { id: 3, name: "Torta", available: false },
-    { id: 4, name: "Cuernito", available: true },
-    { id: 5, name: "Pan Pita", available: false },
-    { id: 6, name: "Café Americano", available: true },
-    { id: 7, name: "Licuado", available: true },
-    { id: 8, name: "Quesadilla", available: false },
-    { id: 9, name: "Burritos", available: true },
-    { id: 10, name: "Huevo", available: true },
-  ]);
+export default function ProductForm() {
+  const { products, setProducts } = useOutletContext();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const addProduct = () => {
-    const name = prompt("Nombre del platillo");
-    if (!name) return;
+  const editing = Boolean(id);
+  const [name, setName] = useState("");
 
-    setProducts([...products, {
-      id: Date.now(),
-      name,
-      available: true,
-    }]);
-  };
+  useEffect(() => {
+    if (editing) {
+      const product = products.find(p => p.id === Number(id));
+      if (product) setName(product.name);
+    }
+  }, [editing, id, products]);
 
-  const toggleAvailability = (id) => {
-    setProducts(products.map(p =>
-      p.id === id ? { ...p, available: !p.available } : p
-    ));
-  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const editProduct = (id) => {
-    const newName = prompt("Nuevo nombre del platillo");
-    if (!newName) return;
+    if (!name.trim()) return;
 
-    setProducts(products.map(p =>
-      p.id === id ? { ...p, name: newName } : p
-    ));
+    if (editing) {
+      setProducts(products.map(p =>
+        p.id === Number(id) ? { ...p, name } : p
+      ));
+    } else {
+      setProducts([
+        ...products,
+        { id: Date.now(), name, available: true },
+      ]);
+    }
+
+    navigate("/");
   };
 
   return (
@@ -50,31 +44,39 @@ export default function Home() {
       <div className="flex-1">
         <Header />
 
-        <main className="p-6">
-          {/* HEADER */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Dashboard Admin</h2>
+        <main className="p-6 flex justify-center">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white p-6 rounded-lg shadow w-full max-w-md"
+          >
+            <h2 className="text-xl font-bold mb-4">
+              {editing ? "Editar platillo" : "Nuevo platillo"}
+            </h2>
 
-            <button
-              onClick={addProduct}
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
-            >
-              + Agregar platillo
-            </button>
-          </div>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nombre del platillo"
+              className="w-full border rounded px-3 py-2 mb-4"
+            />
 
-          {/* LISTADO */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {products.map(product => (
-              <ProductToggleCard
-                key={product.id}
-                name={product.name}
-                available={product.available}
-                onToggle={() => toggleAvailability(product.id)}
-                onEdit={() => editProduct(product.id)}
-              />
-            ))}
-          </div>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="text-gray-600"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                className="bg-orange-500 text-white px-4 py-2 rounded"
+              >
+                Guardar
+              </button>
+            </div>
+          </form>
         </main>
       </div>
     </div>
