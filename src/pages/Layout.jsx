@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { ProductsContext } from "../context/ProductsContext";
 
 export default function Layout() {
   const [products, setProducts] = useState([
@@ -15,5 +16,9 @@ export default function Layout() {
     { id: 10, name: "Huevo", available: true },
   ]);
 
-  return <Outlet context={{ products, setProducts }} />;
+  return (
+    <ProductsContext.Provider value={{ products, setProducts }}>
+      <Outlet />
+    </ProductsContext.Provider>
+  );
 }

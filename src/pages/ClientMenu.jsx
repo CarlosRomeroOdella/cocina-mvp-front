@@ -1,7 +1,9 @@
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { ProductsContext } from "../context/ProductsContext";
 
 export default function ClientMenu() {
-  const { products } = useOutletContext();
+  const { products } = useContext(ProductsContext);
   const navigate = useNavigate();
 
   // 🔒 FILTRO ÚNICO Y OBLIGATORIO
@@ -23,7 +25,13 @@ export default function ClientMenu() {
             <div
               key={product.id}
               onClick={() => navigate(`/menu/${product.id}`)}
-              className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition cursor-pointer"
+              className="
+                bg-white rounded-2xl p-6
+                shadow-sm hover:shadow-lg
+                hover:-translate-y-1
+                transition-all duration-300
+                cursor-pointer
+              "
             >
               <div className="h-36 bg-gray-100 rounded-xl mb-4 flex items-center justify-center text-gray-400">
                 Imagen
@@ -35,9 +43,6 @@ export default function ClientMenu() {
             </div>
           ))}
         </div>
-
-        {/* 🧪 DEBUG TEMPORAL (opcional, bórralo luego) */}
-        {/* <pre>{JSON.stringify(products, null, 2)}</pre> */}
       </main>
     </div>
   );

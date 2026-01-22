@@ -2,7 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
-import "./index.css"; // 👈 OBLIGATORIO
+import "./index.css";
+
+console.log("MAIN + ROUTER CARGADOS");
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

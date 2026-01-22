@@ -25,7 +25,7 @@ export default function ProductToggleCard({
           type="checkbox"
           checked={available}
           onChange={(e) => onToggle(e.target.checked)}
-          className="w-5 h-5 accent-orange-500 cursor-pointer"
+          className="w-5 h-5 accent-[#041E42] cursor-pointer"
         />
       </div>
     </div>

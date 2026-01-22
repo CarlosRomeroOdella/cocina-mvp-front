@@ -1,17 +1,20 @@
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { ProductsContext } from "../context/ProductsContext";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import ProductToggleCard from "../components/ProductToggleCard";
 
 export default function Home() {
-  const { products, setProducts } = useOutletContext();
+  const { products, setProducts } = useContext(ProductsContext);
   const navigate = useNavigate();
 
-  // ✅ ahora recibe el valor REAL del checkbox
   const toggleAvailability = (id, checked) => {
-    setProducts(products.map(p =>
-      p.id === id ? { ...p, available: checked } : p
-    ));
+    setProducts(
+      products.map(p =>
+        p.id === id ? { ...p, available: checked } : p
+      )
+    );
   };
 
   return (
@@ -27,7 +30,7 @@ export default function Home() {
 
             <button
               onClick={() => navigate("/productos/nuevo")}
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg"
+              className="bg-[#041E42] text-white px-4 py-2 rounded-lg"
             >
               + Agregar platillo
             </button>
