@@ -1,21 +1,18 @@
-import { API_BASE_URL } from "./api";
+import api from "./api";
 
 export async function login({ email, password }) {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    },
-    body: JSON.stringify({
+  try {
+    const payload = {
       correo: email,
       contrasena: password,
-    }),
-  });
+    };
 
-  if (!response.ok) {
-    throw new Error("Error al iniciar sesión");
+    const res = await api.post("/auth/login", payload);
+    return res.data;
+  } catch (err) {
+    if (err.response && err.response.data) {
+      throw err.response.data;
+    }
+    throw new Error("Network error");
   }
-
-  return await response.json();
 }

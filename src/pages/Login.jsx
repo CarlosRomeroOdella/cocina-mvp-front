@@ -1,61 +1,40 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/authService";
+import { AuthContext } from "../context/AuthContext";
+import { login as loginRequest } from "../services/authService";
 
 export default function Login() {
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
 
-  // ✅ VALIDACIONES
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^(?=.*[A-Z]).*\.$/;
-
-  const validate = () => {
-    if (!emailRegex.test(email)) {
-      return "Ingresa un correo electrónico válido";
-    }
-
-    if (!passwordRegex.test(password)) {
-      return "La contraseña debe tener al menos una mayúscula y terminar con un punto (.)";
-    }
-
-    return null;
-  };
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
-    setLoading(true);
+    setErr(null);
 
     try {
-      const data = await login({
+      const data = await loginRequest({
         correo: email,
         contrasena: password,
       });
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("role", data.role);
+      // Normalizamos payload
+      const userPayload = data.usuario
+        ? { ...data.usuario, token: data.access_token }
+        : data;
 
-      if (data.role === "ADMIN") {
-        navigate("/admin");
+      login(userPayload);
+
+      if (userPayload.rol === "admin") {
+        navigate("/admin", { replace: true });
       } else {
-        navigate("/menu");
+        navigate("/menu", { replace: true });
       }
-    } catch (err) {
-      setError("Credenciales incorrectas");
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      setErr("Credenciales incorrectas");
     }
   };
 
@@ -63,40 +42,33 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow w-full max-w-sm"
+        className="p-6 bg-white rounded shadow w-80"
       >
-        <h2 className="text-xl font-semibold mb-4">
-          Iniciar sesión
-        </h2>
+        <h2 className="mb-4 text-lg font-bold">Iniciar sesión</h2>
 
-        {error && (
-          <p className="text-red-500 text-sm mb-3">
-            {error}
-          </p>
-        )}
+        {err && <div className="text-red-600 mb-2">{err}</div>}
 
         <input
           type="email"
-          placeholder="Correo electrónico"
-          className="w-full border rounded px-3 py-2 mb-3"
+          placeholder="Correo"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="border p-2 mb-2 w-full"
         />
 
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full border rounded px-3 py-2 mb-4"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="border p-2 mb-4 w-full"
         />
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-[#4857ba] text-white py-2 rounded hover:bg-[#041E42]"
+          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
         >
-          {loading ? "Validando..." : "Entrar"}
+          Entrar
         </button>
       </form>
     </div>

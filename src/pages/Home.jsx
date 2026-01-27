@@ -9,12 +9,39 @@ export default function Home() {
   const { products, setProducts } = useContext(ProductsContext);
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   const toggleAvailability = (id, checked) => {
     setProducts(
       products.map(p =>
         p.id === id ? { ...p, available: checked } : p
       )
     );
+=======
+  const addProduct = () => {
+    const name = prompt("Nombre del platillo");
+    if (!name) return;
+    setProducts([
+      ...products,
+      {
+        id: Date.now(),
+        name,
+        available: true,
+      },
+    ]);
+  };
+
+  const toggleAvailability = (id) => {
+    setProducts(
+      products.map((p) => (p.id === id ? { ...p, available: !p.available } : p))
+    );
+  };
+
+  const editProduct = (id) => {
+    const p = products.find((x) => x.id === id);
+    const name = prompt("Editar nombre", p?.name || "");
+    if (!name) return;
+    setProducts(products.map((x) => (x.id === id ? { ...x, name } : x)));
+>>>>>>> f40fb05 (revision git)
   };
 
   return (
@@ -37,7 +64,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {products.map(product => (
+            {products.map((product) => (
               <ProductToggleCard
                 key={product.id}
                 name={product.name}
