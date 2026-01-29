@@ -16,34 +16,31 @@ export default function Login() {
     setErr(null);
 
     try {
-      const data = await loginRequest({
-        correo: email,
-        contrasena: password,
-      });
+      const data = await loginRequest({ email, password });
 
-      // Normalizamos payload
-      const userPayload = data.usuario
-        ? { ...data.usuario, token: data.access_token }
-        : data;
+      // ✅ NORMALIZACIÓN CORRECTA
+      const normalizedUser = {
+        id: data.usuario.id,
+        correo: data.usuario.correo,
+        nombre: data.usuario.nombre,
+        role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
+        token: data.access_token,
+      };
 
-      login(userPayload);
+      login(normalizedUser);
 
-      if (userPayload.rol === "admin") {
-        navigate("/admin", { replace: true });
-      } else {
-        navigate("/menu", { replace: true });
-      }
+      navigate(
+        normalizedUser.role === "admin" ? "/admin" : "/menu",
+        { replace: true }
+      );
     } catch (error) {
-      setErr("Credenciales incorrectas");
+      setErr(error.message || "Credenciales incorrectas");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="p-6 bg-white rounded shadow w-80"
-      >
+      <form onSubmit={handleSubmit} className="p-6 bg-white rounded shadow w-80">
         <h2 className="mb-4 text-lg font-bold">Iniciar sesión</h2>
 
         {err && <div className="text-red-600 mb-2">{err}</div>}
@@ -64,10 +61,7 @@ export default function Login() {
           className="border p-2 mb-4 w-full"
         />
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
-        >
+        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
           Entrar
         </button>
       </form>

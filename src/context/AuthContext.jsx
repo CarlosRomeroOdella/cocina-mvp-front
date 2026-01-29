@@ -4,7 +4,7 @@ import api from "../services/api";
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // { id, name, role, token? }
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +13,9 @@ export function AuthProvider({ children }) {
       try {
         const parsed = JSON.parse(raw);
         setUser(parsed);
-        if (parsed.token) api.defaults.headers.common["Authorization"] = `Bearer ${parsed.token}`;
+        if (parsed.token) {
+          api.defaults.headers.common["Authorization"] = `Bearer ${parsed.token}`;
+        }
       } catch {
         localStorage.removeItem("app_user");
       }
@@ -21,25 +23,24 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const loginContext = (userData) => {
+  // 🔐 LOGIN: recibe user YA NORMALIZADO
+  const login = (userData) => {
     setUser(userData);
     localStorage.setItem("app_user", JSON.stringify(userData));
-    if (userData.token) api.defaults.headers.common["Authorization"] = `Bearer ${userData.token}`;
+    if (userData.token) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${userData.token}`;
+    }
   };
 
+  // 🚪 LOGOUT
   const logout = () => {
     setUser(null);
     localStorage.removeItem("app_user");
     delete api.defaults.headers.common["Authorization"];
   };
 
-  const hasRole = (roles = []) => {
-    if (!user) return false;
-    return roles.includes(user.role);
-  };
-
   return (
-    <AuthContext.Provider value={{ user, loading, login: loginContext, logout, hasRole }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
