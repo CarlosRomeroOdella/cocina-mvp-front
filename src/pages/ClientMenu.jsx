@@ -1,153 +1,272 @@
-import { useState } from "react";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-
-
-/* ================= CLIENT MENU ================= */
+import { AuthContext } from "../context/AuthContext";
+import { motion} from "framer-motion";
+import { PLATILLOS } from "../data/platillos";
+import { INGREDIENTES } from "../data/ingredientes";
+import { RELACIONES_PLATILLO_INGREDIENTE } from "../data/relaciones";
+import { EXTRAS } from "../data/extras";
 
 export default function ClientMenu() {
-  /* ================= MOCK DATA ================= */
+
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-
-  const platillos = [
-    { id: 1, nombre: "Sandwich", disponible: true },
-    { id: 2, nombre: "Pan pita", disponible: true },
-  ];
-
-  const ingredientes = [
-    { id: 1, nombre: "Pan sandwich", disponible: true },
-    { id: 2, nombre: "Jamón", disponible: true },
-    { id: 3, nombre: "Queso", disponible: true },
-    { id: 4, nombre: "Pan pita", disponible: true },
-  ];
-
-  const relaciones = [
-    { platilloId: 1, ingredienteId: 1, requerido: true },
-    { platilloId: 1, ingredienteId: 2, requerido: false },
-    { platilloId: 1, ingredienteId: 3, requerido: false },
-    { platilloId: 2, ingredienteId: 4, requerido: true },
-  ];
-
-  /* ================= STATE ================= */
-
   const [selectedPlatilloId, setSelectedPlatilloId] = useState(null);
   const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState([]);
+  const [extrasSeleccionados, setExtrasSeleccionados] = useState([]);
 
-  const platilloSeleccionado = platillos.find(
-    (p) => p.id === selectedPlatilloId
-  );
+  const platilloSeleccionado = PLATILLOS.find(p => p.id === selectedPlatilloId);
 
-  const ingredientesDelPlatillo = relaciones
-    .filter((r) => r.platilloId === selectedPlatilloId)
-    .map((r) => ({
-      ...r,
-      ...ingredientes.find((i) => i.id === r.ingredienteId),
-    }))
-    .filter((i) => i.disponible);
-
-  const toggleIngrediente = (ingredienteId) => {
-    setIngredientesSeleccionados((prev) =>
-      prev.includes(ingredienteId)
-        ? prev.filter((id) => id !== ingredienteId)
-        : [...prev, ingredienteId]
+  const toggleIngrediente = (id) => {
+    setIngredientesSeleccionados(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)
+        : [...prev, id]
     );
   };
 
-  /* ================= UI ================= */
+  const toggleExtra = (id) => {
+    setExtrasSeleccionados(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)
+        : [...prev, id]
+    );
+  };
+
+  const total =
+    (platilloSeleccionado?.precio || 0) +
+    extrasSeleccionados.reduce((acc, id) => {
+      const ex = EXTRAS.find(e => e.id === id);
+      return acc + (ex?.precio || 0);
+    }, 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-800">Menú</h1>
 
-    {user?.role === "admin" && (
-      <button
-        onClick={() => navigate("/admin")}
-        className="text-sm text-blue-600 hover:underline"
-      >
-        Volver a Dashboard Admin
-      </button>
-      )}
+      {/* HEADER */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between">
+          <h1 className="text-2xl font-semibold">Menú</h1>
+
+          {user?.rol === "admin" && (
+            <button
+              onClick={() => navigate("/admin")}
+              className="text-blue-600 hover:underline text-sm"
+            >
+              Volver a Admin
+            </button>
+          )}
         </div>
       </header>
 
+      <main className="max-w-6xl mx-auto px-4 py-6">
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-8">
-        {/* ================= PLATILLOS ================= */}
-        <section>
-          <h2 className="text-lg font-semibold mb-4">Platillos</h2>
+        <h2 className="text-lg font-semibold mb-6">Platillos</h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {platillos
-              .filter((p) => p.disponible)
-              .map((p) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          {PLATILLOS.filter(p => p.disponible).map(p => {
+
+            const isSelected = selectedPlatilloId === p.id;
+
+            const ingredientesPlatillo = RELACIONES_PLATILLO_INGREDIENTE
+              .filter(r => r.platilloId === p.id)
+              .map(r => ({
+                ...r,
+                ...INGREDIENTES.find(i => i.id === r.ingredienteId)
+              }))
+              .filter(i => i.disponible);
+
+            const requeridos = ingredientesPlatillo.filter(i => i.requerido);
+            const opcionales = ingredientesPlatillo.filter(i => !i.requerido);
+
+            return (
+
+              <div
+              key={p.id}
+              className={`
+                bg-white rounded-xl p-6 cursor-pointer
+                shadow-sm transform
+                transition-all duration-700 ease-in-out
+                ${isSelected
+                  ? "ring-2 ring-orange-500 col-span-1 sm:col-span-2 lg:col-span-3 scale-[1.03]"
+                  : "hover:shadow-lg hover:scale-[1.01]"}
+                ${selectedPlatilloId && !isSelected ? "opacity-40 scale-[0.97]" : ""}
+               `}
+              onClick={() => {
+                setSelectedPlatilloId(p.id);
+                setIngredientesSeleccionados([]);
+                setExtrasSeleccionados([]);
+                }}
+              >
+
+                {/* Imagen */}
+                <div className="h-32 bg-gray-100 rounded mb-4 flex items-center justify-center">
+                  Imagen
+                </div>
+
+                <h3 className="text-lg font-medium">{p.nombre}</h3>
+
+                {/* CONTENIDO EXPANDIDO */}
                 <div
-                  key={p.id}
-                  onClick={() => {
-                    setSelectedPlatilloId(p.id);
-                    setIngredientesSeleccionados([]);
-                  }}
                   className={`
-                    bg-white rounded-2xl p-6 cursor-pointer
-                    shadow-sm transition-all
-                    ${
-                      selectedPlatilloId === p.id
-                        ? "ring-2 ring-orange-500"
-                        : "hover:shadow-lg hover:-translate-y-1"
-                    }
+                    mt-6 space-y-6 overflow-hidden
+                    transition-all duration-700 ease-in-out
+                    ${isSelected ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"}
                   `}
                 >
-                  <div className="h-32 bg-gray-100 rounded-xl mb-4 flex items-center justify-center text-gray-400">
-                    Imagen
+
+                  {/* INGREDIENTES INCLUIDOS */}
+                  {requeridos.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-sm text-gray-700">
+                        Incluye
+                      </h4>
+
+                      <div className="flex flex-wrap gap-2">
+                        {requeridos.map(i => (
+                          <span
+                            key={i.id}
+                            className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full"
+                          >
+                            ✔ {i.nombre}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* INGREDIENTES OPCIONALES */}
+                  {opcionales.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-sm text-gray-700">
+                        Personaliza
+                      </h4>
+
+                      <div className="flex flex-wrap gap-2">
+                        {opcionales.map(i => {
+
+                          const selected = ingredientesSeleccionados.includes(i.id);
+
+                          return (
+                            <button
+                              key={i.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleIngrediente(i.id);
+                              }}
+                              className={`
+                                px-3 py-1 rounded-full border text-sm
+                                transition
+                                ${selected
+                                  ? "bg-orange-500 text-white border-orange-500"
+                                  : "bg-white hover:bg-gray-100"}
+                              `}
+                            >
+                              {i.nombre}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* EXTRAS */}
+                  <div>
+                    <h4 className="font-semibold mb-2 text-sm text-gray-700">
+                      Extras
+                    </h4>
+
+                    <div className="flex flex-wrap gap-2">
+                      {EXTRAS.filter(e => e.disponible).map(e => {
+
+                        const selected = extrasSeleccionados.includes(e.id);
+
+                        return (
+                          <button
+                            key={e.id}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleExtra(e.id);
+                            }}
+                            className={`
+                              px-3 py-1 rounded-full border text-sm
+                              transition
+                              ${selected
+                                ? "bg-orange-500 text-white border-orange-500"
+                                : "bg-white hover:bg-gray-100"}
+                            `}
+                          >
+                            {e.nombre}
+                            {e.precio ? ` +$${e.precio}` : ""}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  <h3 className="text-lg font-medium text-gray-800">
-                    {p.nombre}
-                  </h3>
+                  {/* TOTAL */}
+                  <div className="flex justify-between items-center pt-4 border-t">
+
+                    <div className="text-lg font-semibold">
+                      Total: ${total}
+                    </div>
+
+                    <div className="flex gap-3">
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedPlatilloId(null);
+                        }}
+                        className="text-sm text-gray-500 hover:underline"
+                      >
+                        Cancelar
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          const pedido = {
+                            platilloId: p.id,
+                            ingredientes: [
+                              ...requeridos.map(i => ({
+                                id: i.id,
+                                requerido: true
+                              })),
+                              ...ingredientesSeleccionados.map(id => ({
+                                id,
+                                requerido: false
+                              }))
+                            ],
+                            extras: extrasSeleccionados
+                          };
+
+                          console.log("PEDIDO:", pedido);
+                        }}
+                        className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+                      >
+                        Agregar
+                      </button>
+
+                    </div>
+
+                  </div>
+
                 </div>
-              ))}
-          </div>
-        </section>
 
-        {/* ================= INGREDIENTES ================= */}
-        {platilloSeleccionado && (
-          <section className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">
-              Ingredientes de {platilloSeleccionado.nombre}
-            </h2>
+              </div>
 
-            <div className="space-y-3">
-              {ingredientesDelPlatillo.map((i) => {
-                const isChecked =
-                  i.requerido || ingredientesSeleccionados.includes(i.ingredienteId);
+            );
 
-                return (
-                  <label
-                    key={i.ingredienteId}
-                    className="flex items-center gap-2"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      disabled={i.requerido}
-                      onChange={() => toggleIngrediente(i.ingredienteId)}
-                      className="accent-orange-500"
-                    />
-                    <span className="text-gray-800">{i.nombre}</span>
-                    {i.requerido && (
-                      <span className="text-xs text-gray-500">(incluido)</span>
-                    )}
-                  </label>
-                );
-              })}
-            </div>
-          </section>
-        )}
+          })}
+
+        </div>
+
       </main>
+
     </div>
   );
 }

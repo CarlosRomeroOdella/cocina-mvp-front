@@ -39,9 +39,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="p-6 bg-white rounded shadow w-80">
-        <h2 className="mb-4 text-lg font-bold">Iniciar sesión</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[#041E42]">
+      <form onSubmit={handleSubmit} className="p-6 bg-[#ececec] rounded shadow w-80">
+        <h1 className="text-2xl font-bold mb-4 text-center text-[#041E42]">Cocina Odellā</h1>
+          <h2 className="mb-4 text-[#4857ba] font-bold">Iniciar sesión</h2>
 
         {err && <div className="text-red-600 mb-2">{err}</div>}
 
