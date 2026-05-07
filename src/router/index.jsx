@@ -7,17 +7,18 @@ import Unauthorized from "../pages/Unauthorized";
 import PrivateRoute from "../components/PrivateRoute";
 
 export const router = createBrowserRouter([
-  // 🌐 Público
   {
     path: "/login",
     element: <Login />,
   },
-
-  // 🔐 App protegida
   {
     path: "/",
     element: <Layout />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="/login" replace />,
+      },
       {
         path: "admin",
         element: (
@@ -36,14 +37,10 @@ export const router = createBrowserRouter([
       },
     ],
   },
-
-  // 🚫 No autorizado
   {
     path: "/unauthorized",
     element: <Unauthorized />,
   },
-
-  // ❌ Fallback
   {
     path: "*",
     element: <Navigate to="/login" replace />,

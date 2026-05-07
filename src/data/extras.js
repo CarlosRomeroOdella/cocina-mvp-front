@@ -4,5 +4,4 @@ export const EXTRAS = [
   { id: 3, nombre: "Café Americano", disponible: true },
   { id: 4, nombre: "Té", disponible: true },
   { id: 5, nombre: "CocaCola", disponible: true },
-  { }
 ];

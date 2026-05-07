@@ -50,11 +50,6 @@ export const PLATILLOS = [
     disponible: true,
   },
   {
-    id: 11,
-    nombre: "Quesadilla",
-    disponible: true,
-  },
-  {
     id: 12,
     nombre: "Taco",
     disponible: false,
