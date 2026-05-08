@@ -22,9 +22,10 @@ export default function ClientMenu() {
   const { platillos, ingredientes, extras, loading } = useProducts();
 
   const [menuTab, setMenuTab] = useState("platillos");
+  const [busqueda, setBusqueda] = useState("");
   const [selectedPlatilloId, setSelectedPlatilloId] = useState(null);
   const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState([]);
-  const [extrasSeleccionados, setExtrasSeleccionados] = useState([]);
+  const [extrasCantidad, setExtrasCantidad] = useState({});
   const [cantidad, setCantidad] = useState(1);
   // bebidas/postres: { [id]: cantidad }
   const [bebidasCantidad, setBebidasCantidad] = useState({});
@@ -87,9 +88,9 @@ export default function ClientMenu() {
   const platilloSeleccionado = platillos.find((p) => p.id === selectedPlatilloId);
   const precioBase = Number(platilloSeleccionado?.precio) || 0;
   const cargoIngredientes = Math.max(0, ingredientesSeleccionados.length - 1) * 5;
-  const cargoExtras = extrasSeleccionados.reduce((acc, id) => {
-    const ex = extras.find((e) => e.id === id);
-    return acc + (Number(ex?.precio) || 0);
+  const cargoExtras = Object.entries(extrasCantidad).reduce((acc, [id, cant]) => {
+    const ex = extras.find((e) => e.id === Number(id));
+    return acc + (Number(ex?.precio) || 0) * cant;
   }, 0);
   const precioUnitario = precioBase + cargoIngredientes + cargoExtras;
   const totalActual = precioUnitario * cantidad;
@@ -107,8 +108,6 @@ export default function ClientMenu() {
   /* ── Helpers ── */
   const toggleIngrediente = (id) =>
     setIngredientesSeleccionados((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
-  const toggleExtra = (id) =>
-    setExtrasSeleccionados((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
 
   const setCantidadCategoria = (setter) => (id, val) =>
     setter((prev) => {
@@ -116,8 +115,9 @@ export default function ClientMenu() {
       if (val <= 0) delete next[id]; else next[id] = val;
       return next;
     });
-  const setCantidadBebida = setCantidadCategoria(setBebidasCantidad);
-  const setCantidadPostre = setCantidadCategoria(setPostresCantidad);
+  const setCantidadBebida  = setCantidadCategoria(setBebidasCantidad);
+  const setCantidadPostre  = setCantidadCategoria(setPostresCantidad);
+  const setCantidadExtra   = setCantidadCategoria(setExtrasCantidad);
 
   /* ── Agregar al carrito ── */
   const agregarAlCarrito = (p, requeridos) => {
@@ -131,16 +131,18 @@ export default function ClientMenu() {
         ...requeridos.map((i) => ({ id: i.id, nombre: i.nombre })),
         ...ingredientesSeleccionados.map((id) => ({ id, nombre: ingredientes.find((i) => i.id === id)?.nombre || "" })),
       ],
-      extras: extrasSeleccionados.map((id) => {
-        const ex = extras.find((e) => e.id === id);
-        return { id, nombre: ex?.nombre || "", precio: Number(ex?.precio) || 0 };
-      }),
+      extras: Object.entries(extrasCantidad)
+        .filter(([, cant]) => cant > 0)
+        .map(([id, cant]) => {
+          const ex = extras.find((e) => e.id === Number(id));
+          return { id: Number(id), nombre: ex?.nombre || "", precio: Number(ex?.precio) || 0, cantidad: cant };
+        }),
       total: totalActual,
     };
     setCarrito((prev) => [...prev, item]);
     setSelectedPlatilloId(null);
     setIngredientesSeleccionados([]);
-    setExtrasSeleccionados([]);
+    setExtrasCantidad({});
     setCantidad(1);
     setCarritoAbierto(true);
   };
@@ -202,7 +204,6 @@ export default function ClientMenu() {
     localStorage.removeItem("pedido_activo");
   };
 
-  const platillosDisponibles = platillos.filter((p) => p.disponible);
   const bebidas = extras.filter((e) => e.categoria === "bebida" && e.disponible);
   const postres = extras.filter((e) => e.categoria === "postre" && e.disponible);
 
@@ -294,7 +295,7 @@ export default function ClientMenu() {
           ].map(({ key, label }) => (
             <button
               key={key}
-              onClick={() => { setMenuTab(key); setSelectedPlatilloId(null); setCantidad(1); }}
+              onClick={() => { setMenuTab(key); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); setBusqueda(""); }}
               className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
                 menuTab === key ? "bg-orange-500 text-white shadow-sm shadow-orange-200" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               }`}
@@ -309,11 +310,42 @@ export default function ClientMenu() {
       <main className="max-w-6xl mx-auto px-4 py-8">
 
         {/* ── PLATILLOS ── */}
-        {menuTab === "platillos" && (
+        {menuTab === "platillos" && (() => {
+          const platillosFiltrados = platillos
+            .filter((p) => p.disponible)
+            .filter((p) => !busqueda.trim() || p.nombre.toLowerCase().includes(busqueda.trim().toLowerCase()));
+
+          return (
           <>
-            <p className="text-gray-400 text-xs uppercase tracking-widest mb-6">{platillosDisponibles.length} platillos disponibles</p>
+            {/* Buscador */}
+            <div className="relative mb-6 max-w-sm">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
+              <input
+                value={busqueda}
+                onChange={(e) => { setBusqueda(e.target.value); setSelectedPlatilloId(null); }}
+                placeholder="Buscar platillo..."
+                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-full outline-none transition-all bg-white"
+              />
+              {busqueda && (
+                <button onClick={() => setBusqueda("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>
+              )}
+            </div>
+
+            <p className="text-gray-400 text-xs uppercase tracking-widest mb-4">
+              {platillosFiltrados.length} {platillosFiltrados.length === 1 ? "resultado" : "resultados"}
+              {busqueda && <span className="normal-case ml-1">para "<span className="text-orange-400">{busqueda}</span>"</span>}
+            </p>
+
+            {platillosFiltrados.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-4xl mb-3">🔍</p>
+                <p className="text-gray-400 text-sm">Sin resultados</p>
+                <button onClick={() => setBusqueda("")} className="mt-3 text-xs text-orange-500 hover:underline">Limpiar búsqueda</button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {platillosDisponibles.map((p) => {
+              {platillosFiltrados.map((p) => {
                 const isSelected = selectedPlatilloId === p.id;
                 const ingredientesPlatillo = (p.ingredientes ?? []).map((id) => ingredientes.find((i) => i.id === id)).filter(Boolean).filter((i) => i.disponible);
                 const idsRequeridos = new Set(p.ingredientesRequeridos ?? []);
@@ -323,9 +355,11 @@ export default function ClientMenu() {
                 return (
                   <div
                     key={p.id}
-                    onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasSeleccionados([]); setCantidad(1); } }}
+                    onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasCantidad({}); setCantidad(1); } }}
                     className={`relative rounded-2xl border overflow-hidden transition-all duration-500 ${
-                      isSelected ? "border-orange-400 col-span-1 sm:col-span-2 lg:col-span-3 shadow-xl shadow-orange-100" : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-lg hover:shadow-orange-100 cursor-pointer"
+                      isSelected
+                        ? "border-orange-400 col-span-1 sm:col-span-2 lg:col-span-3 shadow-xl shadow-orange-100"
+                        : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-lg hover:shadow-orange-100 cursor-pointer"
                     } ${selectedPlatilloId && !isSelected ? "opacity-40 scale-95" : ""}`}
                     style={isSelected ? { background: "rgba(255,255,255,0.97)" } : {}}
                   >
@@ -347,7 +381,7 @@ export default function ClientMenu() {
                       <div className="flex justify-between items-start">
                         <h3 className="text-base font-bold text-gray-900">{p.nombre}</h3>
                         {isSelected && (
-                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setCantidad(1); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg leading-none">×</button>
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg leading-none">×</button>
                         )}
                       </div>
 
@@ -388,11 +422,22 @@ export default function ClientMenu() {
                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Extras</p>
                             <div className="flex flex-wrap gap-2">
                               {(p.extras ?? []).map((id) => extras.find((e) => e.id === id)).filter(Boolean).filter((e) => e.disponible).map((e) => {
-                                const sel = extrasSeleccionados.includes(e.id);
+                                const cant = extrasCantidad[e.id] ?? 0;
                                 return (
-                                  <button key={e.id} onClick={(ev) => { ev.stopPropagation(); toggleExtra(e.id); }} className={`px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500 bg-white"}`}>
-                                    {e.nombre}{e.precio ? ` +$${Number(e.precio)}` : ""}
-                                  </button>
+                                  <div key={e.id} onClick={(ev) => ev.stopPropagation()} className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs font-medium transition-all ${cant > 0 ? "bg-orange-50 border-orange-400" : "border-gray-200 bg-white"}`}>
+                                    <span className={cant > 0 ? "text-orange-700" : "text-gray-500"}>
+                                      {e.nombre}{e.precio ? ` +$${Number(e.precio)}` : ""}
+                                    </span>
+                                    {cant > 0 ? (
+                                      <div className="flex items-center gap-1">
+                                        <button onClick={() => setCantidadExtra(e.id, cant - 1)} className="w-5 h-5 rounded-full bg-white border border-orange-300 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all leading-none">−</button>
+                                        <span className="text-orange-600 font-bold w-4 text-center">{cant}</span>
+                                        <button onClick={() => setCantidadExtra(e.id, cant + 1)} className="w-5 h-5 rounded-full bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center text-xs font-bold transition-all leading-none">+</button>
+                                      </div>
+                                    ) : (
+                                      <button onClick={() => setCantidadExtra(e.id, 1)} className="w-5 h-5 rounded-full bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center text-xs font-bold transition-all leading-none">+</button>
+                                    )}
+                                  </div>
                                 );
                               })}
                             </div>
@@ -444,7 +489,8 @@ export default function ClientMenu() {
               })}
             </div>
           </>
-        )}
+          );
+        })()}
 
         {/* ── BEBIDAS ── */}
         {menuTab === "bebidas" && (
@@ -530,7 +576,9 @@ export default function ClientMenu() {
                     {item.extras.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
                         {item.extras.map((e) => (
-                          <span key={e.id} className="text-xs text-orange-500 bg-orange-100 border border-orange-200 px-2 py-0.5 rounded-full font-medium">+ {e.nombre}</span>
+                          <span key={e.id} className="text-xs text-orange-500 bg-orange-100 border border-orange-200 px-2 py-0.5 rounded-full font-medium">
+                            + {e.nombre}{(e.cantidad ?? 1) > 1 ? ` ×${e.cantidad}` : ""}
+                          </span>
                         ))}
                       </div>
                     )}
@@ -569,9 +617,28 @@ export default function ClientMenu() {
 
 /* ── CategoriaTab con cantidad por ítem ── */
 function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSeleccionados, total, emptyIcon, emptyMsg, emptyHint, btnLabel }) {
+  const [busqueda, setBusqueda] = useState("");
+  const filtrados = busqueda.trim()
+    ? items.filter((i) => i.nombre.toLowerCase().includes(busqueda.trim().toLowerCase()))
+    : items;
+
   return (
     <>
-      <p className="text-gray-400 text-xs uppercase tracking-widest mb-6">{items.length} disponibles</p>
+      {items.length > 0 && (
+        <div className="relative mb-6">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
+          <input
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder={`Buscar ${btnLabel}...`}
+            className="w-full sm:w-72 pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-full outline-none transition-all bg-white"
+          />
+          {busqueda && (
+            <button onClick={() => setBusqueda("")} className="absolute left-[17rem] top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none sm:block hidden">×</button>
+          )}
+        </div>
+      )}
+      <p className="text-gray-400 text-xs uppercase tracking-widest mb-6">{filtrados.length} disponibles</p>
       {items.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-4xl mb-4">{emptyIcon}</p>
@@ -581,7 +648,13 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSelecc
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
-            {items.map((item) => {
+            {filtrados.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-400 text-sm">Sin resultados para "<span className="text-orange-400">{busqueda}</span>"</p>
+                <button onClick={() => setBusqueda("")} className="mt-2 text-xs text-orange-500 hover:underline">Limpiar</button>
+              </div>
+            )}
+            {filtrados.map((item) => {
               const cant = cantidades[item.id] ?? 0;
               return (
                 <div key={item.id} className={`relative rounded-2xl border p-4 transition-all ${cant > 0 ? "border-orange-400 bg-orange-50 shadow-lg shadow-orange-100" : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-md hover:shadow-orange-100"}`}>

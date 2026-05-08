@@ -199,19 +199,42 @@ export default function AdminDashboard() {
 /* ═══════════════════════════════════════════════════════ */
 
 function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroDisp, setFiltroDisp] = useState("todos");
+
+  const filtrados = platillos
+    .filter((p) => filtroDisp === "disponibles" ? p.disponible : filtroDisp === "no_disponibles" ? !p.disponible : true)
+    .filter((p) => !busqueda.trim() || p.nombre.toLowerCase().includes(busqueda.trim().toLowerCase()))
+    .sort((a, b) => (a.disponible === b.disponible ? 0 : a.disponible ? -1 : 1));
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Platillos</h2>
-          <p className="text-xs text-gray-400">{platillos.length} registrados</p>
+          <p className="text-xs text-gray-400">{filtrados.length}/{platillos.length} registrados</p>
         </div>
         <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 flex items-center gap-1.5">
           <span className="text-lg leading-none">+</span> Agregar platillo
         </button>
       </div>
+
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
+          <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar platillo..." className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white" />
+          {busqueda && <button onClick={() => setBusqueda("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
+        </div>
+        <div className="flex gap-1 shrink-0">
+          {[{ k: "todos", l: "Todos" }, { k: "disponibles", l: "Disp." }, { k: "no_disponibles", l: "No disp." }].map(({ k, l }) => (
+            <button key={k} onClick={() => setFiltroDisp(k)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroDisp === k ? "bg-orange-500 text-white shadow-sm" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {platillos.map((p) => (
+        {filtrados.length === 0 && <p className="text-sm text-gray-400 col-span-full text-center py-8">Sin resultados</p>}
+        {filtrados.map((p) => (
           <div key={p.id} className="bg-white border border-orange-100 rounded-xl p-4 flex items-center justify-between gap-2 hover:border-orange-200 transition-all">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">{p.nombre}</p>
@@ -304,6 +327,16 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const [editPrecio, setEditPrecio] = useState("");
   const [editCategoria, setEditCategoria] = useState("");
   const [guardandoEdit, setGuardandoEdit] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroCategoria, setFiltroCategoria] = useState("");
+
+  const filtrados = items
+    .filter((i) => !filtroCategoria || i.categoria === filtroCategoria)
+    .filter((i) => !busqueda.trim() || i.nombre.toLowerCase().includes(busqueda.trim().toLowerCase()));
+
+  const categoriasPresentes = conCategoria
+    ? [...new Set(items.map((i) => i.categoria).filter(Boolean))]
+    : [];
 
   const handleCrear = async (e) => {
     e.preventDefault();
@@ -351,7 +384,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     <div className="space-y-4 max-w-xl">
       <div>
         <h2 className="text-lg font-bold text-gray-900">{titulo}</h2>
-        <p className="text-xs text-gray-400">{items.length} registrados</p>
+        <p className="text-xs text-gray-400">{filtrados.length}/{items.length} registrados</p>
       </div>
 
       <form onSubmit={handleCrear} className="flex gap-2 flex-wrap">
@@ -392,8 +425,26 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         </button>
       </form>
 
+      {/* Buscador + filtro categoría */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-40">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
+          <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder={`Buscar ${titulo === "Extras" ? "extra" : "ingrediente"}...`} className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white" />
+          {busqueda && <button onClick={() => setBusqueda("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
+        </div>
+        {conCategoria && categoriasPresentes.length > 0 && (
+          <div className="flex gap-1 flex-wrap">
+            <button onClick={() => setFiltroCategoria("")} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroCategoria === "" ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>Todos</button>
+            {categoriasPresentes.map((cat) => (
+              <button key={cat} onClick={() => setFiltroCategoria(filtroCategoria === cat ? "" : cat)} className={`px-3 py-2 text-xs font-semibold rounded-xl capitalize transition-all ${filtroCategoria === cat ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{cat}</button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="space-y-2">
-        {items.map((item) => (
+        {filtrados.length === 0 && items.length > 0 && <p className="text-sm text-gray-400 text-center py-4">Sin resultados</p>}
+        {filtrados.map((item) => (
           <div key={item.id} className="bg-white border border-orange-100 rounded-xl px-4 py-3 hover:border-orange-200 transition-all">
             {editandoId === item.id ? (
               <div className="flex items-center gap-2 flex-wrap">
@@ -470,7 +521,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
           </div>
         ))}
         {items.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-8">No hay {titulo.toLowerCase()} registrados</p>
+          <p className="text-sm text-gray-400 text-center py-8">No hay {titulo.toLowerCase()} registrados aún</p>
         )}
       </div>
     </div>
@@ -1130,11 +1181,16 @@ function PedidosTab() {
     }
   };
 
-  const enEspera      = pedidos.filter((p) => p.status === "en_espera");
-  const enPreparacion = pedidos.filter((p) => p.status === "en_preparacion");
-  const listos        = pedidos.filter((p) => p.status === "listo" && !p.pagado);
-  const pendientesPago = pedidos.filter((p) => p.status === "listo" && !p.pagado);
-  const cobrados      = pedidos.filter((p) => p.pagado).slice(-8);
+  const [busquedaPedidos, setBusquedaPedidos] = useState("");
+  const matchPedido = (p) => !busquedaPedidos.trim() ||
+    (p.cliente?.nombre ?? "").toLowerCase().includes(busquedaPedidos.trim().toLowerCase()) ||
+    String(p.id).includes(busquedaPedidos.trim());
+
+  const enEspera       = pedidos.filter((p) => p.status === "en_espera"       && matchPedido(p));
+  const enPreparacion  = pedidos.filter((p) => p.status === "en_preparacion"  && matchPedido(p));
+  const listos         = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
+  const pendientesPago = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
+  const cobrados       = pedidos.filter((p) => p.pagado && matchPedido(p)).slice(-8);
 
   if (loadingPedidos) return (
     <div className="flex justify-center py-20">
@@ -1144,10 +1200,17 @@ function PedidosTab() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Pedidos activos</h2>
           <p className="text-xs text-gray-400">Se actualiza cada 5 segundos</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
+            <input value={busquedaPedidos} onChange={(e) => setBusquedaPedidos(e.target.value)} placeholder="Buscar cliente o #id..." className="pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white w-52" />
+            {busquedaPedidos && <button onClick={() => setBusquedaPedidos("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
+          </div>
         </div>
         {hayNuevos && (
           <button
@@ -1388,6 +1451,16 @@ function UsuariosTab() {
     }
   };
 
+  const [busquedaUsuarios, setBusquedaUsuarios] = useState("");
+  const [filtroRol, setFiltroRol] = useState("");
+
+  const usuariosFiltrados = usuarios
+    .filter((u) => !filtroRol || u.rol === filtroRol)
+    .filter((u) => !busquedaUsuarios.trim() ||
+      u.nombre.toLowerCase().includes(busquedaUsuarios.trim().toLowerCase()) ||
+      u.correo.toLowerCase().includes(busquedaUsuarios.trim().toLowerCase())
+    );
+
   if (loading) return <div className="flex justify-center py-20"><div className="w-6 h-6 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" /></div>;
 
   return (
@@ -1395,7 +1468,7 @@ function UsuariosTab() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Usuarios</h2>
-          <p className="text-xs text-gray-400">{usuarios.length} registrados · Solo tú puedes crear cuentas</p>
+          <p className="text-xs text-gray-400">{usuariosFiltrados.length}/{usuarios.length} registrados · Solo tú puedes crear cuentas</p>
         </div>
         <button
           onClick={() => { setError(null); setModal("crear"); }}
@@ -1405,8 +1478,22 @@ function UsuariosTab() {
         </button>
       </div>
 
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-48">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
+          <input value={busquedaUsuarios} onChange={(e) => setBusquedaUsuarios(e.target.value)} placeholder="Buscar por nombre o correo..." className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white" />
+          {busquedaUsuarios && <button onClick={() => setBusquedaUsuarios("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
+        </div>
+        <div className="flex gap-1">
+          {[{ k: "", l: "Todos" }, { k: "admin", l: "Admin" }, { k: "cliente", l: "Cliente" }].map(({ k, l }) => (
+            <button key={k} onClick={() => setFiltroRol(k)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroRol === k ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-2">
-        {usuarios.map((u) => (
+        {usuariosFiltrados.length === 0 && usuarios.length > 0 && <p className="text-sm text-gray-400 text-center py-4">Sin resultados</p>}
+        {usuariosFiltrados.map((u) => (
           <div key={u.id} className={`bg-white border border-orange-100 rounded-xl p-4 flex items-center justify-between gap-3 transition-all ${!u.activo ? "opacity-50" : ""}`}>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
