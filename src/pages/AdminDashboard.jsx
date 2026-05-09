@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const guardarPlatillo = ctx?.guardarPlatillo ?? (async () => {});
   const eliminarPlatillo = ctx?.eliminarPlatillo ?? (async () => {});
   const crearIngrediente = ctx?.crearIngrediente ?? (async () => {});
+  const actualizarIngrediente = ctx?.actualizarIngrediente ?? (async () => {});
   const eliminarIngrediente = ctx?.eliminarIngrediente ?? (async () => {});
   const crearExtra = ctx?.crearExtra ?? (async () => {});
   const actualizarExtra = ctx?.actualizarExtra ?? (async () => {});
@@ -53,7 +54,7 @@ export default function AdminDashboard() {
 
   const handleAddPlatillo = () => {
     setSaveError(null);
-    setEditModal({ id: null, nombre: "", disponible: true, imagen: "", precio: "", ingredientes: [], ingredientesRequeridos: [], extras: [] });
+    setEditModal({ id: null, nombre: "", descripcion: "", disponible: true, imagen: "", precio: "", ingredientes: [], ingredientesRequeridos: [], extras: [] });
   };
 
   const handleSave = async (data) => {
@@ -165,6 +166,7 @@ export default function AdminDashboard() {
             ingredientes={ingredientes}
             platillos={platillos}
             onCrear={crearIngrediente}
+            onActualizar={actualizarIngrediente}
             onEliminar={eliminarIngrediente}
             guardarPlatillo={guardarPlatillo}
           />
@@ -232,28 +234,51 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {filtrados.length === 0 && <p className="text-sm text-gray-400 col-span-full text-center py-8">Sin resultados</p>}
         {filtrados.map((p) => (
-          <div key={p.id} className="bg-white border border-orange-100 rounded-xl p-4 flex items-center justify-between gap-2 hover:border-orange-200 transition-all">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">{p.nombre}</p>
-              <div className="flex items-center gap-2 mt-0.5">
-                <p className={`text-xs font-medium ${p.disponible ? "text-green-600" : "text-red-400"}`}>
-                  {p.disponible ? "Disponible" : "No disponible"}
-                </p>
-                {p.precio && <p className="text-xs text-orange-500 font-semibold">${Number(p.precio).toFixed(0)}</p>}
+          <div
+            key={p.id}
+            className={`group bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100 ${
+              p.disponible ? "border-orange-100 hover:border-orange-300" : "border-gray-100 opacity-60 hover:opacity-90"
+            }`}
+          >
+            <div className="p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Ícono imagen */}
+                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg,#fef3e8,#fde8d0)" }}>
+                  {p.imagen ? (
+                    <img
+                      src={p.imagen}
+                      alt={p.nombre}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+                    />
+                  ) : null}
+                  <div className={`w-full h-full items-center justify-center text-lg font-bold text-orange-300 ${p.imagen ? "hidden" : "flex"}`}>
+                    {p.nombre.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-gray-900 truncate">{p.nombre}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className={`text-xs font-medium ${p.disponible ? "text-green-600" : "text-red-400"}`}>
+                      {p.disponible ? "Disponible" : "No disp."}
+                    </p>
+                    {p.precio && <span className="text-xs font-bold text-orange-500">${Number(p.precio).toFixed(0)}</span>}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button onClick={() => onEdit(p)} className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all">Editar</button>
-              <button onClick={() => onDelete(p.id)} className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all">Eliminar</button>
-              <button
-                onClick={() => onToggle(p.id)}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${p.disponible ? "bg-orange-500" : "bg-gray-200"}`}
-              >
-                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${p.disponible ? "translate-x-4" : "translate-x-0.5"}`} />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button onClick={() => onEdit(p)} className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-orange-50 transition-all">Editar</button>
+                <button onClick={() => onDelete(p.id)} className="text-xs text-red-400 hover:text-red-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all">Eliminar</button>
+                <button
+                  onClick={() => onToggle(p.id)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 shadow-inner ${p.disponible ? "bg-orange-500" : "bg-gray-200"}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${p.disponible ? "translate-x-6" : "translate-x-1"}`} />
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -264,13 +289,14 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
 
 /* ──────────────────────────────────────────────── */
 
-function IngredientesTab({ ingredientes, platillos, onCrear, onEliminar, guardarPlatillo }) {
+function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo }) {
   return (
     <div className="space-y-10">
       <CatalogoPanel
         titulo="Ingredientes"
         items={ingredientes}
         onCrear={onCrear}
+        onActualizar={onActualizar}
         onEliminar={onEliminar}
         conPrecio={false}
         conCategoria={false}
@@ -361,17 +387,22 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     finally { setEliminando(null); }
   };
 
+  const [editNombre, setEditNombre] = useState("");
+
   const handleStartEdit = (item) => {
     setEditandoId(item.id);
+    setEditNombre(item.nombre);
     setEditPrecio(item.precio != null ? String(Number(item.precio)) : "");
     setEditCategoria(item.categoria ?? "");
   };
 
   const handleGuardarEdit = async (item) => {
+    if (!editNombre.trim()) return;
     setGuardandoEdit(true);
     try {
       await onActualizar(item.id, {
-        precio: editPrecio !== "" ? Number(editPrecio) : null,
+        nombre: editNombre.trim(),
+        ...(conPrecio && { precio: editPrecio !== "" ? Number(editPrecio) : null }),
         ...(conCategoria && { categoria: editCategoria || null }),
       });
       setEditandoId(null);
@@ -448,7 +479,12 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
           <div key={item.id} className="bg-white border border-orange-100 rounded-xl px-4 py-3 hover:border-orange-200 transition-all">
             {editandoId === item.id ? (
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-medium text-gray-700 flex-1 min-w-24">{item.nombre}</span>
+                <input
+                  value={editNombre}
+                  onChange={(e) => setEditNombre(e.target.value)}
+                  className="flex-1 min-w-28 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                  autoFocus
+                />
                 {conPrecio && (
                   <input
                     value={editPrecio}
@@ -500,14 +536,12 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                   )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0 ml-2">
-                  {conPrecio && (
-                    <button
-                      onClick={() => handleStartEdit(item)}
-                      className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
-                    >
-                      Editar
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleStartEdit(item)}
+                    className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
+                  >
+                    Editar
+                  </button>
                   <button
                     onClick={() => handleEliminar(item.id)}
                     disabled={eliminando === item.id}
@@ -840,6 +874,17 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                 onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                 placeholder="Nombre del platillo"
                 className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Descripción <span className="normal-case font-normal text-gray-300">(opcional)</span></label>
+              <textarea
+                value={form.descripcion ?? ""}
+                onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+                placeholder="Breve descripción del platillo..."
+                rows={2}
+                className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all resize-none"
               />
             </div>
 
@@ -1438,6 +1483,15 @@ function UsuariosTab() {
     } catch { /* silencioso */ }
   };
 
+  const handleCambiarRol = async (u) => {
+    const nuevoRol = u.rol === "admin" ? "cliente" : "admin";
+    if (!window.confirm(`¿Cambiar rol de ${u.nombre} a "${nuevoRol}"?`)) return;
+    try {
+      const actualizado = await actualizarUsuario(u.id, { rol: nuevoRol });
+      setUsuarios((prev) => prev.map((x) => (x.id === actualizado.id ? actualizado : x)));
+    } catch { /* silencioso */ }
+  };
+
   const handleReset = async (id, contrasena) => {
     setGuardando(true);
     setError(null);
@@ -1498,9 +1552,17 @@ function UsuariosTab() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold text-gray-900">{u.nombre}</p>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${u.rol === "admin" ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"}`}>
+                <button
+                  onClick={() => handleCambiarRol(u)}
+                  title="Click para cambiar rol"
+                  className={`text-xs font-medium px-2 py-0.5 rounded-full border transition-all hover:scale-105 ${
+                    u.rol === "admin"
+                      ? "bg-orange-100 text-orange-600 border-orange-200 hover:bg-orange-200"
+                      : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"
+                  }`}
+                >
                   {u.rol}
-                </span>
+                </button>
               </div>
               <p className="text-xs text-gray-400 mt-0.5">{u.correo}</p>
             </div>

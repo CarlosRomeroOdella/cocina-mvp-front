@@ -39,6 +39,11 @@ export async function createIngrediente(data) {
   return apiFetch("/ingredientes", { method: "POST", body: JSON.stringify(data) });
 }
 
+export async function updateIngrediente(id, data) {
+  if (USE_MOCK) { await delay(); return { ...data, id }; }
+  return apiFetch(`/ingredientes/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
 export async function deleteIngrediente(id) {
   if (USE_MOCK) { await delay(); return { id }; }
   return apiFetch(`/ingredientes/${id}`, { method: "DELETE" });

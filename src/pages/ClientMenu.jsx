@@ -33,6 +33,7 @@ export default function ClientMenu() {
   const [carrito, setCarrito] = useState([]);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
+  const [nota, setNota] = useState("");
   const [pwdModal, setPwdModal] = useState(false);
 
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
@@ -184,12 +185,13 @@ export default function ClientMenu() {
     setConfirmando(true);
     pedirNotificaciones();
     try {
-      const pedido = await crearPedido({ items: carrito, total: totalCarrito });
+      const pedido = await crearPedido({ items: carrito, total: totalCarrito, nota: nota.trim() || null });
       const activo = { id: pedido.id, status: pedido.status };
       setPedidoActivo(activo);
       prevStatusRef.current = pedido.status;
       localStorage.setItem("pedido_activo", JSON.stringify(activo));
       setCarrito([]);
+      setNota("");
       setCarritoAbierto(false);
       mostrarToast(pedido.status);
     } catch (err) {
@@ -379,9 +381,12 @@ export default function ClientMenu() {
 
                     <div className="p-5">
                       <div className="flex justify-between items-start">
-                        <h3 className="text-base font-bold text-gray-900">{p.nombre}</h3>
+                        <div>
+                          <h3 className="text-base font-bold text-gray-900">{p.nombre}</h3>
+                          {p.descripcion && <p className="text-xs text-gray-400 mt-0.5 leading-snug">{p.descripcion}</p>}
+                        </div>
                         {isSelected && (
-                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg leading-none">×</button>
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg leading-none ml-2 shrink-0">×</button>
                         )}
                       </div>
 
@@ -593,6 +598,16 @@ export default function ClientMenu() {
                 {!cocinaAbierta && (
                   <p className="text-xs text-red-400 font-medium text-center mb-3">🔴 Cocina cerrada — no se aceptan pedidos</p>
                 )}
+                <div className="mb-4">
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nota <span className="normal-case font-normal text-gray-300">(opcional)</span></label>
+                  <textarea
+                    value={nota}
+                    onChange={(e) => setNota(e.target.value)}
+                    placeholder="Ej: sin cebolla, sin chile..."
+                    rows={2}
+                    className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-3 py-2 text-sm outline-none transition-all resize-none"
+                  />
+                </div>
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-gray-400 text-sm font-medium">Total</span>
                   <span className="text-2xl font-bold text-orange-500">${totalCarrito}</span>

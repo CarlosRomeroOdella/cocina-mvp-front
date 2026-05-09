@@ -9,6 +9,7 @@ import {
   createProduct,
   deleteProduct,
   createIngrediente,
+  updateIngrediente,
   deleteIngrediente,
   createExtra,
   updateExtra,
@@ -26,6 +27,7 @@ const defaultValue = {
   guardarPlatillo: async () => {},
   eliminarPlatillo: async () => {},
   crearIngrediente: async () => {},
+  actualizarIngrediente: async () => {},
   eliminarIngrediente: async () => {},
   crearExtra: async () => {},
   actualizarExtra: async () => {},
@@ -136,6 +138,12 @@ export function ProductsProvider({ children }) {
     return nuevo;
   };
 
+  const actualizarIngrediente = async (id, data) => {
+    const actualizado = await updateIngrediente(id, data);
+    setIngredientes((prev) => prev.map((i) => (i.id === id ? actualizado : i)));
+    return actualizado;
+  };
+
   const eliminarIngrediente = async (id) => {
     await deleteIngrediente(id);
     setIngredientes((prev) => prev.filter((i) => i.id !== id));
@@ -184,6 +192,7 @@ export function ProductsProvider({ children }) {
         guardarPlatillo,
         eliminarPlatillo,
         crearIngrediente,
+        actualizarIngrediente,
         eliminarIngrediente,
         crearExtra,
         actualizarExtra,
