@@ -124,6 +124,7 @@ export default function ClientMenu() {
   const agregarAlCarrito = (p, requeridos) => {
     const item = {
       id: Date.now(),
+      platilloId: p.id,
       nombre: p.nombre,
       tipo: "platillo",
       cantidad,
@@ -156,7 +157,7 @@ export default function ClientMenu() {
       ...entries.map(([id, cant]) => {
         const beb = extras.find((e) => e.id === Number(id));
         const pu = Number(beb?.precio) || 0;
-        return { id: Date.now() + Number(id), nombre: beb?.nombre || "", tipo: "bebida", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant };
+        return { id: Date.now() + Number(id), extraId: Number(id), nombre: beb?.nombre || "", tipo: "bebida", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant };
       }),
     ]);
     setBebidasCantidad({});
@@ -171,7 +172,7 @@ export default function ClientMenu() {
       ...entries.map(([id, cant]) => {
         const pos = extras.find((e) => e.id === Number(id));
         const pu = Number(pos?.precio) || 0;
-        return { id: Date.now() + Number(id), nombre: pos?.nombre || "", tipo: "postre", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant };
+        return { id: Date.now() + Number(id), extraId: Number(id), nombre: pos?.nombre || "", tipo: "postre", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant };
       }),
     ]);
     setPostresCantidad({});
