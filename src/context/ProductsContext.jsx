@@ -148,8 +148,8 @@ export function ProductsProvider({ children }) {
     setPlatillos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const crearIngrediente = async (nombre, precio = null) => {
-    const nuevo = await createIngrediente({ nombre, precio });
+  const crearIngrediente = async (nombre, precio = null, imagen = null) => {
+    const nuevo = await createIngrediente({ nombre, precio, imagen });
     setIngredientes((prev) => [...prev, nuevo]);
     return nuevo;
   };
@@ -172,8 +172,8 @@ export function ProductsProvider({ children }) {
     );
   };
 
-  const crearExtra = async (nombre, precio = null, categoria = null) => {
-    const nuevo = await createExtra({ nombre, precio, categoria });
+  const crearExtra = async (nombre, precio = null, categoria = null, imagen = null) => {
+    const nuevo = await createExtra({ nombre, precio, categoria, imagen });
     setExtras((prev) => [...prev, nuevo]);
     return nuevo;
   };

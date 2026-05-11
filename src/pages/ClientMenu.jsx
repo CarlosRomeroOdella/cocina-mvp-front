@@ -411,7 +411,10 @@ export default function ClientMenu() {
                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Incluye</p>
                             <div className="flex flex-wrap gap-2">
                               {requeridos.map((i) => (
-                                <span key={i.id} className="px-3 py-1 text-xs bg-green-50 text-green-600 border border-green-200 rounded-full font-medium">✓ {i.nombre}</span>
+                                <span key={i.id} className="flex items-center gap-1.5 px-3 py-1 text-xs bg-green-50 text-green-600 border border-green-200 rounded-full font-medium">
+                                  {i.imagen && <img src={i.imagen} alt={i.nombre} className="w-4 h-4 rounded-full object-cover" onError={(e) => (e.target.style.display = "none")} />}
+                                  ✓ {i.nombre}
+                                </span>
                               ))}
                             </div>
                           </div>
@@ -427,7 +430,8 @@ export default function ClientMenu() {
                               {opcionales.map((i) => {
                                 const sel = ingredientesSeleccionados.includes(i.id);
                                 return (
-                                  <button key={i.id} onClick={(e) => { e.stopPropagation(); toggleIngrediente(i.id); }} className={`px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500 bg-white"}`}>
+                                  <button key={i.id} onClick={(e) => { e.stopPropagation(); toggleIngrediente(i.id); }} className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500 bg-white"}`}>
+                                    {i.imagen && <img src={i.imagen} alt={i.nombre} className="w-4 h-4 rounded-full object-cover" onError={(e) => (e.target.style.display = "none")} />}
                                     {i.nombre}
                                   </button>
                                 );
@@ -444,6 +448,7 @@ export default function ClientMenu() {
                                 const cant = extrasCantidad[e.id] ?? 0;
                                 return (
                                   <div key={e.id} onClick={(ev) => ev.stopPropagation()} className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs font-medium transition-all ${cant > 0 ? "bg-orange-50 border-orange-400" : "border-gray-200 bg-white"}`}>
+                                    {e.imagen && <img src={e.imagen} alt={e.nombre} className="w-5 h-5 rounded-full object-cover" onError={(ev) => (ev.target.style.display = "none")} />}
                                     <span className={cant > 0 ? "text-orange-700" : "text-gray-500"}>
                                       {e.nombre}{e.precio ? ` +$${Number(e.precio)}` : ""}
                                     </span>
@@ -687,8 +692,11 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSelecc
               const cant = cantidades[item.id] ?? 0;
               return (
                 <div key={item.id} className={`relative rounded-2xl border p-4 transition-all ${cant > 0 ? "border-orange-400 bg-orange-50 shadow-lg shadow-orange-100" : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-md hover:shadow-orange-100"}`}>
-                  <div className="icon-bg w-full h-24 rounded-xl flex items-center justify-center mb-3">
-                    <span className="text-4xl">{btnLabel === "bebida" ? "🥤" : "🍰"}</span>
+                  <div className="icon-bg w-full h-24 rounded-xl overflow-hidden flex items-center justify-center mb-3">
+                    {item.imagen
+                      ? <img src={item.imagen} alt={item.nombre} className="w-full h-full object-cover" onError={(e) => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }} />
+                      : null}
+                    <span className={`text-4xl ${item.imagen ? "hidden" : "flex"}`}>{btnLabel === "bebida" ? "🥤" : "🍰"}</span>
                   </div>
                   <p className="text-sm font-bold text-gray-900 leading-tight">{item.nombre}</p>
                   {item.precio && <p className="text-sm font-semibold text-orange-500 mt-0.5">${Number(item.precio)}</p>}

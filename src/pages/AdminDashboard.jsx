@@ -361,11 +361,13 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const [nombre, setNombre] = useState("");
   const [precio, setPrecio] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [imagen, setImagen] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(null);
   const [editandoId, setEditandoId] = useState(null);
   const [editPrecio, setEditPrecio] = useState("");
   const [editCategoria, setEditCategoria] = useState("");
+  const [editImagen, setEditImagen] = useState("");
   const [guardandoEdit, setGuardandoEdit] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
@@ -384,10 +386,11 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     if (!n) return;
     setGuardando(true);
     try {
-      await onCrear(n, precio ? Number(precio) : null, categoria || null);
+      await onCrear(n, precio ? Number(precio) : null, categoria || null, imagen.trim() || null);
       setNombre("");
       setPrecio("");
       setCategoria("");
+      setImagen("");
     } finally {
       setGuardando(false);
     }
@@ -408,6 +411,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     setEditNombre(item.nombre);
     setEditPrecio(item.precio != null ? String(Number(item.precio)) : "");
     setEditCategoria(item.categoria ?? "");
+    setEditImagen(item.imagen ?? "");
   };
 
   const handleGuardarEdit = async (item) => {
@@ -416,8 +420,9 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     try {
       await onActualizar(item.id, {
         nombre: editNombre.trim(),
-        ...(conPrecio && { precio: editPrecio !== "" ? Number(editPrecio) : null }),
+        ...(conPrecio    && { precio: editPrecio !== "" ? Number(editPrecio) : null }),
         ...(conCategoria && { categoria: editCategoria || null }),
+        imagen: editImagen.trim() || null,
       });
       setEditandoId(null);
     } finally {
@@ -461,6 +466,12 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
             ))}
           </select>
         )}
+        <input
+          value={imagen}
+          onChange={(e) => setImagen(e.target.value)}
+          placeholder="URL imagen (opcional)"
+          className="flex-1 min-w-40 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+        />
         <button
           type="submit"
           disabled={guardando || !nombre.trim()}
@@ -492,53 +503,68 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         {filtrados.map((item) => (
           <div key={item.id} className="bg-white border border-orange-100 rounded-xl px-4 py-3 hover:border-orange-200 transition-all">
             {editandoId === item.id ? (
-              <div className="flex items-center gap-2 flex-wrap">
-                <input
-                  value={editNombre}
-                  onChange={(e) => setEditNombre(e.target.value)}
-                  className="flex-1 min-w-28 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
-                  autoFocus
-                />
-                {conPrecio && (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <input
-                    value={editPrecio}
-                    onChange={(e) => setEditPrecio(e.target.value)}
-                    type="number"
-                    min="0"
-                    step="0.50"
-                    placeholder="$Precio"
-                    className="w-24 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                    value={editNombre}
+                    onChange={(e) => setEditNombre(e.target.value)}
+                    className="flex-1 min-w-28 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
                     autoFocus
                   />
-                )}
-                {conCategoria && (
-                  <select
-                    value={editCategoria}
-                    onChange={(e) => setEditCategoria(e.target.value)}
-                    className="border border-orange-300 focus:border-orange-400 rounded-lg px-2 py-1 text-sm outline-none bg-white text-gray-600"
+                  {conPrecio && (
+                    <input
+                      value={editPrecio}
+                      onChange={(e) => setEditPrecio(e.target.value)}
+                      type="number"
+                      min="0"
+                      step="0.50"
+                      placeholder="$Precio"
+                      className="w-24 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                    />
+                  )}
+                  {conCategoria && (
+                    <select
+                      value={editCategoria}
+                      onChange={(e) => setEditCategoria(e.target.value)}
+                      className="border border-orange-300 focus:border-orange-400 rounded-lg px-2 py-1 text-sm outline-none bg-white text-gray-600"
+                    >
+                      {CATEGORIAS_EXTRA.map((c) => (
+                        <option key={c.value} value={c.value}>{c.label}</option>
+                      ))}
+                    </select>
+                  )}
+                  <button
+                    onClick={() => handleGuardarEdit(item)}
+                    disabled={guardandoEdit}
+                    className="text-xs text-white bg-orange-500 hover:bg-orange-600 font-semibold px-3 py-1 rounded-lg transition-all disabled:opacity-50"
                   >
-                    {CATEGORIAS_EXTRA.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
-                  </select>
-                )}
-                <button
-                  onClick={() => handleGuardarEdit(item)}
-                  disabled={guardandoEdit}
-                  className="text-xs text-white bg-orange-500 hover:bg-orange-600 font-semibold px-3 py-1 rounded-lg transition-all disabled:opacity-50"
-                >
-                  {guardandoEdit ? "..." : "Guardar"}
-                </button>
-                <button
-                  onClick={() => setEditandoId(null)}
-                  className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-50 transition-all"
-                >
-                  Cancelar
-                </button>
+                    {guardandoEdit ? "..." : "Guardar"}
+                  </button>
+                  <button
+                    onClick={() => setEditandoId(null)}
+                    className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-50 transition-all"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    value={editImagen}
+                    onChange={(e) => setEditImagen(e.target.value)}
+                    placeholder="URL imagen (opcional)"
+                    className="flex-1 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                  />
+                  {editImagen && (
+                    <img src={editImagen} alt="preview" className="w-8 h-8 rounded-lg object-cover border border-orange-200 shrink-0" onError={(e) => (e.target.style.display = "none")} />
+                  )}
+                </div>
               </div>
             ) : (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 flex-wrap">
+                  {item.imagen && (
+                    <img src={item.imagen} alt={item.nombre} className="w-7 h-7 rounded-lg object-cover border border-orange-100 shrink-0" onError={(e) => (e.target.style.display = "none")} />
+                  )}
                   <span className="text-sm font-medium text-gray-700">{item.nombre}</span>
                   {item.precio != null && (
                     <span className="text-xs text-orange-500 font-semibold">${Number(item.precio).toFixed(2)}</span>

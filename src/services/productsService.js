@@ -55,7 +55,7 @@ export async function createIngrediente(data) {
   return apiFetch("/ingredientes", { method: "POST", body: JSON.stringify(data) });
 }
 
-/** Actualiza parcialmente un ingrediente (nombre y/o disponible) */
+/** Actualiza parcialmente un ingrediente (nombre, disponible y/o imagen) */
 export async function updateIngrediente(id, data) {
   if (USE_MOCK) { await delay(); return { ...data, id }; }
   return apiFetch(`/ingredientes/${id}`, { method: "PATCH", body: JSON.stringify(data) });
