@@ -100,12 +100,6 @@ export default function Login() {
             </button>
           </form>
         </div>
-
-        {/* Hint credenciales para desarrollo */}
-        <p className="text-center text-xs text-gray-300 mt-6">
-          admin@demo.com · admin &nbsp;|&nbsp; client@demo.com · client
-        </p>
-
       </div>
     </div>
   );
