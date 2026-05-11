@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
 import { crearPedido, getPedido, getCocinaEstado } from "../services/pedidosService";
 import { changeMyPassword } from "../services/usuariosService";
@@ -18,6 +19,7 @@ const STATUS_COLOR = {
 
 export default function ClientMenu() {
   const { user, logout } = useContext(AuthContext);
+  const { dark, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
   const { platillos, ingredientes, extras, loading } = useProducts();
 
@@ -220,7 +222,7 @@ export default function ClientMenu() {
   );
 
   return (
-    <div className="min-h-screen font-sans" style={{ background: "linear-gradient(135deg, #fff7f0 0%, #fff 60%, #fff3e8 100%)" }}>
+    <div className="min-h-screen font-sans page-bg">
 
       {toastMsg && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] bg-gray-900 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl animate-bounce">
@@ -253,10 +255,7 @@ export default function ClientMenu() {
       )}
 
       {/* ===== HEADER ===== */}
-      <header
-        className="sticky top-0 z-40 px-6 py-4 border-b border-orange-100"
-        style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(16px)" }}
-      >
+      <header className="sticky top-0 z-40 px-6 py-4 border-b border-orange-100 header-bg">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-orange-200">C</div>
@@ -274,6 +273,21 @@ export default function ClientMenu() {
             )}
             <button onClick={() => setPwdModal(true)} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
               Mi contraseña
+            </button>
+            <button
+              onClick={toggleTheme}
+              title={dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all border border-gray-200 hover:border-orange-200"
+            >
+              {dark ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="5"/><path strokeLinecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+              )}
             </button>
             <button onClick={logout} className="text-sm text-gray-500 hover:text-red-500 transition-colors px-3 py-1.5 rounded-full hover:bg-red-50 border border-gray-200 hover:border-red-200">
               Cerrar sesión
@@ -367,8 +381,7 @@ export default function ClientMenu() {
                     style={isSelected ? { background: "rgba(255,255,255,0.97)" } : {}}
                   >
                     <div
-                      className={`flex items-center justify-center transition-all duration-500 ${isSelected ? "h-48 sm:h-64" : "h-40"}`}
-                      style={{ background: "linear-gradient(135deg, #fef3e8, #fde8d0)" }}
+                      className={`icon-bg flex items-center justify-center transition-all duration-500 ${isSelected ? "h-48 sm:h-64" : "h-40"}`}
                     >
                       {p.imagen ? (
                         <img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover" />
@@ -674,7 +687,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSelecc
               const cant = cantidades[item.id] ?? 0;
               return (
                 <div key={item.id} className={`relative rounded-2xl border p-4 transition-all ${cant > 0 ? "border-orange-400 bg-orange-50 shadow-lg shadow-orange-100" : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-md hover:shadow-orange-100"}`}>
-                  <div className="w-full h-24 rounded-xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #fef3e8, #fde8d0)" }}>
+                  <div className="icon-bg w-full h-24 rounded-xl flex items-center justify-center mb-3">
                     <span className="text-4xl">{btnLabel === "bebida" ? "🥤" : "🍰"}</span>
                   </div>
                   <p className="text-sm font-bold text-gray-900 leading-tight">{item.nombre}</p>

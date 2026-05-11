@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
 import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen } from "../services/pedidosService";
 import { getUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, resetPassword } from "../services/usuariosService";
 
 export default function AdminDashboard() {
   const { logout } = useContext(AuthContext);
+  const { dark, toggle: toggleTheme } = useTheme();
   const ctx = useProducts();
   const platillos = ctx?.platillos ?? [];
   const ingredientes = ctx?.ingredientes ?? [];
@@ -89,13 +91,10 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #fff7f0 0%, #fff 60%, #fff3e8 100%)" }}>
+    <div className="min-h-screen page-bg">
 
       {/* HEADER */}
-      <header
-        className="sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-orange-100"
-        style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(16px)" }}
-      >
+      <header className="sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-orange-100 header-bg">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-orange-200">A</div>
           <h1 className="text-lg font-bold text-gray-900 tracking-tight">Dashboard Admin</h1>
@@ -118,6 +117,21 @@ export default function AdminDashboard() {
           <button onClick={() => navigate("/menu")} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50">
             Ver menú cliente
           </button>
+          <button
+            onClick={toggleTheme}
+            title={dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+            className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all"
+          >
+            {dark ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"/><path strokeLinecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+            )}
+          </button>
           <button onClick={logout} className="text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 px-4 py-1.5 rounded-full transition-all shadow-sm shadow-orange-200">
             Salir
           </button>
@@ -125,7 +139,7 @@ export default function AdminDashboard() {
       </header>
 
       {/* TABS */}
-      <div className="px-6 border-b border-orange-100" style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(8px)" }}>
+      <div className="px-6 border-b border-orange-100 tabs-bg">
         <nav className="flex gap-1 max-w-6xl mx-auto">
           {["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios"].map((tab) => (
             <button
@@ -858,8 +872,8 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.25)", backdropFilter: "blur(6px)" }}>
-      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-orange-100" style={{ background: "rgba(255,255,255,0.97)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-orange-100 modal-bg">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-gray-900">{platillo.id ? "Editar platillo" : "Nuevo platillo"}</h2>
@@ -1630,8 +1644,8 @@ function UsuarioModal({ onSave, onClose, guardando, error }) {
   const [form, setForm] = useState({ nombre: "", correo: "", contrasena: "", rol: "cliente" });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.25)", backdropFilter: "blur(6px)" }}>
-      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-orange-100 bg-white p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
+      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-orange-100 modal-bg p-6">
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-base font-bold text-gray-900">Nuevo usuario</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center text-lg">×</button>
@@ -1685,8 +1699,8 @@ function ResetPasswordModal({ usuario, onSave, onClose, guardando, error }) {
   const [pwd, setPwd] = useState("");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.25)", backdropFilter: "blur(6px)" }}>
-      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-orange-100 bg-white p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
+      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-orange-100 modal-bg p-6">
         <div className="flex justify-between items-center mb-5">
           <div>
             <h2 className="text-base font-bold text-gray-900">Resetear contraseña</h2>
