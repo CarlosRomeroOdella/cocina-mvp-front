@@ -16,6 +16,10 @@ export async function resetPassword(id, contrasena) {
   return apiFetch(`/usuarios/${id}/reset-password`, { method: "PATCH", body: JSON.stringify({ contrasena }) });
 }
 
+export async function eliminarUsuario(id) {
+  return apiFetch(`/usuarios/${id}`, { method: "DELETE" });
+}
+
 export async function changeMyPassword(actual, nueva) {
   return apiFetch("/usuarios/me/password", { method: "PATCH", body: JSON.stringify({ actual, nueva }) });
 }

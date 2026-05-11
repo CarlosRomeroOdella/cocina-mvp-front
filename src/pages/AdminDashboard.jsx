@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useProducts } from "../context/ProductsContext";
 import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen } from "../services/pedidosService";
-import { getUsuarios, crearUsuario, actualizarUsuario, resetPassword } from "../services/usuariosService";
+import { getUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, resetPassword } from "../services/usuariosService";
 
 export default function AdminDashboard() {
   const { logout } = useContext(AuthContext);
@@ -1492,6 +1492,16 @@ function UsuariosTab() {
     } catch { /* silencioso */ }
   };
 
+  const handleEliminar = async (u) => {
+    if (!window.confirm(`¿Eliminar a ${u.nombre}? Esta acción no se puede deshacer.`)) return;
+    try {
+      await eliminarUsuario(u.id);
+      setUsuarios((prev) => prev.filter((x) => x.id !== u.id));
+    } catch (err) {
+      setError(err.message || "Error al eliminar usuario");
+    }
+  };
+
   const handleReset = async (id, contrasena) => {
     setGuardando(true);
     setError(null);
@@ -1579,6 +1589,13 @@ function UsuariosTab() {
                 title={u.activo ? "Desactivar" : "Activar"}
               >
                 <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${u.activo ? "translate-x-4" : "translate-x-0.5"}`} />
+              </button>
+              <button
+                onClick={() => handleEliminar(u)}
+                className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all"
+                title="Eliminar usuario"
+              >
+                Eliminar
               </button>
             </div>
           </div>
