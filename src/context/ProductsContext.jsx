@@ -1,3 +1,13 @@
+/**
+ * context/ProductsContext.jsx — Estado global del catálogo
+ *
+ * Carga y mantiene en memoria: platillos, ingredientes, extras y relaciones.
+ * Expone funciones CRUD que actualizan tanto la API como el estado local.
+ * Se usa con: const { platillos, guardarPlatillo, ... } = useProducts()
+ *
+ * Solo carga datos cuando hay un usuario logueado.
+ * Si el usuario cierra sesión, limpia todos los datos.
+ */
 import { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import {
@@ -46,8 +56,9 @@ export function ProductsProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Carga inicial: se dispara cuando cambia el usuario o termina de cargar el auth
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading) return; // Espera a que AuthContext sepa si hay sesión
 
     if (!user) {
       setPlatillos([]);
@@ -62,6 +73,7 @@ export function ProductsProvider({ children }) {
     setLoading(true);
     setError(null);
 
+    // Carga los 4 recursos en paralelo para minimizar tiempo de espera
     (async () => {
       try {
         const [p, i, e, r] = await Promise.all([
@@ -83,6 +95,8 @@ export function ProductsProvider({ children }) {
     })();
   }, [user, authLoading]);
 
+  // Cambia disponible de un platillo (optimistic update):
+  // actualiza el estado local de inmediato y si falla la API, revierte.
   const toggleDisponible = async (id) => {
     const platillo = platillos.find((p) => p.id === id);
     const actualizado = { ...platillo, disponible: !platillo.disponible };
@@ -94,6 +108,8 @@ export function ProductsProvider({ children }) {
     }
   };
 
+  // Crea o actualiza un platillo según si tiene ID o no.
+  // También sincroniza el estado local de "relaciones" con los nuevos ingredientes.
   const guardarPlatillo = async (platillo) => {
     const existe = platillos.find((p) => p.id === platillo.id);
     if (existe) {
