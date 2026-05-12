@@ -46,6 +46,24 @@ export async function marcarPagado(id, pagado) {
   return apiFetch(`/pedidos/${id}/pagado`, { method: "PATCH", body: JSON.stringify({ pagado }) });
 }
 
+/**
+ * Actualiza la nota de un pedido (admin).
+ * @param {number} id
+ * @param {string|null} nota
+ */
+export async function actualizarNota(id, nota) {
+  return apiFetch(`/pedidos/${id}/nota`, { method: "PATCH", body: JSON.stringify({ nota }) });
+}
+
+/**
+ * Elimina un ítem de un pedido en_espera (admin).
+ * @param {number} pedidoId
+ * @param {number} itemId
+ */
+export async function eliminarItemPedido(pedidoId, itemId) {
+  return apiFetch(`/pedidos/${pedidoId}/items/${itemId}`, { method: "DELETE" });
+}
+
 /** Obtiene las estadísticas del dashboard de reportes (admin) */
 export async function getResumen() {
   return apiFetch("/pedidos/resumen");

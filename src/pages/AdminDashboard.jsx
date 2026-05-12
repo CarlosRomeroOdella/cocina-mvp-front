@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
-import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen } from "../services/pedidosService";
+import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen, actualizarNota, eliminarItemPedido } from "../services/pedidosService";
 import { getUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, resetPassword } from "../services/usuariosService";
 
 export default function AdminDashboard() {
@@ -1266,6 +1266,16 @@ function PedidosTab() {
     }
   };
 
+  const handleActualizarNota = async (pedidoId, nota) => {
+    const actualizado = await actualizarNota(pedidoId, nota);
+    setPedidos((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)));
+  };
+
+  const handleEliminarItem = async (pedidoId, itemId) => {
+    const actualizado = await eliminarItemPedido(pedidoId, itemId);
+    setPedidos((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)));
+  };
+
   const [busquedaPedidos, setBusquedaPedidos] = useState("");
   const matchPedido = (p) => !busquedaPedidos.trim() ||
     (p.cliente?.nombre ?? "").toLowerCase().includes(busquedaPedidos.trim().toLowerCase()) ||
@@ -1333,6 +1343,8 @@ function PedidosTab() {
                 cambiando={cambiando}
                 onCambiarStatus={handleCambiarStatus}
                 onPagado={handlePagado}
+                onActualizarNota={handleActualizarNota}
+                onEliminarItem={handleEliminarItem}
               />
             ))}
           </div>
@@ -1358,6 +1370,8 @@ function PedidosTab() {
                 cambiando={cambiando}
                 onCambiarStatus={handleCambiarStatus}
                 onPagado={handlePagado}
+                onActualizarNota={handleActualizarNota}
+                onEliminarItem={handleEliminarItem}
                 resaltarPago
               />
             ))}
@@ -1380,6 +1394,8 @@ function PedidosTab() {
                 cambiando={cambiando}
                 onCambiarStatus={handleCambiarStatus}
                 onPagado={handlePagado}
+                onActualizarNota={handleActualizarNota}
+                onEliminarItem={handleEliminarItem}
                 dimmed
               />
             ))}
@@ -1397,11 +1413,32 @@ function PedidosTab() {
   );
 }
 
-function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, dimmed, resaltarPago }) {
+function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizarNota, onEliminarItem, dimmed, resaltarPago }) {
   const cfg = STATUS_CONFIG[pedido.status] ?? STATUS_CONFIG.en_espera;
   const hora = new Date(pedido.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
   const loadingStatus = cambiando === pedido.id;
   const loadingPago   = cambiando === `pago-${pedido.id}`;
+
+  const [notaEditando, setNotaEditando] = useState(false);
+  const [notaEdit, setNotaEdit] = useState(pedido.nota ?? "");
+  const [notaGuardando, setNotaGuardando] = useState(false);
+
+  useEffect(() => {
+    if (!notaEditando) setNotaEdit(pedido.nota ?? "");
+  }, [pedido.nota, notaEditando]);
+
+  const handleGuardarNota = async () => {
+    setNotaGuardando(true);
+    try {
+      await onActualizarNota(pedido.id, notaEdit.trim() || null);
+      setNotaEditando(false);
+    } finally {
+      setNotaGuardando(false);
+    }
+  };
+
+  const canEditItems = pedido.status === "en_espera" && !dimmed && pedido.items.length > 1;
+  const canEditNota  = !dimmed && pedido.status !== "cancelado";
 
   return (
     <div className={`bg-white border rounded-2xl p-4 shadow-sm transition-all ${dimmed ? "opacity-50" : "hover:shadow-md"} ${resaltarPago ? "border-red-200" : "border-orange-100 hover:border-orange-200"}`}>
@@ -1413,12 +1450,16 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, dimmed, resa
         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${cfg.color}`}>{cfg.label}</span>
       </div>
 
+      {/* Items list */}
       <div className="space-y-1.5 mb-3">
-        {pedido.items.map((item, i) => (
-          <div key={i} className="flex items-start gap-2">
+        {pedido.items.map((item) => (
+          <div key={item.id} className="flex items-start gap-2">
             <span className="text-xs text-gray-300 mt-0.5 shrink-0">·</span>
             <div className="flex-1 min-w-0">
               <span className="text-xs font-semibold text-gray-700">{item.nombre}</span>
+              {(item.cantidad ?? 1) > 1 && (
+                <span className="ml-1 text-xs text-gray-400">×{item.cantidad}</span>
+              )}
               {Array.isArray(item.ingredientes) && item.ingredientes.length > 0 && (
                 <p className="text-xs text-gray-400 truncate">{item.ingredientes.map((i) => i.nombre).join(", ")}</p>
               )}
@@ -1426,11 +1467,59 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, dimmed, resa
                 <p className="text-xs text-orange-400 truncate">+ {item.extras.map((e) => e.nombre).join(", ")}</p>
               )}
             </div>
+            {canEditItems && (
+              <button
+                onClick={() => onEliminarItem(pedido.id, item.id)}
+                title="Quitar ítem"
+                className="shrink-0 w-4 h-4 mt-0.5 rounded-full bg-red-50 text-red-300 hover:bg-red-400 hover:text-white flex items-center justify-center text-xs transition-all leading-none border border-red-100"
+              >×</button>
+            )}
           </div>
         ))}
       </div>
 
-      {pedido.nota && (
+      {/* Nota editable */}
+      {canEditNota && (
+        <div className="mb-3">
+          {notaEditando ? (
+            <div className="space-y-1.5">
+              <textarea
+                value={notaEdit}
+                onChange={(e) => setNotaEdit(e.target.value)}
+                placeholder="Agregar nota al pedido..."
+                rows={2}
+                autoFocus
+                className="w-full border border-yellow-300 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2.5 py-1.5 text-xs outline-none resize-none transition-all"
+              />
+              <div className="flex gap-1.5">
+                <button
+                  onClick={handleGuardarNota}
+                  disabled={notaGuardando}
+                  className="flex-1 text-xs py-1 rounded-full bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all"
+                >
+                  {notaGuardando ? "..." : "Guardar"}
+                </button>
+                <button
+                  onClick={() => { setNotaEditando(false); setNotaEdit(pedido.nota ?? ""); }}
+                  className="flex-1 text-xs py-1 rounded-full border border-gray-200 text-gray-400 hover:text-gray-600 transition-all"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setNotaEditando(true)}
+              className="w-full text-left text-xs bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-1.5 hover:bg-yellow-100 hover:border-yellow-200 transition-all italic"
+            >
+              {pedido.nota
+                ? <span className="text-gray-500">"{pedido.nota}" <span className="not-italic text-gray-300 text-[10px]">✏</span></span>
+                : <span className="text-gray-300">✏ Agregar nota…</span>}
+            </button>
+          )}
+        </div>
+      )}
+      {!canEditNota && pedido.nota && (
         <p className="text-xs text-gray-500 bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-1.5 mb-3 italic">"{pedido.nota}"</p>
       )}
 

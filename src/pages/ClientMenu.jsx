@@ -44,6 +44,7 @@ export default function ClientMenu() {
     try { return JSON.parse(localStorage.getItem("pedido_activo") ?? "null"); } catch { return null; }
   });
   const prevStatusRef = useRef(pedidoActivo?.status ?? null);
+  const prevNotaRef   = useRef(pedidoActivo?.nota ?? null);
   const [toastMsg, setToastMsg] = useState(null);
 
   useEffect(() => {
@@ -61,14 +62,21 @@ export default function ClientMenu() {
     const poll = async () => {
       try {
         const data = await getPedido(pedidoActivo.id);
-        if (data.status !== prevStatusRef.current) {
+        const statusChanged = data.status !== prevStatusRef.current;
+        const notaChanged   = (data.nota ?? null) !== prevNotaRef.current;
+        if (statusChanged || notaChanged) {
           prevStatusRef.current = data.status;
-          const nuevo = { id: data.id, status: data.status };
+          prevNotaRef.current   = data.nota ?? null;
+          const nuevo = { id: data.id, status: data.status, nota: data.nota ?? null };
           setPedidoActivo(nuevo);
           localStorage.setItem("pedido_activo", JSON.stringify(nuevo));
-          mostrarToast(data.status);
-          if (Notification.permission === "granted") {
-            new Notification("Cocina Odellā", { body: STATUS_LABEL[data.status], icon: "/favicon.ico" });
+          if (statusChanged) {
+            mostrarToast(STATUS_LABEL[data.status]);
+            if (Notification.permission === "granted") {
+              new Notification("Cocina Odellā", { body: STATUS_LABEL[data.status], icon: "/favicon.ico" });
+            }
+          } else if (notaChanged) {
+            mostrarToast(data.nota ? `Nota: ${data.nota}` : "Nota del pedido eliminada");
           }
         }
       } catch { /* silencioso */ }
@@ -78,8 +86,8 @@ export default function ClientMenu() {
     return () => clearInterval(iv);
   }, [pedidoActivo?.id, pedidoActivo?.status]);
 
-  const mostrarToast = (status) => {
-    setToastMsg(STATUS_LABEL[status]);
+  const mostrarToast = (msg) => {
+    setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 5000);
   };
 
@@ -189,14 +197,15 @@ export default function ClientMenu() {
     pedirNotificaciones();
     try {
       const pedido = await crearPedido({ items: carrito, total: totalCarrito, nota: nota.trim() || null });
-      const activo = { id: pedido.id, status: pedido.status };
+      const activo = { id: pedido.id, status: pedido.status, nota: pedido.nota ?? null };
       setPedidoActivo(activo);
       prevStatusRef.current = pedido.status;
+      prevNotaRef.current   = pedido.nota ?? null;
       localStorage.setItem("pedido_activo", JSON.stringify(activo));
       setCarrito([]);
       setNota("");
       setCarritoAbierto(false);
-      mostrarToast(pedido.status);
+      mostrarToast(STATUS_LABEL[pedido.status]);
     } catch (err) {
       alert(err.message || "Error al enviar el pedido");
     } finally {
@@ -239,17 +248,22 @@ export default function ClientMenu() {
       {pedidoActivo && (
         <div className={`${STATUS_COLOR[pedidoActivo.status]} text-white px-6 py-2.5 flex items-center justify-between gap-4`}>
           <div className="flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-white/60 animate-pulse" />
-            <span className="text-sm font-semibold">
-              Pedido #{pedidoActivo.id} · {STATUS_LABEL[pedidoActivo.status]}
-            </span>
+            <span className="w-2 h-2 rounded-full bg-white/60 animate-pulse shrink-0" />
+            <div>
+              <span className="text-sm font-semibold">
+                Pedido #{pedidoActivo.id} · {STATUS_LABEL[pedidoActivo.status]}
+              </span>
+              {pedidoActivo.nota && (
+                <p className="text-xs opacity-80 mt-0.5 italic">"{pedidoActivo.nota}"</p>
+              )}
+            </div>
           </div>
           {pedidoActivo.status === "listo" ? (
-            <button onClick={cerrarTracking} className="text-xs font-semibold bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-all">
+            <button onClick={cerrarTracking} className="text-xs font-semibold bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-all shrink-0">
               Cerrar
             </button>
           ) : (
-            <span className="text-xs opacity-70">Actualizando…</span>
+            <span className="text-xs opacity-70 shrink-0">Actualizando…</span>
           )}
         </div>
       )}
