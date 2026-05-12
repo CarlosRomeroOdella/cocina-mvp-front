@@ -1206,16 +1206,18 @@ function ReportesTab() {
 /* ══════════════════════════════════════════════════════ */
 
 const STATUS_CONFIG = {
-  en_espera:      { label: "En espera",      color: "bg-yellow-100 text-yellow-700 border-yellow-200", dot: "bg-yellow-400" },
-  en_preparacion: { label: "En preparación", color: "bg-blue-100 text-blue-700 border-blue-200",       dot: "bg-blue-400"   },
-  listo:          { label: "Listo",          color: "bg-green-100 text-green-700 border-green-200",    dot: "bg-green-500"  },
-  cancelado:      { label: "Cancelado",      color: "bg-red-100 text-red-600 border-red-200",          dot: "bg-red-400"    },
+  en_espera:      { label: "En espera",      color: "bg-yellow-100 text-yellow-700 border-yellow-200", dot: "bg-yellow-400"  },
+  en_preparacion: { label: "En preparación", color: "bg-blue-100 text-blue-700 border-blue-200",       dot: "bg-blue-400"    },
+  listo:          { label: "Listo",          color: "bg-green-100 text-green-700 border-green-200",    dot: "bg-green-500"   },
+  cancelado:      { label: "Cancelado",      color: "bg-red-100 text-red-600 border-red-200",          dot: "bg-red-400"     },
+  en_revision:    { label: "En revisión",    color: "bg-purple-100 text-purple-700 border-purple-200", dot: "bg-purple-500"  },
 };
 
 const ALL_STATUSES = [
   { value: "en_espera",      label: "En espera" },
   { value: "en_preparacion", label: "En prep." },
   { value: "listo",          label: "Listo" },
+  { value: "en_revision",    label: "Revisión" },
 ];
 
 function PedidosTab() {
@@ -1228,7 +1230,7 @@ function PedidosTab() {
   const cargarPedidos = async (silent = false) => {
     try {
       if (!silent) setLoadingPedidos(true);
-      const data = await getPedidos("en_espera,en_preparacion,listo");
+      const data = await getPedidos("en_espera,en_preparacion,listo,en_revision");
       setPedidos(data);
       const enEspera = data.filter((p) => p.status === "en_espera").length;
       if (silent && enEspera > prevCountRef.current) setHayNuevos(true);
@@ -1284,6 +1286,7 @@ function PedidosTab() {
   const enEspera       = pedidos.filter((p) => p.status === "en_espera"       && matchPedido(p));
   const enPreparacion  = pedidos.filter((p) => p.status === "en_preparacion"  && matchPedido(p));
   const listos         = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
+  const enRevision     = pedidos.filter((p) => p.status === "en_revision"     && matchPedido(p));
   const pendientesPago = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
   const cobrados       = pedidos.filter((p) => p.pagado && matchPedido(p)).slice(-8);
 
@@ -1317,6 +1320,31 @@ function PedidosTab() {
           </button>
         )}
       </div>
+
+      {/* EN REVISIÓN — esperando respuesta del cliente */}
+      {enRevision.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 pb-2 border-b border-purple-100">
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
+            <h3 className="text-sm font-bold text-purple-700">En revisión — esperando al cliente</h3>
+            <span className="text-xs font-semibold bg-purple-100 text-purple-600 border border-purple-200 px-2 py-0.5 rounded-full">{enRevision.length}</span>
+            <span className="text-xs text-purple-400 ml-1">El cliente puede modificar o cancelar su pedido</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {enRevision.map((pedido) => (
+              <PedidoCard
+                key={pedido.id}
+                pedido={pedido}
+                cambiando={cambiando}
+                onCambiarStatus={handleCambiarStatus}
+                onPagado={handlePagado}
+                onActualizarNota={handleActualizarNota}
+                onEliminarItem={handleEliminarItem}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* KANBAN */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

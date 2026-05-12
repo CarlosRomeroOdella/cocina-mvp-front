@@ -47,6 +47,24 @@ export async function marcarPagado(id, pagado) {
 }
 
 /**
+ * Cliente re-envía su pedido en_revision con ítems modificados.
+ * El servidor recalcula el total y devuelve el pedido a en_espera.
+ * @param {number} id
+ * @param {Array} items - mismos ítems que en crearPedido
+ */
+export async function reenviarPedido(id, items) {
+  return apiFetch(`/pedidos/${id}/reenviar`, { method: "PATCH", body: JSON.stringify({ items }) });
+}
+
+/**
+ * Cliente (o admin) cancela un pedido que está en_revision.
+ * @param {number} id
+ */
+export async function cancelarPedido(id) {
+  return apiFetch(`/pedidos/${id}/cancelar`, { method: "PATCH", body: JSON.stringify({}) });
+}
+
+/**
  * Actualiza la nota de un pedido (admin).
  * @param {number} id
  * @param {string|null} nota
