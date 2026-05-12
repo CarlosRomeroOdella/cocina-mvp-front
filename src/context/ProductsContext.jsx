@@ -148,8 +148,8 @@ export function ProductsProvider({ children }) {
     setPlatillos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const crearIngrediente = async (nombre, precio = null, imagen = null) => {
-    const nuevo = await createIngrediente({ nombre, precio, imagen });
+  const crearIngrediente = async (nombre, _precio = null, _categoria = null, imagen = null) => {
+    const nuevo = await createIngrediente({ nombre, imagen });
     setIngredientes((prev) => [...prev, nuevo]);
     return nuevo;
   };

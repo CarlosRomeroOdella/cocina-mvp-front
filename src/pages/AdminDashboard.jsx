@@ -381,6 +381,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const [filtroCategoria, setFiltroCategoria] = useState("");
 
   const [filtroDisponible, setFiltroDisponible] = useState("todos");
+  const [apiError, setApiError] = useState(null);
 
   const filtrados = items
     .filter((i) => !filtroCategoria || i.categoria === filtroCategoria)
@@ -396,12 +397,15 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     const n = nombre.trim();
     if (!n) return;
     setGuardando(true);
+    setApiError(null);
     try {
       await onCrear(n, precio ? Number(precio) : null, categoria || null, imagen.trim() || null);
       setNombre("");
       setPrecio("");
       setCategoria("");
       setImagen("");
+    } catch (err) {
+      setApiError(err.message || "Error al agregar");
     } finally {
       setGuardando(false);
     }
@@ -413,12 +417,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     setEliminando(id);
     setConfirmandoEliminarId(null);
     try { await onEliminar(id); }
+    catch (err) { setApiError(err.message || "Error al eliminar"); }
     finally { setEliminando(null); }
   };
 
   const handleToggleDisponible = async (item) => {
     setToggling(item.id);
     try { await onActualizar(item.id, { disponible: !item.disponible }); }
+    catch (err) { setApiError(err.message || "Error al actualizar"); }
     finally { setToggling(null); }
   };
 
@@ -435,6 +441,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const handleGuardarEdit = async (item) => {
     if (!editNombre.trim()) return;
     setGuardandoEdit(true);
+    setApiError(null);
     try {
       await onActualizar(item.id, {
         nombre: editNombre.trim(),
@@ -443,6 +450,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         imagen: editImagen.trim() || null,
       });
       setEditandoId(null);
+    } catch (err) {
+      setApiError(err.message || "Error al guardar");
     } finally {
       setGuardandoEdit(false);
     }
@@ -498,6 +507,10 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
           {guardando ? "..." : "Agregar"}
         </button>
       </form>
+
+      {apiError && (
+        <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{apiError}</p>
+      )}
 
       {/* Buscador + filtros */}
       <div className="flex gap-2 flex-wrap">
@@ -649,10 +662,12 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
 function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
   const [expanded, setExpanded] = useState(null);
   const [saving, setSaving] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   const handleToggleAsignado = async (platillo, ingredienteId) => {
     const key = `${platillo.id}-${ingredienteId}`;
     setSaving(key);
+    setSaveError(null);
     const asignados = platillo.ingredientes ?? [];
     const requeridos = platillo.ingredientesRequeridos ?? [];
     const tieneAsignado = asignados.includes(ingredienteId);
@@ -660,6 +675,8 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
     const nuevosRequeridos = tieneAsignado ? requeridos.filter((id) => id !== ingredienteId) : requeridos;
     try {
       await guardarPlatillo({ ...platillo, ingredientes: nuevosAsignados, ingredientesRequeridos: nuevosRequeridos });
+    } catch (err) {
+      setSaveError(err.message || "Error al guardar");
     } finally {
       setSaving(null);
     }
@@ -668,6 +685,7 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
   const handleToggleRequerido = async (platillo, ingredienteId) => {
     const key = `req-${platillo.id}-${ingredienteId}`;
     setSaving(key);
+    setSaveError(null);
     const requeridos = platillo.ingredientesRequeridos ?? [];
     const esRequerido = requeridos.includes(ingredienteId);
     const nuevosRequeridos = esRequerido
@@ -675,6 +693,8 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
       : [...requeridos, ingredienteId];
     try {
       await guardarPlatillo({ ...platillo, ingredientesRequeridos: nuevosRequeridos });
+    } catch (err) {
+      setSaveError(err.message || "Error al guardar");
     } finally {
       setSaving(null);
     }
@@ -687,6 +707,7 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
       <div className="border-t border-orange-100 pt-6">
         <h3 className="text-base font-bold text-gray-900">Asignar ingredientes a platillos</h3>
         <p className="text-xs text-gray-400 mt-0.5">Marca a qué platillos pertenece cada ingrediente · activa "Req." para que aparezca incluido por defecto</p>
+        {saveError && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl mt-2">{saveError}</p>}
       </div>
 
       <div className="space-y-2 max-w-xl">
@@ -776,15 +797,19 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
   const [expanded, setExpanded] = useState(null);
   const [toggling, setToggling] = useState(null);
   const [selectingAll, setSelectingAll] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   const handleToggle = async (platillo, itemId) => {
     const key = `${platillo.id}-${itemId}`;
     setToggling(key);
+    setSaveError(null);
     const actuales = platillo[tipoKey] ?? [];
     const tiene = actuales.includes(itemId);
     const nuevos = tiene ? actuales.filter((id) => id !== itemId) : [...actuales, itemId];
     try {
       await guardarPlatillo({ ...platillo, [tipoKey]: nuevos });
+    } catch (err) {
+      setSaveError(err.message || "Error al guardar");
     } finally {
       setToggling(null);
     }
@@ -792,6 +817,7 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
 
   const handleSelectAll = async (itemId, todosSeleccionados) => {
     setSelectingAll(itemId);
+    setSaveError(null);
     try {
       const pending = platillos.filter((p) => {
         const tiene = (p[tipoKey] ?? []).includes(itemId);
@@ -805,6 +831,8 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
           return guardarPlatillo({ ...p, [tipoKey]: nuevos });
         })
       );
+    } catch (err) {
+      setSaveError(err.message || "Error al guardar");
     } finally {
       setSelectingAll(null);
     }
@@ -817,6 +845,7 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
       <div className="border-t border-orange-100 pt-6">
         <h3 className="text-base font-bold text-gray-900">{titulo}</h3>
         <p className="text-xs text-gray-400 mt-0.5">{subtitulo}</p>
+        {saveError && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl mt-2">{saveError}</p>}
       </div>
 
       <div className="space-y-2 max-w-xl">
