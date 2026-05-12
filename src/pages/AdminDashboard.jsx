@@ -364,6 +364,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const [imagen, setImagen] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(null);
+  const [toggling, setToggling] = useState(null);
   const [editandoId, setEditandoId] = useState(null);
   const [editPrecio, setEditPrecio] = useState("");
   const [editCategoria, setEditCategoria] = useState("");
@@ -372,8 +373,11 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
 
+  const [filtroDisponible, setFiltroDisponible] = useState("todos");
+
   const filtrados = items
     .filter((i) => !filtroCategoria || i.categoria === filtroCategoria)
+    .filter((i) => filtroDisponible === "todos" || (filtroDisponible === "si" ? i.disponible : !i.disponible))
     .filter((i) => !busqueda.trim() || i.nombre.toLowerCase().includes(busqueda.trim().toLowerCase()));
 
   const categoriasPresentes = conCategoria
@@ -402,6 +406,12 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     setEliminando(id);
     try { await onEliminar(id); }
     finally { setEliminando(null); }
+  };
+
+  const handleToggleDisponible = async (item) => {
+    setToggling(item.id);
+    try { await onActualizar(item.id, { disponible: !item.disponible }); }
+    finally { setToggling(null); }
   };
 
   const [editNombre, setEditNombre] = useState("");
@@ -481,16 +491,21 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         </button>
       </form>
 
-      {/* Buscador + filtro categoría */}
+      {/* Buscador + filtros */}
       <div className="flex gap-2 flex-wrap">
         <div className="relative flex-1 min-w-40">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
           <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder={`Buscar ${titulo === "Extras" ? "extra" : "ingrediente"}...`} className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white" />
           {busqueda && <button onClick={() => setBusqueda("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
         </div>
+        <div className="flex gap-1">
+          {[{ v: "todos", l: "Todos" }, { v: "si", l: "Activos" }, { v: "no", l: "Inactivos" }].map(({ v, l }) => (
+            <button key={v} onClick={() => setFiltroDisponible(v)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroDisponible === v ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
+          ))}
+        </div>
         {conCategoria && categoriasPresentes.length > 0 && (
           <div className="flex gap-1 flex-wrap">
-            <button onClick={() => setFiltroCategoria("")} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroCategoria === "" ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>Todos</button>
+            <button onClick={() => setFiltroCategoria("")} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroCategoria === "" ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>Todas</button>
             {categoriasPresentes.map((cat) => (
               <button key={cat} onClick={() => setFiltroCategoria(filtroCategoria === cat ? "" : cat)} className={`px-3 py-2 text-xs font-semibold rounded-xl capitalize transition-all ${filtroCategoria === cat ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{cat}</button>
             ))}
@@ -501,7 +516,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
       <div className="space-y-2">
         {filtrados.length === 0 && items.length > 0 && <p className="text-sm text-gray-400 text-center py-4">Sin resultados</p>}
         {filtrados.map((item) => (
-          <div key={item.id} className="bg-white border border-orange-100 rounded-xl px-4 py-3 hover:border-orange-200 transition-all">
+          <div key={item.id} className={`bg-white border rounded-xl px-4 py-3 transition-all ${item.disponible ? "border-orange-100 hover:border-orange-200" : "border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-300"}`}>
             {editandoId === item.id ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -560,8 +575,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap min-w-0">
                   {item.imagen && (
                     <img src={item.imagen} alt={item.nombre} className="w-7 h-7 rounded-lg object-cover border border-orange-100 shrink-0" onError={(e) => (e.target.style.display = "none")} />
                   )}
@@ -575,7 +590,19 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1 shrink-0 ml-2">
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => handleToggleDisponible(item)}
+                    disabled={toggling === item.id}
+                    title={item.disponible ? "Deshabilitar" : "Habilitar"}
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all disabled:opacity-50 ${
+                      item.disponible
+                        ? "bg-green-50 border-green-200 text-green-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+                        : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-green-50 hover:border-green-200 hover:text-green-600"
+                    }`}
+                  >
+                    {toggling === item.id ? "…" : item.disponible ? "Activo" : "Inactivo"}
+                  </button>
                   <button
                     onClick={() => handleStartEdit(item)}
                     className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
