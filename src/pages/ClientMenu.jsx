@@ -863,9 +863,11 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
     }
   };
 
+  const [confirmandoCancelarPedido, setConfirmandoCancelarPedido] = useState(false);
+
   const handleCancelar = async () => {
-    if (!window.confirm("¿Cancelar el pedido? Esta acción no se puede deshacer.")) return;
     setCancelando(true);
+    setConfirmandoCancelarPedido(false);
     try {
       await onCancelar();
     } finally {
@@ -989,13 +991,24 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
           >
             {enviando ? "Reenviando…" : "Confirmar y re-enviar pedido"}
           </button>
-          <button
-            onClick={handleCancelar}
-            disabled={cancelando || enviando}
-            className="w-full border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 font-medium py-2.5 rounded-full transition-all text-sm"
-          >
-            {cancelando ? "Cancelando…" : "Cancelar pedido"}
-          </button>
+          {confirmandoCancelarPedido ? (
+            <div className="flex gap-2">
+              <button onClick={handleCancelar} disabled={cancelando} className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-semibold py-2.5 rounded-full transition-all text-sm">
+                {cancelando ? "Cancelando…" : "Sí, cancelar"}
+              </button>
+              <button onClick={() => setConfirmandoCancelarPedido(false)} className="flex-1 border border-gray-200 text-gray-400 hover:text-gray-600 font-medium py-2.5 rounded-full transition-all text-sm">
+                No
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmandoCancelarPedido(true)}
+              disabled={enviando}
+              className="w-full border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 font-medium py-2.5 rounded-full transition-all text-sm"
+            >
+              Cancelar pedido
+            </button>
+          )}
         </div>
       </div>
     </div>

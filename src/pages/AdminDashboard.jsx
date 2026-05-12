@@ -73,9 +73,8 @@ export default function AdminDashboard() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar este platillo?")) return;
     try { await eliminarPlatillo(id); }
-    catch (err) { alert(err.message || "Error al eliminar"); }
+    catch { /* silencioso */ }
   };
 
   if (loading) return (
@@ -217,6 +216,7 @@ export default function AdminDashboard() {
 function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
   const [busqueda, setBusqueda] = useState("");
   const [filtroDisp, setFiltroDisp] = useState("todos");
+  const [confirmandoDeleteId, setConfirmandoDeleteId] = useState(null);
 
   const filtrados = platillos
     .filter((p) => filtroDisp === "disponibles" ? p.disponible : filtroDisp === "no_disponibles" ? !p.disponible : true)
@@ -285,7 +285,14 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <button onClick={() => onEdit(p)} className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-orange-50 transition-all">Editar</button>
-                <button onClick={() => onDelete(p.id)} className="text-xs text-red-400 hover:text-red-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all">Eliminar</button>
+                {confirmandoDeleteId === p.id ? (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => { setConfirmandoDeleteId(null); onDelete(p.id); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg transition-all">Sí</button>
+                    <button onClick={() => setConfirmandoDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-all">No</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmandoDeleteId(p.id)} className="text-xs text-red-400 hover:text-red-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all">Eliminar</button>
+                )}
                 <button
                   onClick={() => onToggle(p.id)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 shadow-inner ${p.disponible ? "bg-orange-500" : "bg-gray-200"}`}
@@ -400,10 +407,11 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     }
   };
 
+  const [confirmandoEliminarId, setConfirmandoEliminarId] = useState(null);
+
   const handleEliminar = async (id) => {
-    const singular = titulo === "Extras" ? "extra" : "ingrediente";
-    if (!window.confirm(`¿Eliminar este ${singular}?`)) return;
     setEliminando(id);
+    setConfirmandoEliminarId(null);
     try { await onEliminar(id); }
     finally { setEliminando(null); }
   };
@@ -609,13 +617,20 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                   >
                     Editar
                   </button>
-                  <button
-                    onClick={() => handleEliminar(item.id)}
-                    disabled={eliminando === item.id}
-                    className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all disabled:opacity-50"
-                  >
-                    {eliminando === item.id ? "..." : "Eliminar"}
-                  </button>
+                  {confirmandoEliminarId === item.id ? (
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => handleEliminar(item.id)} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-all">Sí</button>
+                      <button onClick={() => setConfirmandoEliminarId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-100 transition-all">No</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmandoEliminarId(item.id)}
+                      disabled={eliminando === item.id}
+                      className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all disabled:opacity-50"
+                    >
+                      {eliminando === item.id ? "..." : "Eliminar"}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -1275,7 +1290,6 @@ function PedidosTab() {
 
   const handleCambiarStatus = async (pedido, nuevoStatus) => {
     if (pedido.status === nuevoStatus) return;
-    if (nuevoStatus === "cancelado" && !window.confirm("¿Cancelar este pedido? Esta acción no se puede deshacer.")) return;
     setCambiando(pedido.id);
     try {
       const actualizado = await actualizarStatusPedido(pedido.id, nuevoStatus);
@@ -1477,6 +1491,7 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
   const [notaEditando, setNotaEditando] = useState(false);
   const [notaEdit, setNotaEdit] = useState(pedido.nota ?? "");
   const [notaGuardando, setNotaGuardando] = useState(false);
+  const [confirmandoCancelar, setConfirmandoCancelar] = useState(false);
 
   useEffect(() => {
     if (!notaEditando) setNotaEdit(pedido.nota ?? "");
@@ -1597,13 +1612,20 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
               </button>
             ))}
           </div>
-          <button
-            onClick={() => onCambiarStatus(pedido, "cancelado")}
-            disabled={loadingStatus}
-            className="w-full text-xs py-1 rounded-full border border-gray-100 text-gray-300 hover:border-red-300 hover:text-red-400 transition-all disabled:opacity-50"
-          >
-            Cancelar pedido
-          </button>
+          {confirmandoCancelar ? (
+            <div className="flex gap-1">
+              <button onClick={() => { setConfirmandoCancelar(false); onCambiarStatus(pedido, "cancelado"); }} className="flex-1 text-xs py-1 rounded-full bg-red-500 border-red-500 text-white font-semibold transition-all">Sí, cancelar</button>
+              <button onClick={() => setConfirmandoCancelar(false)} className="flex-1 text-xs py-1 rounded-full border border-gray-200 text-gray-400 hover:text-gray-600 transition-all">No</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmandoCancelar(true)}
+              disabled={loadingStatus}
+              className="w-full text-xs py-1 rounded-full border border-gray-100 text-gray-300 hover:border-red-300 hover:text-red-400 transition-all disabled:opacity-50"
+            >
+              Cancelar pedido
+            </button>
+          )}
         </div>
       )}
       {pedido.status === "cancelado" && (
@@ -1667,9 +1689,12 @@ function UsuariosTab() {
     } catch { /* silencioso */ }
   };
 
+  const [confirmandoRolId, setConfirmandoRolId] = useState(null);
+  const [confirmandoEliminarUsuarioId, setConfirmandoEliminarUsuarioId] = useState(null);
+
   const handleCambiarRol = async (u) => {
     const nuevoRol = u.rol === "admin" ? "cliente" : "admin";
-    if (!window.confirm(`¿Cambiar rol de ${u.nombre} a "${nuevoRol}"?`)) return;
+    setConfirmandoRolId(null);
     try {
       const actualizado = await actualizarUsuario(u.id, { rol: nuevoRol });
       setUsuarios((prev) => prev.map((x) => (x.id === actualizado.id ? actualizado : x)));
@@ -1677,7 +1702,7 @@ function UsuariosTab() {
   };
 
   const handleEliminar = async (u) => {
-    if (!window.confirm(`¿Eliminar a ${u.nombre}? Esta acción no se puede deshacer.`)) return;
+    setConfirmandoEliminarUsuarioId(null);
     try {
       await eliminarUsuario(u.id);
       setUsuarios((prev) => prev.filter((x) => x.id !== u.id));
@@ -1746,17 +1771,25 @@ function UsuariosTab() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold text-gray-900">{u.nombre}</p>
-                <button
-                  onClick={() => handleCambiarRol(u)}
-                  title="Click para cambiar rol"
-                  className={`text-xs font-medium px-2 py-0.5 rounded-full border transition-all hover:scale-105 ${
-                    u.rol === "admin"
-                      ? "bg-orange-100 text-orange-600 border-orange-200 hover:bg-orange-200"
-                      : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"
-                  }`}
-                >
-                  {u.rol}
-                </button>
+                {confirmandoRolId === u.id ? (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-400">→ {u.rol === "admin" ? "cliente" : "admin"}?</span>
+                    <button onClick={() => handleCambiarRol(u)} className="text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 px-2 py-0.5 rounded-full transition-all">Sí</button>
+                    <button onClick={() => setConfirmandoRolId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded-full hover:bg-gray-100 transition-all">No</button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmandoRolId(u.id)}
+                    title="Click para cambiar rol"
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full border transition-all hover:scale-105 ${
+                      u.rol === "admin"
+                        ? "bg-orange-100 text-orange-600 border-orange-200 hover:bg-orange-200"
+                        : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"
+                    }`}
+                  >
+                    {u.rol}
+                  </button>
+                )}
               </div>
               <p className="text-xs text-gray-400 mt-0.5">{u.correo}</p>
             </div>
@@ -1774,13 +1807,20 @@ function UsuariosTab() {
               >
                 <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${u.activo ? "translate-x-4" : "translate-x-0.5"}`} />
               </button>
-              <button
-                onClick={() => handleEliminar(u)}
-                className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all"
-                title="Eliminar usuario"
-              >
-                Eliminar
-              </button>
+              {confirmandoEliminarUsuarioId === u.id ? (
+                <div className="flex items-center gap-1">
+                  <button onClick={() => handleEliminar(u)} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-all">Sí</button>
+                  <button onClick={() => setConfirmandoEliminarUsuarioId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-100 transition-all">No</button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmandoEliminarUsuarioId(u.id)}
+                  className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all"
+                  title="Eliminar usuario"
+                >
+                  Eliminar
+                </button>
+              )}
             </div>
           </div>
         ))}
