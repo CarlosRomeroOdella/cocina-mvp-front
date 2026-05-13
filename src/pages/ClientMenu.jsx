@@ -23,6 +23,8 @@ export default function ClientMenu() {
   const navigate = useNavigate();
   const { platillos, ingredientes, extras, loading } = useProducts();
 
+  const PEDIDO_KEY = `pedido_activo_${user?.id ?? "anon"}`;
+
   const [menuTab, setMenuTab] = useState("platillos");
   const [busqueda, setBusqueda] = useState("");
   const [selectedPlatilloId, setSelectedPlatilloId] = useState(null);
@@ -41,7 +43,7 @@ export default function ClientMenu() {
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
 
   const [pedidoActivo, setPedidoActivo] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("pedido_activo") ?? "null"); } catch { return null; }
+    try { return JSON.parse(localStorage.getItem(PEDIDO_KEY) ?? "null"); } catch { return null; }
   });
   const prevStatusRef = useRef(pedidoActivo?.status ?? null);
   const prevNotaRef   = useRef(pedidoActivo?.nota ?? null);
@@ -70,7 +72,7 @@ export default function ClientMenu() {
           prevNotaRef.current   = data.nota ?? null;
           const nuevo = { id: data.id, status: data.status, nota: data.nota ?? null };
           setPedidoActivo(nuevo);
-          localStorage.setItem("pedido_activo", JSON.stringify(nuevo));
+          localStorage.setItem(PEDIDO_KEY, JSON.stringify(nuevo));
           if (data.status === "en_revision") {
             setPedidoRevision(data);
             mostrarToast("Tu pedido necesita revisión — toca el banner");
@@ -216,7 +218,7 @@ export default function ClientMenu() {
       setPedidoActivo(activo);
       prevStatusRef.current = pedido.status;
       prevNotaRef.current   = pedido.nota ?? null;
-      localStorage.setItem("pedido_activo", JSON.stringify(activo));
+      localStorage.setItem(PEDIDO_KEY, JSON.stringify(activo));
       setCarrito([]);
       setNota("");
       setCarritoAbierto(false);
@@ -230,7 +232,7 @@ export default function ClientMenu() {
 
   const cerrarTracking = () => {
     setPedidoActivo(null);
-    localStorage.removeItem("pedido_activo");
+    localStorage.removeItem(PEDIDO_KEY);
   };
 
   const bebidas = extras.filter((e) => e.categoria === "bebida" && e.disponible);
@@ -702,7 +704,7 @@ export default function ClientMenu() {
             setPedidoActivo(nuevo);
             prevStatusRef.current = actualizado.status;
             prevNotaRef.current   = null;
-            localStorage.setItem("pedido_activo", JSON.stringify(nuevo));
+            localStorage.setItem(PEDIDO_KEY, JSON.stringify(nuevo));
             setPedidoRevision(null);
             mostrarToast(STATUS_LABEL[actualizado.status]);
           }}
@@ -710,7 +712,7 @@ export default function ClientMenu() {
             await cancelarPedido(pedidoRevision.id);
             setPedidoActivo(null);
             setPedidoRevision(null);
-            localStorage.removeItem("pedido_activo");
+            localStorage.removeItem(PEDIDO_KEY);
             mostrarToast("Pedido cancelado");
           }}
           onCerrar={() => setPedidoRevision(null)}
