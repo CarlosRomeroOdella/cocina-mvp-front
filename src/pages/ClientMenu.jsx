@@ -38,6 +38,7 @@ export default function ClientMenu() {
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
   const [nota, setNota] = useState("");
+  const [paraLlevar, setParaLlevar] = useState(false);
   const [pwdModal, setPwdModal] = useState(false);
 
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
@@ -123,14 +124,6 @@ export default function ClientMenu() {
   const precioUnitario = precioBase + cargoIngredientes + cargoExtras;
   const totalActual = precioUnitario * cantidad;
 
-  const totalBebidas = Object.entries(bebidasCantidad).reduce((acc, [id, cant]) => {
-    const beb = extras.find((e) => e.id === Number(id));
-    return acc + (Number(beb?.precio) || 0) * cant;
-  }, 0);
-  const totalPostres = Object.entries(postresCantidad).reduce((acc, [id, cant]) => {
-    const pos = extras.find((e) => e.id === Number(id));
-    return acc + (Number(pos?.precio) || 0) * cant;
-  }, 0);
   const totalCarrito = carrito.reduce((acc, item) => acc + Number(item.total), 0);
 
   /* ── Helpers ── */
@@ -176,30 +169,44 @@ export default function ClientMenu() {
     setCarritoAbierto(true);
   };
 
-  const agregarBebidasAlCarrito = () => {
+  const agregarBebidasAlCarrito = (selTamanos = {}, selSabores = {}) => {
     const entries = Object.entries(bebidasCantidad).filter(([, c]) => c > 0);
     if (!entries.length) return;
     setCarrito((prev) => [
       ...prev,
       ...entries.map(([id, cant]) => {
         const beb = extras.find((e) => e.id === Number(id));
-        const pu = Number(beb?.precio) || 0;
-        return { id: Date.now() + Number(id), extraId: Number(id), nombre: beb?.nombre || "", tipo: "bebida", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant };
+        const tamanoNombre = selTamanos[id] || null;
+        const saborNombre = selSabores[id] || null;
+        let pu = Number(beb?.precio) || 0;
+        if (tamanoNombre && Array.isArray(beb?.tamanos)) {
+          const t = beb.tamanos.find((t) => t.nombre === tamanoNombre);
+          if (t) pu = Number(t.precio) || 0;
+        }
+        const nombre = tamanoNombre ? `${beb?.nombre || ""} (${tamanoNombre})` : (beb?.nombre || "");
+        return { id: Date.now() + Number(id), extraId: Number(id), nombre, tipo: "bebida", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant, tamano: tamanoNombre, sabor: saborNombre };
       }),
     ]);
     setBebidasCantidad({});
     setCarritoAbierto(true);
   };
 
-  const agregarPostresAlCarrito = () => {
+  const agregarPostresAlCarrito = (selTamanos = {}, selSabores = {}) => {
     const entries = Object.entries(postresCantidad).filter(([, c]) => c > 0);
     if (!entries.length) return;
     setCarrito((prev) => [
       ...prev,
       ...entries.map(([id, cant]) => {
         const pos = extras.find((e) => e.id === Number(id));
-        const pu = Number(pos?.precio) || 0;
-        return { id: Date.now() + Number(id), extraId: Number(id), nombre: pos?.nombre || "", tipo: "postre", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant };
+        const tamanoNombre = selTamanos[id] || null;
+        const saborNombre = selSabores[id] || null;
+        let pu = Number(pos?.precio) || 0;
+        if (tamanoNombre && Array.isArray(pos?.tamanos)) {
+          const t = pos.tamanos.find((t) => t.nombre === tamanoNombre);
+          if (t) pu = Number(t.precio) || 0;
+        }
+        const nombre = tamanoNombre ? `${pos?.nombre || ""} (${tamanoNombre})` : (pos?.nombre || "");
+        return { id: Date.now() + Number(id), extraId: Number(id), nombre, tipo: "postre", cantidad: cant, precioUnitario: pu, ingredientes: [], extras: [], total: pu * cant, tamano: tamanoNombre, sabor: saborNombre };
       }),
     ]);
     setPostresCantidad({});
@@ -213,7 +220,7 @@ export default function ClientMenu() {
     setConfirmando(true);
     pedirNotificaciones();
     try {
-      const pedido = await crearPedido({ items: carrito, total: totalCarrito, nota: nota.trim() || null });
+      const pedido = await crearPedido({ items: carrito, total: totalCarrito, nota: nota.trim() || null, modalidad: paraLlevar ? "para_llevar" : "en_cocina" });
       const activo = { id: pedido.id, status: pedido.status, nota: pedido.nota ?? null };
       setPedidoActivo(activo);
       prevStatusRef.current = pedido.status;
@@ -238,8 +245,6 @@ export default function ClientMenu() {
   const bebidas = extras.filter((e) => e.categoria === "bebida" && e.disponible);
   const postres = extras.filter((e) => e.categoria === "postre" && e.disponible);
 
-  const totalBebidasSeleccionadas = Object.values(bebidasCantidad).reduce((s, c) => s + c, 0);
-  const totalPostresSeleccionados = Object.values(postresCantidad).reduce((s, c) => s + c, 0);
 
   if (loading || cocinaAbierta === null) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -569,8 +574,6 @@ export default function ClientMenu() {
             cantidades={bebidasCantidad}
             onSetCantidad={setCantidadBebida}
             onAgregar={agregarBebidasAlCarrito}
-            totalSeleccionados={totalBebidasSeleccionadas}
-            total={totalBebidas}
             emptyIcon="🥤"
             emptyMsg="No hay bebidas disponibles por ahora"
             emptyHint="El administrador puede agregar bebidas desde la pestaña Extras"
@@ -585,8 +588,6 @@ export default function ClientMenu() {
             cantidades={postresCantidad}
             onSetCantidad={setCantidadPostre}
             onAgregar={agregarPostresAlCarrito}
-            totalSeleccionados={totalPostresSeleccionados}
-            total={totalPostres}
             emptyIcon="🍰"
             emptyMsg="No hay postres disponibles por ahora"
             emptyHint="El administrador puede agregar postres desde la pestaña Extras"
@@ -652,6 +653,11 @@ export default function ClientMenu() {
                         ))}
                       </div>
                     )}
+                    {item.sabor && (
+                      <span className="inline-block text-xs text-purple-600 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full font-medium mb-1">
+                        Sabor: {item.sabor}
+                      </span>
+                    )}
                     <p className="text-orange-500 font-bold text-sm mt-1">${item.total}</p>
                   </div>
                 ))
@@ -663,6 +669,19 @@ export default function ClientMenu() {
                 {!cocinaAbierta && (
                   <p className="text-xs text-red-400 font-medium text-center mb-3">🔴 Cocina cerrada — no se aceptan pedidos</p>
                 )}
+                <div className="flex items-center justify-between mb-4 bg-sky-50 border border-sky-100 rounded-xl px-4 py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">Para llevar</p>
+                    <p className="text-xs text-gray-400">Tu pedido saldrá empaquetado</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setParaLlevar((v) => !v)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${paraLlevar ? "bg-sky-500" : "bg-gray-200"}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${paraLlevar ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                </div>
                 <div className="mb-4">
                   <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nota <span className="normal-case font-normal text-gray-300">(opcional)</span></label>
                   <textarea
@@ -722,12 +741,34 @@ export default function ClientMenu() {
   );
 }
 
-/* ── CategoriaTab con cantidad por ítem ── */
-function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSeleccionados, total, emptyIcon, emptyMsg, emptyHint, btnLabel }) {
+/* ── CategoriaTab con cantidad por ítem, tamaños y sabores ── */
+function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, emptyMsg, emptyHint, btnLabel }) {
   const [busqueda, setBusqueda] = useState("");
+  const [selTamanos, setSelTamanos] = useState({});
+  const [selSabores, setSelSabores] = useState({});
+
   const filtrados = busqueda.trim()
     ? items.filter((i) => i.nombre.toLowerCase().includes(busqueda.trim().toLowerCase()))
     : items;
+
+  const totalSeleccionados = Object.values(cantidades).reduce((s, c) => s + c, 0);
+
+  const computedTotal = Object.entries(cantidades).reduce((acc, [id, cant]) => {
+    const item = items.find((i) => i.id === Number(id));
+    const tamanoSel = selTamanos[id];
+    let price = Number(item?.precio) || 0;
+    if (tamanoSel && Array.isArray(item?.tamanos)) {
+      const t = item.tamanos.find((t) => t.nombre === tamanoSel);
+      if (t) price = Number(t.precio) || 0;
+    }
+    return acc + price * cant;
+  }, 0);
+
+  const handleAgregar = () => {
+    onAgregar(selTamanos, selSabores);
+    setSelTamanos({});
+    setSelSabores({});
+  };
 
   return (
     <>
@@ -763,6 +804,19 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSelecc
             )}
             {filtrados.map((item) => {
               const cant = cantidades[item.id] ?? 0;
+              const hasTamanos = Array.isArray(item.tamanos) && item.tamanos.length > 0;
+              const hasSabores = Array.isArray(item.sabores) && item.sabores.length > 0;
+              const tamanoSel = selTamanos[String(item.id)] ?? "";
+              const saborSel = selSabores[String(item.id)] ?? "";
+
+              const precioMostrado = (() => {
+                if (hasTamanos && tamanoSel) {
+                  const t = item.tamanos.find((t) => t.nombre === tamanoSel);
+                  return t ? Number(t.precio) : null;
+                }
+                return item.precio ? Number(item.precio) : null;
+              })();
+
               return (
                 <div key={item.id} className={`relative rounded-2xl border p-4 transition-all ${cant > 0 ? "border-orange-400 bg-orange-50 shadow-lg shadow-orange-100" : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-md hover:shadow-orange-100"}`}>
                   <div className="icon-bg w-full h-24 rounded-xl overflow-hidden flex items-center justify-center mb-3">
@@ -772,7 +826,42 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSelecc
                     <span className={`text-4xl ${item.imagen ? "hidden" : "flex"}`}>{btnLabel === "bebida" ? "🥤" : "🍰"}</span>
                   </div>
                   <p className="text-sm font-bold text-gray-900 leading-tight">{item.nombre}</p>
-                  {item.precio && <p className="text-sm font-semibold text-orange-500 mt-0.5">${Number(item.precio)}</p>}
+                  {precioMostrado != null && <p className="text-sm font-semibold text-orange-500 mt-0.5">${precioMostrado}</p>}
+
+                  {/* Selector de tamaño */}
+                  {hasTamanos && (
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-400 mb-1">Tamaño</p>
+                      <div className="flex flex-wrap gap-1">
+                        {item.tamanos.map((t) => (
+                          <button
+                            key={t.nombre}
+                            onClick={() => setSelTamanos((prev) => ({ ...prev, [String(item.id)]: prev[String(item.id)] === t.nombre ? "" : t.nombre }))}
+                            className={`text-xs px-2 py-0.5 rounded-full border font-medium transition-all ${tamanoSel === t.nombre ? "bg-orange-500 border-orange-500 text-white" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500"}`}
+                          >
+                            {t.nombre} ${t.precio}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Selector de sabor */}
+                  {hasSabores && (
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-400 mb-1">Sabor</p>
+                      <select
+                        value={saborSel}
+                        onChange={(e) => setSelSabores((prev) => ({ ...prev, [String(item.id)]: e.target.value }))}
+                        className="w-full text-xs border border-gray-200 focus:border-orange-400 rounded-lg px-2 py-1 outline-none bg-white text-gray-600"
+                      >
+                        <option value="">— Elige sabor —</option>
+                        {item.sabores.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {/* Stepper de cantidad */}
                   <div className="flex items-center justify-between mt-3">
@@ -807,9 +896,9 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, totalSelecc
           </div>
           {totalSeleccionados > 0 && (
             <div className="sticky bottom-6 flex justify-center">
-              <button onClick={onAgregar} className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded-full shadow-2xl shadow-orange-300 transition-all">
+              <button onClick={handleAgregar} className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded-full shadow-2xl shadow-orange-300 transition-all">
                 <span>Agregar al carrito ({totalSeleccionados})</span>
-                <span className="bg-white/25 px-2.5 py-0.5 rounded-full text-sm font-bold">${total}</span>
+                <span className="bg-white/25 px-2.5 py-0.5 rounded-full text-sm font-bold">${computedTotal}</span>
               </button>
             </div>
           )}

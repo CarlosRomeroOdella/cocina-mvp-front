@@ -148,8 +148,8 @@ export function ProductsProvider({ children }) {
     setPlatillos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const crearIngrediente = async (nombre, precio = null, _categoria = null, imagen = null) => {
-    const nuevo = await createIngrediente({ nombre, precio: precio != null ? Number(precio) : null, imagen });
+  const crearIngrediente = async (nombre, precio = null, categoria = null, imagen = null) => {
+    const nuevo = await createIngrediente({ nombre, precio: precio != null ? Number(precio) : null, categoria: categoria || null, imagen });
     setIngredientes((prev) => [...prev, nuevo]);
     return nuevo;
   };
@@ -172,8 +172,8 @@ export function ProductsProvider({ children }) {
     );
   };
 
-  const crearExtra = async (nombre, precio = null, categoria = null, imagen = null) => {
-    const nuevo = await createExtra({ nombre, precio, categoria, imagen });
+  const crearExtra = async (nombre, precio = null, categoria = null, imagen = null, tamanos = [], sabores = []) => {
+    const nuevo = await createExtra({ nombre, precio, categoria, imagen, tamanos, sabores });
     setExtras((prev) => [...prev, nuevo]);
     return nuevo;
   };

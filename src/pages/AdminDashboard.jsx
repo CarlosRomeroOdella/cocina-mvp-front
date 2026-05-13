@@ -320,7 +320,8 @@ function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEli
         onActualizar={onActualizar}
         onEliminar={onEliminar}
         conPrecio={true}
-        conCategoria={false}
+        conCategoria={true}
+        categoriaLibre={true}
       />
       <AsignacionIngredientesPanel
         items={ingredientes}
@@ -342,6 +343,8 @@ function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guard
         onEliminar={onEliminar}
         conPrecio={true}
         conCategoria={true}
+        conTamanos={true}
+        conSabores={true}
       />
       <AsignacionPanel
         titulo="Asignar extras a platillos"
@@ -364,11 +367,16 @@ const CATEGORIAS_EXTRA = [
   { value: "complemento", label: "Complemento" },
 ];
 
-function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria }) {
+function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria, categoriaLibre = false, conTamanos = false, conSabores = false }) {
   const [nombre, setNombre] = useState("");
   const [precio, setPrecio] = useState("");
   const [categoria, setCategoria] = useState("");
   const [imagen, setImagen] = useState("");
+  const [tamanos, setTamanos] = useState([]);
+  const [newTamanoNombre, setNewTamanoNombre] = useState("");
+  const [newTamanoPrecio, setNewTamanoPrecio] = useState("");
+  const [sabores, setSabores] = useState([]);
+  const [newSabor, setNewSabor] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(null);
   const [toggling, setToggling] = useState(null);
@@ -376,10 +384,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const [editPrecio, setEditPrecio] = useState("");
   const [editCategoria, setEditCategoria] = useState("");
   const [editImagen, setEditImagen] = useState("");
+  const [editTamanos, setEditTamanos] = useState([]);
+  const [editNewTamanoNombre, setEditNewTamanoNombre] = useState("");
+  const [editNewTamanoPrecio, setEditNewTamanoPrecio] = useState("");
+  const [editSabores, setEditSabores] = useState([]);
+  const [editNewSabor, setEditNewSabor] = useState("");
   const [guardandoEdit, setGuardandoEdit] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
-
   const [filtroDisponible, setFiltroDisponible] = useState("todos");
   const [apiError, setApiError] = useState(null);
 
@@ -399,11 +411,16 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     setGuardando(true);
     setApiError(null);
     try {
-      await onCrear(n, precio ? Number(precio) : null, categoria || null, imagen.trim() || null);
+      await onCrear(n, precio ? Number(precio) : null, categoria || null, imagen.trim() || null, tamanos, sabores);
       setNombre("");
       setPrecio("");
       setCategoria("");
       setImagen("");
+      setTamanos([]);
+      setSabores([]);
+      setNewTamanoNombre("");
+      setNewTamanoPrecio("");
+      setNewSabor("");
     } catch (err) {
       setApiError(err.message || "Error al agregar");
     } finally {
@@ -436,6 +453,11 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     setEditPrecio(item.precio != null ? String(Number(item.precio)) : "");
     setEditCategoria(item.categoria ?? "");
     setEditImagen(item.imagen ?? "");
+    setEditTamanos(Array.isArray(item.tamanos) ? item.tamanos : []);
+    setEditSabores(Array.isArray(item.sabores) ? item.sabores : []);
+    setEditNewTamanoNombre("");
+    setEditNewTamanoPrecio("");
+    setEditNewSabor("");
   };
 
   const handleGuardarEdit = async (item) => {
@@ -448,6 +470,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         ...(conPrecio    && { precio: editPrecio !== "" ? Number(editPrecio) : null }),
         ...(conCategoria && { categoria: editCategoria || null }),
         imagen: editImagen.trim() || null,
+        ...(conTamanos   && { tamanos: editTamanos }),
+        ...(conSabores   && { sabores: editSabores }),
       });
       setEditandoId(null);
     } catch (err) {
@@ -455,6 +479,21 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     } finally {
       setGuardandoEdit(false);
     }
+  };
+
+  const addTamano = (list, setList, nomState, setNom, precState, setPrec) => {
+    const n = nomState.trim();
+    if (!n || !precState) return;
+    setList((prev) => [...prev, { nombre: n, precio: Number(precState) }]);
+    setNom("");
+    setPrec("");
+  };
+
+  const addSabor = (list, setList, sabState, setSab) => {
+    const s = sabState.trim();
+    if (!s) return;
+    setList((prev) => [...prev, s]);
+    setSab("");
   };
 
   return (
@@ -482,7 +521,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
             className="w-24 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
           />
         )}
-        {conCategoria && (
+        {conCategoria && !categoriaLibre && (
           <select
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
@@ -492,6 +531,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
           </select>
+        )}
+        {conCategoria && categoriaLibre && (
+          <input
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            placeholder="Categoría (ej: Carnes)"
+            className="w-36 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
+          />
         )}
         <input
           value={imagen}
@@ -507,6 +554,49 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
           {guardando ? "..." : "Agregar"}
         </button>
       </form>
+
+      {/* Tamaños en formulario de creación */}
+      {conTamanos && (
+        <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 space-y-2">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tamaños (opcional)</p>
+          <div className="flex gap-2 flex-wrap">
+            <input value={newTamanoNombre} onChange={(e) => setNewTamanoNombre(e.target.value)} placeholder="Ej: Chico" className="flex-1 min-w-24 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-3 py-1.5 text-sm outline-none" />
+            <input value={newTamanoPrecio} onChange={(e) => setNewTamanoPrecio(e.target.value)} placeholder="$Precio" type="number" min="0" step="0.50" className="w-24 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-3 py-1.5 text-sm outline-none" />
+            <button type="button" onClick={() => addTamano(tamanos, setTamanos, newTamanoNombre, setNewTamanoNombre, newTamanoPrecio, setNewTamanoPrecio)} disabled={!newTamanoNombre.trim() || !newTamanoPrecio} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-3 py-1.5 rounded-lg transition-all disabled:opacity-40">+ Agregar</button>
+          </div>
+          {tamanos.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {tamanos.map((t, i) => (
+                <span key={i} className="flex items-center gap-1 text-xs bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-full font-medium">
+                  {t.nombre} ${t.precio}
+                  <button type="button" onClick={() => setTamanos((prev) => prev.filter((_, j) => j !== i))} className="text-orange-400 hover:text-red-500 ml-0.5 leading-none">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Sabores en formulario de creación */}
+      {conSabores && (
+        <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 space-y-2">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sabores (opcional)</p>
+          <div className="flex gap-2">
+            <input value={newSabor} onChange={(e) => setNewSabor(e.target.value)} placeholder="Ej: Vainilla" className="flex-1 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-3 py-1.5 text-sm outline-none" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSabor(sabores, setSabores, newSabor, setNewSabor); } }} />
+            <button type="button" onClick={() => addSabor(sabores, setSabores, newSabor, setNewSabor)} disabled={!newSabor.trim()} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-3 py-1.5 rounded-lg transition-all disabled:opacity-40">+ Agregar</button>
+          </div>
+          {sabores.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {sabores.map((s, i) => (
+                <span key={i} className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full font-medium">
+                  {s}
+                  <button type="button" onClick={() => setSabores((prev) => prev.filter((_, j) => j !== i))} className="text-purple-400 hover:text-red-500 ml-0.5 leading-none">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {apiError && (
         <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{apiError}</p>
@@ -558,7 +648,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       className="w-24 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
                     />
                   )}
-                  {conCategoria && (
+                  {conCategoria && !categoriaLibre && (
                     <select
                       value={editCategoria}
                       onChange={(e) => setEditCategoria(e.target.value)}
@@ -568,6 +658,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                         <option key={c.value} value={c.value}>{c.label}</option>
                       ))}
                     </select>
+                  )}
+                  {conCategoria && categoriaLibre && (
+                    <input
+                      value={editCategoria}
+                      onChange={(e) => setEditCategoria(e.target.value)}
+                      placeholder="Categoría"
+                      className="w-32 border border-orange-300 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                    />
                   )}
                   <button
                     onClick={() => handleGuardarEdit(item)}
@@ -594,6 +692,49 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                     <img src={editImagen} alt="preview" className="w-8 h-8 rounded-lg object-cover border border-orange-200 shrink-0" onError={(e) => (e.target.style.display = "none")} />
                   )}
                 </div>
+
+                {/* Tamaños en modo edición */}
+                {conTamanos && (
+                  <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 space-y-1.5">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tamaños</p>
+                    <div className="flex gap-2 flex-wrap">
+                      <input value={editNewTamanoNombre} onChange={(e) => setEditNewTamanoNombre(e.target.value)} placeholder="Ej: Grande" className="flex-1 min-w-20 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-xs outline-none" />
+                      <input value={editNewTamanoPrecio} onChange={(e) => setEditNewTamanoPrecio(e.target.value)} placeholder="$" type="number" min="0" step="0.50" className="w-20 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-xs outline-none" />
+                      <button type="button" onClick={() => addTamano(editTamanos, setEditTamanos, editNewTamanoNombre, setEditNewTamanoNombre, editNewTamanoPrecio, setEditNewTamanoPrecio)} disabled={!editNewTamanoNombre.trim() || !editNewTamanoPrecio} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-40">+</button>
+                    </div>
+                    {editTamanos.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {editTamanos.map((t, i) => (
+                          <span key={i} className="flex items-center gap-1 text-xs bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-full">
+                            {t.nombre} ${t.precio}
+                            <button type="button" onClick={() => setEditTamanos((prev) => prev.filter((_, j) => j !== i))} className="text-orange-400 hover:text-red-500 leading-none">×</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Sabores en modo edición */}
+                {conSabores && (
+                  <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 space-y-1.5">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sabores</p>
+                    <div className="flex gap-2">
+                      <input value={editNewSabor} onChange={(e) => setEditNewSabor(e.target.value)} placeholder="Ej: Chocolate" className="flex-1 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-xs outline-none" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSabor(editSabores, setEditSabores, editNewSabor, setEditNewSabor); } }} />
+                      <button type="button" onClick={() => addSabor(editSabores, setEditSabores, editNewSabor, setEditNewSabor)} disabled={!editNewSabor.trim()} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-40">+</button>
+                    </div>
+                    {editSabores.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {editSabores.map((s, i) => (
+                          <span key={i} className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full">
+                            {s}
+                            <button type="button" onClick={() => setEditSabores((prev) => prev.filter((_, j) => j !== i))} className="text-purple-400 hover:text-red-500 leading-none">×</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center justify-between gap-2">
@@ -608,6 +749,16 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                   {item.categoria && (
                     <span className="text-xs text-blue-500 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full font-medium capitalize">
                       {item.categoria}
+                    </span>
+                  )}
+                  {Array.isArray(item.tamanos) && item.tamanos.length > 0 && (
+                    <span className="text-xs text-orange-400 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full font-medium">
+                      {item.tamanos.length} tamaño{item.tamanos.length !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                  {Array.isArray(item.sabores) && item.sabores.length > 0 && (
+                    <span className="text-xs text-purple-500 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full font-medium">
+                      {item.sabores.length} sabor{item.sabores.length !== 1 ? "es" : ""}
                     </span>
                   )}
                 </div>
@@ -1067,53 +1218,74 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
               </button>
             </div>
 
-            {/* Ingredientes con toggle requerido */}
+            {/* Ingredientes con toggle requerido, agrupados por categoría */}
             <div>
               <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Ingredientes</label>
-              <div className="space-y-2">
-                {ingredientes.map((item) => {
-                  const asignado = form.ingredientes.includes(item.id);
-                  const esRequerido = form.ingredientesRequeridos.includes(item.id);
-                  return (
-                    <div
-                      key={item.id}
-                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all ${
-                        asignado ? (esRequerido ? "bg-green-50 border-green-200" : "bg-orange-50 border-orange-300") : "bg-white border-gray-100"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={asignado}
-                        onChange={() => {
-                          toggleItem("ingredientes", item.id);
-                          if (asignado && esRequerido) toggleRequerido(item.id);
-                        }}
-                        className="accent-orange-500 w-4 h-4 shrink-0"
-                      />
-                      <span className={`text-sm font-medium flex-1 ${asignado ? (esRequerido ? "text-green-700" : "text-orange-700") : "text-gray-600"}`}>
-                        {item.nombre}
-                      </span>
-                      {asignado && (
-                        <button
-                          type="button"
-                          onClick={() => toggleRequerido(item.id)}
-                          title={esRequerido ? "Quitar requerido" : "Marcar como requerido (incluido por defecto)"}
-                          className={`shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full border transition-all ${
-                            esRequerido
-                              ? "bg-green-500 border-green-500 text-white"
-                              : "border-gray-200 text-gray-400 hover:border-green-400 hover:text-green-500"
-                          }`}
-                        >
-                          {esRequerido ? "Req. ✓" : "Req."}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-                {ingredientes.length === 0 && (
-                  <p className="text-xs text-gray-400 px-1">Agrega ingredientes en la pestaña "Ingredientes"</p>
-                )}
-              </div>
+              {ingredientes.length === 0 ? (
+                <p className="text-xs text-gray-400 px-1">Agrega ingredientes en la pestaña "Ingredientes"</p>
+              ) : (() => {
+                const sinCategoria = ingredientes.filter((i) => !i.categoria);
+                const categorias = [...new Set(ingredientes.filter((i) => i.categoria).map((i) => i.categoria))];
+                const grupos = [
+                  ...categorias.map((cat) => ({ label: cat, items: ingredientes.filter((i) => i.categoria === cat) })),
+                  ...(sinCategoria.length > 0 ? [{ label: null, items: sinCategoria }] : []),
+                ];
+                return (
+                  <div className="space-y-3">
+                    {grupos.map((grupo) => (
+                      <details key={grupo.label ?? "__sin__"} open className="group">
+                        {grupo.label && (
+                          <summary className="flex items-center gap-2 cursor-pointer list-none mb-1.5 select-none">
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{grupo.label}</span>
+                            <span className="text-gray-300 text-xs group-open:rotate-90 transition-transform">▶</span>
+                          </summary>
+                        )}
+                        <div className="space-y-1.5">
+                          {grupo.items.map((item) => {
+                            const asignado = form.ingredientes.includes(item.id);
+                            const esRequerido = form.ingredientesRequeridos.includes(item.id);
+                            return (
+                              <div
+                                key={item.id}
+                                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all ${
+                                  asignado ? (esRequerido ? "bg-green-50 border-green-200" : "bg-orange-50 border-orange-300") : "bg-white border-gray-100"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={asignado}
+                                  onChange={() => {
+                                    toggleItem("ingredientes", item.id);
+                                    if (asignado && esRequerido) toggleRequerido(item.id);
+                                  }}
+                                  className="accent-orange-500 w-4 h-4 shrink-0"
+                                />
+                                <span className={`text-sm font-medium flex-1 ${asignado ? (esRequerido ? "text-green-700" : "text-orange-700") : "text-gray-600"}`}>
+                                  {item.nombre}
+                                </span>
+                                {asignado && (
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleRequerido(item.id)}
+                                    title={esRequerido ? "Quitar requerido" : "Marcar como requerido (incluido por defecto)"}
+                                    className={`shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full border transition-all ${
+                                      esRequerido
+                                        ? "bg-green-500 border-green-500 text-white"
+                                        : "border-gray-200 text-gray-400 hover:border-green-400 hover:text-green-500"
+                                    }`}
+                                  >
+                                    {esRequerido ? "Req. ✓" : "Req."}
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Extras */}
@@ -1571,7 +1743,12 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
           <p className="text-xs text-gray-400 font-medium">#{pedido.id} · {hora}</p>
           <p className="text-sm font-bold text-gray-900 mt-0.5">{pedido.cliente?.nombre ?? "Cliente"}</p>
         </div>
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${cfg.color}`}>{cfg.label}</span>
+        <div className="flex flex-col items-end gap-1">
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${cfg.color}`}>{cfg.label}</span>
+          {pedido.modalidad === "para_llevar" && (
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-600 border border-sky-200">Para llevar</span>
+          )}
+        </div>
       </div>
 
       {/* Items list */}
