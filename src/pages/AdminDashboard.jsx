@@ -56,7 +56,7 @@ export default function AdminDashboard() {
 
   const handleAddPlatillo = () => {
     setSaveError(null);
-    setEditModal({ id: null, nombre: "", descripcion: "", disponible: true, imagen: "", precio: "", ingredientes: [], ingredientesRequeridos: [], extras: [] });
+    setEditModal({ id: null, nombre: "", descripcion: "", disponible: true, imagen: "", precio: "", ingredientesGratis: 1, ingredientes: [], ingredientesRequeridos: [], extras: [] });
   };
 
   const handleSave = async (data) => {
@@ -319,7 +319,7 @@ function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEli
         onCrear={onCrear}
         onActualizar={onActualizar}
         onEliminar={onEliminar}
-        conPrecio={false}
+        conPrecio={true}
         conCategoria={false}
       />
       <AsignacionIngredientesPanel
@@ -940,6 +940,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
     ingredientesRequeridos: platillo.ingredientesRequeridos ?? [],
     extras: platillo.extras ?? [],
     precio: platillo.precio ?? "",
+    ingredientesGratis: platillo.ingredientesGratis ?? 1,
   });
 
   const toggleItem = (key, id) => {
@@ -965,6 +966,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
     onSave({
       ...form,
       precio: form.precio !== "" ? Number(form.precio) : null,
+      ingredientesGratis: Number(form.ingredientesGratis) || 0,
     });
   };
 
@@ -1012,6 +1014,29 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                   step="0.50"
                   className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none transition-all"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                Ingredientes opcionales gratis
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  value={form.ingredientesGratis}
+                  onChange={(e) => setForm({ ...form, ingredientesGratis: e.target.value })}
+                  type="number"
+                  min="0"
+                  step="1"
+                  className="w-24 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                />
+                <p className="text-xs text-gray-400">
+                  {Number(form.ingredientesGratis) === 0
+                    ? "Todos tienen costo desde el primero"
+                    : Number(form.ingredientesGratis) === 1
+                    ? "El primero es gratis, los demás tienen costo"
+                    : `Los primeros ${form.ingredientesGratis} son gratis`}
+                </p>
               </div>
             </div>
 

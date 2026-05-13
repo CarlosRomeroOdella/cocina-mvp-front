@@ -106,7 +106,14 @@ export default function ClientMenu() {
   /* ── Cálculos de precio ── */
   const platilloSeleccionado = platillos.find((p) => p.id === selectedPlatilloId);
   const precioBase = Number(platilloSeleccionado?.precio) || 0;
-  const cargoIngredientes = Math.max(0, ingredientesSeleccionados.length - 1) * 5;
+  const cargoIngredientes = (() => {
+    if (!ingredientesSeleccionados.length) return 0;
+    const gratis = platilloSeleccionado?.ingredientesGratis ?? 1;
+    const precios = ingredientesSeleccionados
+      .map((id) => Number(ingredientes.find((i) => i.id === id)?.precio ?? 5))
+      .sort((a, b) => a - b);
+    return precios.slice(gratis).reduce((sum, p) => sum + p, 0);
+  })();
   const cargoExtras = Object.entries(extrasCantidad).reduce((acc, [id, cant]) => {
     const ex = extras.find((e) => e.id === Number(id));
     return acc + (Number(ex?.precio) || 0) * cant;
@@ -456,7 +463,12 @@ export default function ClientMenu() {
                           <div className="mb-5">
                             <div className="flex items-baseline gap-2 mb-2">
                               <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Personaliza</p>
-                              <p className="text-xs text-orange-400">1er ingrediente gratis · +$5 c/u después</p>
+                              {(() => {
+                                const g = p.ingredientesGratis ?? 1;
+                                if (g === 0) return <p className="text-xs text-orange-400">Todos tienen costo adicional</p>;
+                                if (g === 1) return <p className="text-xs text-orange-400">1er ingrediente gratis · precio por ingrediente después</p>;
+                                return <p className="text-xs text-orange-400">Primeros {g} ingredientes gratis · precio por ingrediente después</p>;
+                              })()}
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {opcionales.map((i) => {
@@ -464,7 +476,7 @@ export default function ClientMenu() {
                                 return (
                                   <button key={i.id} onClick={(e) => { e.stopPropagation(); toggleIngrediente(i.id); }} className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500 bg-white"}`}>
                                     {i.imagen && <img src={i.imagen} alt={i.nombre} className="w-4 h-4 rounded-full object-cover" onError={(e) => (e.target.style.display = "none")} />}
-                                    {i.nombre}
+                                    {i.nombre}{i.precio ? ` +$${Number(i.precio)}` : ""}
                                   </button>
                                 );
                               })}
