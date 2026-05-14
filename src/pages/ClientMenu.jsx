@@ -732,7 +732,7 @@ export default function ClientMenu() {
       {modalExtra && (
         <>
           <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }} onClick={() => setModalExtra(null)} />
-          <div className="fixed inset-x-4 top-16 bottom-6 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px] z-50 flex flex-col rounded-2xl shadow-2xl border border-orange-100 overflow-hidden" style={{ background: "rgba(255,255,255,0.98)" }}>
+          <div className="fixed inset-x-4 top-10 bottom-6 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[min(90vw,820px)] z-50 flex flex-col rounded-2xl shadow-2xl border border-orange-100 overflow-hidden" style={{ background: "rgba(255,255,255,0.98)" }}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-orange-100 shrink-0">
               <h2 className="text-base font-bold text-gray-900">
                 {modalExtra === "bebidas" ? "🥤 Bebidas" : "🍰 Postres"}
