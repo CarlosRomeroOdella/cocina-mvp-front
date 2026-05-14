@@ -28,6 +28,11 @@ export async function getPedido(id) {
   return apiFetch(`/pedidos/${id}`);
 }
 
+/** Obtiene los últimos pedidos del cliente autenticado */
+export async function getMisPedidos() {
+  return apiFetch("/pedidos/mios");
+}
+
 /**
  * Cambia el status de un pedido (admin).
  * @param {number} id
