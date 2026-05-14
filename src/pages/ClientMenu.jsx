@@ -232,16 +232,18 @@ export default function ClientMenu() {
 
   const eliminarDelCarrito = (itemId) => setCarrito((prev) => prev.filter((i) => i.id !== itemId));
 
-  const abrirHistorial = async () => {
+  const abrirHistorial = async (forzar = false) => {
     setHistorialAbierto(true);
-    if (historial.length > 0) return;
+    if (!forzar && historial.length > 0) return;
     setErrorHistorial(false);
     setLoadingHistorial(true);
     try {
       const data = await getMisPedidos();
-      setHistorial(data);
+      const lista = Array.isArray(data) ? data : [];
+      setHistorial(lista);
+      console.log("[historial] usuario:", user?.nombre, "#" + user?.id, "→", lista.length, "pedido(s)");
     } catch (err) {
-      console.error("Error cargando historial:", err.message);
+      console.error("[historial] error:", err.message, "usuario #" + user?.id);
       setErrorHistorial(true);
     } finally {
       setLoadingHistorial(false);
@@ -806,9 +808,19 @@ export default function ClientMenu() {
             <div className="flex justify-between items-center px-6 py-5 border-b border-orange-100 shrink-0">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Mis pedidos</h2>
-                <p className="text-xs text-gray-400">{historial.length} pedidos registrados</p>
+                <p className="text-xs text-gray-400">{user?.nombre} · {historial.length} pedidos</p>
               </div>
-              <button onClick={() => setHistorialAbierto(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => abrirHistorial(true)}
+                  disabled={loadingHistorial}
+                  title="Recargar"
+                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-sm disabled:opacity-40"
+                >
+                  ↺
+                </button>
+                <button onClick={() => setHistorialAbierto(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
@@ -822,7 +834,7 @@ export default function ClientMenu() {
                   <p className="text-4xl mb-3">⚠️</p>
                   <p className="text-gray-400 text-sm mb-3">No se pudieron cargar tus pedidos</p>
                   <button
-                    onClick={() => { setHistorial([]); setErrorHistorial(false); abrirHistorial(); }}
+                    onClick={() => abrirHistorial(true)}
                     className="text-xs font-semibold text-orange-500 hover:underline"
                   >
                     Reintentar
@@ -833,6 +845,7 @@ export default function ClientMenu() {
                 <div className="text-center py-16">
                   <p className="text-4xl mb-3">🍽️</p>
                   <p className="text-gray-400 text-sm">Aún no tienes pedidos</p>
+                  <p className="text-xs text-gray-300 mt-2">Usuario #{user?.id} · {user?.nombre}</p>
                 </div>
               )}
               {!loadingHistorial && historial.map((pedido, i) => {
