@@ -41,6 +41,7 @@ export default function ClientMenu() {
   const [paraLlevar, setParaLlevar] = useState(false);
   const [mostrarIngredientes, setMostrarIngredientes] = useState(false);
   const [pwdModal, setPwdModal] = useState(false);
+  const [modalExtra, setModalExtra] = useState(null); // "bebidas" | "postres" | null
 
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
 
@@ -517,13 +518,13 @@ export default function ClientMenu() {
                         <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 border border-gray-100">
                           <span className="text-xs text-gray-400 font-medium flex-1">¿Quieres agregar algo más?</span>
                           <button
-                            onClick={(e) => { e.stopPropagation(); setMenuTab("bebidas"); setSelectedPlatilloId(null); }}
+                            onClick={(e) => { e.stopPropagation(); setModalExtra("bebidas"); }}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-sky-200 text-sky-500 hover:bg-sky-50 text-xs font-semibold transition-all"
                           >
                             🥤 Bebidas
                           </button>
                           <button
-                            onClick={(e) => { e.stopPropagation(); setMenuTab("postres"); setSelectedPlatilloId(null); }}
+                            onClick={(e) => { e.stopPropagation(); setModalExtra("postres"); }}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-pink-200 text-pink-400 hover:bg-pink-50 text-xs font-semibold transition-all"
                           >
                             🍰 Postres
@@ -723,6 +724,37 @@ export default function ClientMenu() {
                 </button>
               </div>
             )}
+          </div>
+        </>
+      )}
+
+      {/* ===== MODAL BEBIDAS / POSTRES ===== */}
+      {modalExtra && (
+        <>
+          <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }} onClick={() => setModalExtra(null)} />
+          <div className="fixed inset-x-4 top-16 bottom-6 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px] z-50 flex flex-col rounded-2xl shadow-2xl border border-orange-100 overflow-hidden" style={{ background: "rgba(255,255,255,0.98)" }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-orange-100 shrink-0">
+              <h2 className="text-base font-bold text-gray-900">
+                {modalExtra === "bebidas" ? "🥤 Bebidas" : "🍰 Postres"}
+              </h2>
+              <button onClick={() => setModalExtra(null)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              <CategoriaTab
+                items={modalExtra === "bebidas" ? bebidas : postres}
+                cantidades={modalExtra === "bebidas" ? bebidasCantidad : postresCantidad}
+                onSetCantidad={modalExtra === "bebidas" ? setCantidadBebida : setCantidadPostre}
+                onAgregar={(selTamanos, selSabores) => {
+                  if (modalExtra === "bebidas") agregarBebidasAlCarrito(selTamanos, selSabores);
+                  else agregarPostresAlCarrito(selTamanos, selSabores);
+                  setModalExtra(null);
+                }}
+                emptyIcon={modalExtra === "bebidas" ? "🥤" : "🍰"}
+                emptyMsg={modalExtra === "bebidas" ? "No hay bebidas disponibles" : "No hay postres disponibles"}
+                emptyHint="El administrador puede agregarlos desde la pestaña Extras"
+                btnLabel={modalExtra === "bebidas" ? "bebida" : "postre"}
+              />
+            </div>
           </div>
         </>
       )}
