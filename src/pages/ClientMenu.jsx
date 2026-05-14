@@ -45,6 +45,7 @@ export default function ClientMenu() {
   const [historialAbierto, setHistorialAbierto] = useState(false);
   const [historial, setHistorial] = useState([]);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
+  const [errorHistorial, setErrorHistorial] = useState(false);
 
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
 
@@ -234,12 +235,14 @@ export default function ClientMenu() {
   const abrirHistorial = async () => {
     setHistorialAbierto(true);
     if (historial.length > 0) return;
+    setErrorHistorial(false);
     setLoadingHistorial(true);
     try {
       const data = await getMisPedidos();
       setHistorial(data);
     } catch (err) {
       console.error("Error cargando historial:", err.message);
+      setErrorHistorial(true);
     } finally {
       setLoadingHistorial(false);
     }
@@ -814,7 +817,19 @@ export default function ClientMenu() {
                   <div className="w-6 h-6 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />
                 </div>
               )}
-              {!loadingHistorial && historial.length === 0 && (
+              {!loadingHistorial && errorHistorial && (
+                <div className="text-center py-16">
+                  <p className="text-4xl mb-3">⚠️</p>
+                  <p className="text-gray-400 text-sm mb-3">No se pudieron cargar tus pedidos</p>
+                  <button
+                    onClick={() => { setHistorial([]); setErrorHistorial(false); abrirHistorial(); }}
+                    className="text-xs font-semibold text-orange-500 hover:underline"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              )}
+              {!loadingHistorial && !errorHistorial && historial.length === 0 && (
                 <div className="text-center py-16">
                   <p className="text-4xl mb-3">🍽️</p>
                   <p className="text-gray-400 text-sm">Aún no tienes pedidos</p>
