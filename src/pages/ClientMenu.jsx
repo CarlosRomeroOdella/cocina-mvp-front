@@ -745,6 +745,14 @@ export default function ClientMenu() {
                 cantidades={modalExtra === "bebidas" ? bebidasCantidad : postresCantidad}
                 onSetCantidad={modalExtra === "bebidas" ? setCantidadBebida : setCantidadPostre}
                 onAgregar={(selTamanos, selSabores) => {
+                  if (platilloSeleccionado) {
+                    const ingPlatillo = (platilloSeleccionado.ingredientes ?? [])
+                      .map((id) => ingredientes.find((i) => i.id === id))
+                      .filter(Boolean)
+                      .filter((i) => i.disponible);
+                    const idsReq = new Set(platilloSeleccionado.ingredientesRequeridos ?? []);
+                    agregarAlCarrito(platilloSeleccionado, ingPlatillo.filter((i) => idsReq.has(i.id)));
+                  }
                   if (modalExtra === "bebidas") agregarBebidasAlCarrito(selTamanos, selSabores);
                   else agregarPostresAlCarrito(selTamanos, selSabores);
                   setModalExtra(null);
