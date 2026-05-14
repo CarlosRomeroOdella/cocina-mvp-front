@@ -513,33 +513,22 @@ export default function ClientMenu() {
                           </div>
                         )}
 
-                        {(p.extras ?? []).length > 0 && (
-                          <div className="mb-5">
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Extras</p>
-                            <div className="flex flex-wrap gap-2">
-                              {(p.extras ?? []).map((id) => extras.find((e) => e.id === id)).filter(Boolean).filter((e) => e.disponible).map((e) => {
-                                const cant = extrasCantidad[e.id] ?? 0;
-                                return (
-                                  <div key={e.id} onClick={(ev) => ev.stopPropagation()} className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs font-medium transition-all ${cant > 0 ? "bg-orange-50 border-orange-400" : "border-gray-200 bg-white"}`}>
-                                    {e.imagen && <img src={e.imagen} alt={e.nombre} className="w-5 h-5 rounded-full object-cover" onError={(ev) => (ev.target.style.display = "none")} />}
-                                    <span className={cant > 0 ? "text-orange-700" : "text-gray-500"}>
-                                      {e.nombre}{e.precio ? ` +$${Number(e.precio)}` : ""}
-                                    </span>
-                                    {cant > 0 ? (
-                                      <div className="flex items-center gap-1">
-                                        <button onClick={() => setCantidadExtra(e.id, cant - 1)} className="w-5 h-5 rounded-full bg-white border border-orange-300 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all leading-none">−</button>
-                                        <span className="text-orange-600 font-bold w-4 text-center">{cant}</span>
-                                        <button onClick={() => setCantidadExtra(e.id, cant + 1)} className="w-5 h-5 rounded-full bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center text-xs font-bold transition-all leading-none">+</button>
-                                      </div>
-                                    ) : (
-                                      <button onClick={() => setCantidadExtra(e.id, 1)} className="w-5 h-5 rounded-full bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center text-xs font-bold transition-all leading-none">+</button>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
+                        {/* ── Agregar bebidas / postres ── */}
+                        <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 border border-gray-100">
+                          <span className="text-xs text-gray-400 font-medium flex-1">¿Quieres agregar algo más?</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMenuTab("bebidas"); setSelectedPlatilloId(null); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-sky-200 text-sky-500 hover:bg-sky-50 text-xs font-semibold transition-all"
+                          >
+                            🥤 Bebidas
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMenuTab("postres"); setSelectedPlatilloId(null); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-pink-200 text-pink-400 hover:bg-pink-50 text-xs font-semibold transition-all"
+                          >
+                            🍰 Postres
+                          </button>
+                        </div>
 
                         {/* ── Cantidad + footer ── */}
                         <div className="pt-4 border-t border-orange-100 space-y-3">
