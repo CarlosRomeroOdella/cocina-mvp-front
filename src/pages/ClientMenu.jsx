@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
-import { crearPedido, getPedido, getMisPedidos, getCocinaEstado, reenviarPedido, cancelarPedido } from "../services/pedidosService";
+import { crearPedido, getPedido, getCocinaEstado, reenviarPedido, cancelarPedido } from "../services/pedidosService";
 import { changeMyPassword } from "../services/usuariosService";
 
 const STATUS_LABEL = {
@@ -42,10 +42,6 @@ export default function ClientMenu() {
   const [mostrarIngredientes, setMostrarIngredientes] = useState(false);
   const [pwdModal, setPwdModal] = useState(false);
   const [modalExtra, setModalExtra] = useState(null); // "bebidas" | "postres" | null
-  const [historialAbierto, setHistorialAbierto] = useState(false);
-  const [historial, setHistorial] = useState([]);
-  const [loadingHistorial, setLoadingHistorial] = useState(false);
-  const [errorHistorial, setErrorHistorial] = useState(false);
 
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
 
@@ -232,47 +228,6 @@ export default function ClientMenu() {
 
   const eliminarDelCarrito = (itemId) => setCarrito((prev) => prev.filter((i) => i.id !== itemId));
 
-  const abrirHistorial = async () => {
-    setHistorialAbierto(true);
-    if (historial.length > 0) return;
-    setErrorHistorial(false);
-    setLoadingHistorial(true);
-    try {
-      const data = await getMisPedidos();
-      setHistorial(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("[historial] error:", err.message);
-      setErrorHistorial(true);
-    } finally {
-      setLoadingHistorial(false);
-    }
-  };
-
-  const volverAPedir = (pedido) => {
-    const nuevos = pedido.items.map((item, idx) => {
-      if (item.tipo === "platillo") {
-        const p = platillos.find((pl) => pl.nombre === item.nombre && pl.disponible);
-        if (!p) return null;
-        const pu = Number(p.precio) || 0;
-        return { id: Date.now() + idx, platilloId: p.id, nombre: p.nombre, tipo: "platillo", cantidad: item.cantidad ?? 1, precioUnitario: pu, ingredientes: item.ingredientes ?? [], extras: item.extras ?? [], total: pu * (item.cantidad ?? 1), tamano: item.tamano ?? null, sabor: item.sabor ?? null };
-      }
-      const ex = extras.find((e) => e.nombre === item.nombre && e.disponible) ??
-                 extras.find((e) => item.nombre.startsWith(e.nombre) && e.disponible);
-      if (!ex) return null;
-      let pu = Number(ex.precio) || 0;
-      if (item.tamano && Array.isArray(ex.tamanos)) {
-        const t = ex.tamanos.find((t) => t.nombre === item.tamano);
-        if (t) pu = Number(t.precio);
-      }
-      return { id: Date.now() + idx, extraId: ex.id, nombre: item.nombre, tipo: ex.categoria ?? item.tipo, cantidad: item.cantidad ?? 1, precioUnitario: pu, ingredientes: [], extras: [], total: pu * (item.cantidad ?? 1), tamano: item.tamano ?? null, sabor: item.sabor ?? null };
-    }).filter(Boolean);
-
-    if (!nuevos.length) { alert("Los productos de este pedido ya no están disponibles"); return; }
-    setCarrito(nuevos);
-    setHistorialAbierto(false);
-    setCarritoAbierto(true);
-  };
-
   const confirmarPedido = async () => {
     if (!puedeConfirmar) return;
     setConfirmando(true);
@@ -383,15 +338,6 @@ export default function ClientMenu() {
               {carrito.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-white text-orange-500 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">{carrito.length}</span>
               )}
-            </button>
-            <button
-              onClick={abrirHistorial}
-              title="Mis pedidos"
-              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all border border-gray-200 hover:border-orange-200"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><path strokeLinecap="round" d="M12 6v6l4 2"/>
-              </svg>
             </button>
             <div className="w-px h-5 bg-gray-200 mx-2" />
             <button onClick={() => setPwdModal(true)} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
@@ -794,91 +740,6 @@ export default function ClientMenu() {
                 </button>
               </div>
             )}
-          </div>
-        </>
-      )}
-
-      {/* ===== DRAWER HISTORIAL ===== */}
-      {historialAbierto && (
-        <>
-          <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.2)", backdropFilter: "blur(4px)" }} onClick={() => setHistorialAbierto(false)} />
-          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-orange-100" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)" }}>
-            <div className="flex justify-between items-center px-6 py-5 border-b border-orange-100 shrink-0">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Mis pedidos</h2>
-                <p className="text-xs text-gray-400">{historial.length} pedidos registrados</p>
-              </div>
-              <button onClick={() => setHistorialAbierto(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-              {loadingHistorial && (
-                <div className="flex items-center justify-center py-16">
-                  <div className="w-6 h-6 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />
-                </div>
-              )}
-              {!loadingHistorial && errorHistorial && (
-                <div className="text-center py-16">
-                  <p className="text-4xl mb-3">⚠️</p>
-                  <p className="text-gray-400 text-sm mb-3">No se pudieron cargar tus pedidos</p>
-                  <button
-                    onClick={() => { setHistorial([]); setErrorHistorial(false); abrirHistorial(); }}
-                    className="text-xs font-semibold text-orange-500 hover:underline"
-                  >
-                    Reintentar
-                  </button>
-                </div>
-              )}
-              {!loadingHistorial && !errorHistorial && historial.length === 0 && (
-                <div className="text-center py-16">
-                  <p className="text-4xl mb-3">🍽️</p>
-                  <p className="text-gray-400 text-sm">Aún no tienes pedidos</p>
-                </div>
-              )}
-              {!loadingHistorial && historial.map((pedido, i) => {
-                const STATUS_CFG = {
-                  en_espera:      { label: "En espera",     color: "bg-yellow-100 text-yellow-700" },
-                  en_preparacion: { label: "En preparación", color: "bg-blue-100 text-blue-700" },
-                  listo:          { label: "Listo",          color: "bg-green-100 text-green-700" },
-                  cancelado:      { label: "Cancelado",      color: "bg-red-100 text-red-500" },
-                  en_revision:    { label: "En revisión",    color: "bg-purple-100 text-purple-700" },
-                };
-                const cfg = STATUS_CFG[pedido.status] ?? STATUS_CFG.en_espera;
-                const fecha = new Date(pedido.createdAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
-                const hora  = new Date(pedido.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-                const esUltimo = i === 0;
-                return (
-                  <div key={pedido.id} className={`rounded-2xl border p-4 ${esUltimo ? "border-orange-300 bg-orange-50" : "border-gray-100 bg-white"}`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="text-xs text-gray-400">#{pedido.id} · {fecha} {hora}</p>
-                        {pedido.modalidad === "para_llevar" && <span className="text-xs text-sky-500 font-medium">Para llevar</span>}
-                      </div>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.color}`}>{cfg.label}</span>
-                    </div>
-                    <div className="space-y-0.5 mb-3">
-                      {pedido.items.map((item) => (
-                        <p key={item.id} className="text-xs text-gray-600">
-                          <span className="font-medium">{item.nombre}</span>
-                          {(item.cantidad ?? 1) > 1 && <span className="text-gray-400"> ×{item.cantidad}</span>}
-                          {item.tamano && <span className="text-gray-400"> · {item.tamano}</span>}
-                          {item.sabor && <span className="text-gray-400"> · {item.sabor}</span>}
-                        </p>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-orange-500">${pedido.total}</span>
-                      <button
-                        onClick={() => volverAPedir(pedido)}
-                        className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${esUltimo ? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-200" : "border border-orange-200 text-orange-500 hover:bg-orange-50"}`}
-                      >
-                        {esUltimo ? "⟳ Repetir este pedido" : "Pedir de nuevo"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </>
       )}
