@@ -771,6 +771,15 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
 
   const totalSeleccionados = Object.values(cantidades).reduce((s, c) => s + c, 0);
 
+  const puedeFinalizarCarrito = Object.entries(cantidades).every(([id, cant]) => {
+    if (!cant) return true;
+    const item = items.find((i) => i.id === Number(id));
+    if (!item) return true;
+    const hasTam = Array.isArray(item.tamanos) && item.tamanos.length > 0;
+    const hasSab = Array.isArray(item.sabores) && item.sabores.length > 0;
+    return (!hasTam || !!(selTamanos[id] ?? "")) && (!hasSab || !!(selSabores[id] ?? ""));
+  });
+
   const computedTotal = Object.entries(cantidades).reduce((acc, [id, cant]) => {
     const item = items.find((i) => i.id === Number(id));
     const tamanoSel = selTamanos[id];
@@ -882,39 +891,66 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
                   )}
 
                   {/* Stepper de cantidad */}
-                  <div className="flex items-center justify-between mt-3">
-                    {cant > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => onSetCantidad(item.id, cant - 1)}
-                          className="w-7 h-7 rounded-full bg-white border border-orange-300 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center text-base font-bold transition-all"
-                        >
-                          −
-                        </button>
-                        <span className="text-sm font-bold text-gray-900 w-5 text-center">{cant}</span>
-                        <button
-                          onClick={() => onSetCantidad(item.id, cant + 1)}
-                          className="w-7 h-7 rounded-full bg-orange-500 border border-orange-500 text-white hover:bg-orange-600 flex items-center justify-center text-base font-bold transition-all"
-                        >
-                          +
-                        </button>
+                  {(() => {
+                    const puedeAgregar = (!hasTamanos || !!tamanoSel) && (!hasSabores || !!saborSel);
+                    const falta = !puedeAgregar
+                      ? (hasTamanos && !tamanoSel && hasSabores && !saborSel)
+                        ? "Elige tamaño y sabor"
+                        : hasTamanos && !tamanoSel
+                        ? "Elige un tamaño"
+                        : "Elige un sabor"
+                      : null;
+                    return (
+                      <div className="mt-3">
+                        {cant > 0 && !puedeAgregar && (
+                          <p className="text-xs text-amber-500 font-medium mb-1.5">⚠ {falta}</p>
+                        )}
+                        <div className="flex items-center justify-between">
+                          {cant > 0 ? (
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => onSetCantidad(item.id, cant - 1)}
+                                className="w-7 h-7 rounded-full bg-white border border-orange-300 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center text-base font-bold transition-all"
+                              >
+                                −
+                              </button>
+                              <span className="text-sm font-bold text-gray-900 w-5 text-center">{cant}</span>
+                              <button
+                                onClick={() => onSetCantidad(item.id, cant + 1)}
+                                className="w-7 h-7 rounded-full bg-orange-500 border border-orange-500 text-white hover:bg-orange-600 flex items-center justify-center text-base font-bold transition-all"
+                              >
+                                +
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => puedeAgregar && onSetCantidad(item.id, 1)}
+                              disabled={!puedeAgregar}
+                              className={`w-full py-1.5 rounded-full text-xs font-semibold transition-all ${puedeAgregar ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+                            >
+                              {falta ?? "+ Agregar"}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => onSetCantidad(item.id, 1)}
-                        className="w-full py-1.5 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-all"
-                      >
-                        + Agregar
-                      </button>
-                    )}
-                  </div>
+                    );
+                  })()}
                 </div>
               );
             })}
           </div>
           {totalSeleccionados > 0 && (
-            <div className="sticky bottom-6 flex justify-center">
-              <button onClick={handleAgregar} className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded-full shadow-2xl shadow-orange-300 transition-all">
+            <div className="sticky bottom-6 flex flex-col items-center gap-2">
+              {!puedeFinalizarCarrito && (
+                <p className="text-xs text-amber-500 font-medium bg-amber-50 border border-amber-200 px-4 py-1.5 rounded-full">
+                  Completa la selección de tamaño/sabor para continuar
+                </p>
+              )}
+              <button
+                onClick={handleAgregar}
+                disabled={!puedeFinalizarCarrito}
+                className={`flex items-center gap-3 font-semibold px-8 py-3 rounded-full shadow-2xl transition-all ${puedeFinalizarCarrito ? "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-300" : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-gray-200"}`}
+              >
                 <span>Agregar al carrito ({totalSeleccionados})</span>
                 <span className="bg-white/25 px-2.5 py-0.5 rounded-full text-sm font-bold">${computedTotal}</span>
               </button>
