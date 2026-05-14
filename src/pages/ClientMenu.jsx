@@ -564,13 +564,20 @@ export default function ClientMenu() {
                                 </p>
                               )}
                             </div>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); agregarAlCarrito(p, requeridos); }}
-                              disabled={!cocinaAbierta}
-                              className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-full transition-all text-sm shadow-md shadow-orange-200"
-                            >
-                              {cocinaAbierta ? "+ Agregar al carrito" : "Cocina cerrada"}
-                            </button>
+                            {(() => {
+                              const faltaIngrediente = opcionales.length > 0 && ingredientesSeleccionados.length === 0;
+                              const bloqueado = !cocinaAbierta || faltaIngrediente;
+                              const label = !cocinaAbierta ? "Cocina cerrada" : faltaIngrediente ? "Elige al menos un ingrediente" : "+ Agregar al carrito";
+                              return (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); if (!bloqueado) agregarAlCarrito(p, requeridos); }}
+                                  disabled={bloqueado}
+                                  className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-full transition-all text-sm shadow-md shadow-orange-200"
+                                >
+                                  {label}
+                                </button>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -613,7 +620,7 @@ export default function ClientMenu() {
       </main>
 
       {/* ===== CARRITO FLOTANTE ===== */}
-      {carrito.length > 0 && !carritoAbierto && (
+      {carrito.length > 0 && !carritoAbierto && menuTab === "platillos" && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
           <button onClick={() => setCarritoAbierto(true)} className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-2xl shadow-orange-300 transition-all">
             <span>{carrito.length} {carrito.length === 1 ? "ítem" : "ítems"}</span>
