@@ -34,6 +34,7 @@ export default function AdminDashboard() {
 
   const [cocinaAbierta, setCocinaAbierta] = useState(false);
   const [togglingCocina, setTogglingCocina] = useState(false);
+  const [pendientesCobro, setPendientesCobro] = useState(0);
 
   useEffect(() => {
     getCocinaEstado().then((d) => setCocinaAbierta(d.abierta)).catch(() => {});
@@ -148,7 +149,14 @@ export default function AdminDashboard() {
                 activeTab === tab ? "border-orange-500 text-orange-500" : "border-transparent text-gray-400 hover:text-gray-600"
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              <span className="relative inline-flex items-center gap-1.5">
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === "pedidos" && pendientesCobro > 0 && (
+                  <span className="min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                    {pendientesCobro}
+                  </span>
+                )}
+              </span>
             </button>
           ))}
         </nav>
@@ -157,7 +165,7 @@ export default function AdminDashboard() {
       {/* CONTENIDO */}
       <main className="max-w-6xl mx-auto p-6 space-y-6">
         {activeTab === "pedidos" && (
-          <PedidosTab />
+          <PedidosTab onPendientesChange={setPendientesCobro} />
         )}
         {activeTab === "reportes" && (
           <ReportesTab />
@@ -1488,7 +1496,7 @@ const ALL_STATUSES = [
   { value: "en_revision",    label: "Revisión" },
 ];
 
-function PedidosTab() {
+function PedidosTab({ onPendientesChange }) {
   const [pedidos, setPedidos] = useState([]);
   const [loadingPedidos, setLoadingPedidos] = useState(true);
   const [cambiando, setCambiando] = useState(null);
@@ -1555,7 +1563,11 @@ function PedidosTab() {
   const listos         = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
   const enRevision     = pedidos.filter((p) => p.status === "en_revision"     && matchPedido(p));
   const pendientesPago = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
-  const cobrados       = pedidos.filter((p) => p.pagado && matchPedido(p)).slice(-8);
+  const hoy = new Date().toDateString();
+  const cobrados       = pedidos.filter((p) => p.pagado && matchPedido(p) && new Date(p.createdAt).toDateString() === hoy).slice(-8);
+
+  const totalPendientesCobro = pedidos.filter((p) => p.status === "listo" && !p.pagado).length;
+  useEffect(() => { onPendientesChange?.(totalPendientesCobro); }, [totalPendientesCobro]);
 
   if (loadingPedidos) return (
     <div className="flex justify-center py-20">
@@ -1565,6 +1577,27 @@ function PedidosTab() {
 
   return (
     <div className="space-y-8">
+
+      {/* ── Alerta pagos pendientes ── */}
+      {totalPendientesCobro > 0 && (
+        <div className="flex items-center justify-between gap-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-3.5">
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+            <div>
+              <p className="text-sm font-bold text-red-700">
+                {totalPendientesCobro} pedido{totalPendientesCobro !== 1 ? "s" : ""} sin cobrar
+              </p>
+              <p className="text-xs text-red-400">
+                Total: ${pedidos.filter((p) => p.status === "listo" && !p.pagado).reduce((s, p) => s + Number(p.total), 0).toFixed(0)}
+              </p>
+            </div>
+          </div>
+          <span className="text-xl font-bold text-red-600">
+            ${pedidos.filter((p) => p.status === "listo" && !p.pagado).reduce((s, p) => s + Number(p.total), 0).toFixed(0)}
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Pedidos activos</h2>

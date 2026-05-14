@@ -39,6 +39,7 @@ export default function ClientMenu() {
   const [confirmando, setConfirmando] = useState(false);
   const [nota, setNota] = useState("");
   const [paraLlevar, setParaLlevar] = useState(false);
+  const [mostrarIngredientes, setMostrarIngredientes] = useState(false);
   const [pwdModal, setPwdModal] = useState(false);
 
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
@@ -125,6 +126,8 @@ export default function ClientMenu() {
   const totalActual = precioUnitario * cantidad;
 
   const totalCarrito = carrito.reduce((acc, item) => acc + Number(item.total), 0);
+  const tieneplatillosEnCarrito = carrito.some((item) => item.tipo === "platillo");
+  const puedeConfirmar = cocinaAbierta || !tieneplatillosEnCarrito;
 
   /* ── Helpers ── */
   const toggleIngrediente = (id) =>
@@ -216,7 +219,7 @@ export default function ClientMenu() {
   const eliminarDelCarrito = (itemId) => setCarrito((prev) => prev.filter((i) => i.id !== itemId));
 
   const confirmarPedido = async () => {
-    if (!cocinaAbierta) return;
+    if (!puedeConfirmar) return;
     setConfirmando(true);
     pedirNotificaciones();
     try {
@@ -262,8 +265,8 @@ export default function ClientMenu() {
       )}
 
       {!cocinaAbierta && (
-        <div className="bg-red-50 border-b border-red-100 px-6 py-2 text-center">
-          <p className="text-xs font-semibold text-red-500">🔴 Cocina cerrada — No se están aceptando pedidos por el momento</p>
+        <div className="bg-amber-50 border-b border-amber-100 px-6 py-2 text-center">
+          <p className="text-xs font-semibold text-amber-600">🔴 Cocina cerrada — Platillos no disponibles · Bebidas y postres disponibles</p>
         </div>
       )}
 
@@ -415,10 +418,20 @@ export default function ClientMenu() {
                 const requeridos = ingredientesPlatillo.filter((i) => idsRequeridos.has(i.id));
                 const opcionales = ingredientesPlatillo.filter((i) => !idsRequeridos.has(i.id));
 
+                // Agrupar opcionales por categoría
+                const gruposOpcionales = (() => {
+                  const sinCat = opcionales.filter((i) => !i.categoria);
+                  const cats = [...new Set(opcionales.filter((i) => i.categoria).map((i) => i.categoria))];
+                  return [
+                    ...cats.map((cat) => ({ label: cat, items: opcionales.filter((i) => i.categoria === cat) })),
+                    ...(sinCat.length > 0 ? [{ label: null, items: sinCat }] : []),
+                  ];
+                })();
+
                 return (
                   <div
                     key={p.id}
-                    onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasCantidad({}); setCantidad(1); } }}
+                    onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); } }}
                     className={`relative rounded-2xl border overflow-hidden transition-all duration-500 ${
                       isSelected
                         ? "border-orange-400 col-span-1 sm:col-span-2 lg:col-span-3 shadow-xl shadow-orange-100"
@@ -446,48 +459,56 @@ export default function ClientMenu() {
                           {p.descripcion && <p className="text-xs text-gray-400 mt-0.5 leading-snug">{p.descripcion}</p>}
                         </div>
                         {isSelected && (
-                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg leading-none ml-2 shrink-0">×</button>
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg leading-none ml-2 shrink-0">×</button>
                         )}
                       </div>
 
-                      <div className={`overflow-hidden transition-all duration-500 ${isSelected ? "max-h-[900px] opacity-100 mt-5" : "max-h-0 opacity-0"}`}>
+                      <div className={`overflow-hidden transition-all duration-500 ${isSelected ? "max-h-[1200px] opacity-100 mt-5" : "max-h-0 opacity-0"}`}>
 
-                        {requeridos.length > 0 && (
-                          <div className="mb-5">
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Incluye</p>
-                            <div className="flex flex-wrap gap-2">
-                              {requeridos.map((i) => (
-                                <span key={i.id} className="flex items-center gap-1.5 px-3 py-1 text-xs bg-green-50 text-green-600 border border-green-200 rounded-full font-medium">
-                                  {i.imagen && <img src={i.imagen} alt={i.nombre} className="w-4 h-4 rounded-full object-cover" onError={(e) => (e.target.style.display = "none")} />}
-                                  ✓ {i.nombre}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
+                        {/* ── Ingredientes opcionales colapsables ── */}
                         {opcionales.length > 0 && (
                           <div className="mb-5">
-                            <div className="flex items-baseline gap-2 mb-2">
-                              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Personaliza</p>
-                              {(() => {
-                                const g = p.ingredientesGratis ?? 1;
-                                if (g === 0) return <p className="text-xs text-orange-400">Todos tienen costo adicional</p>;
-                                if (g === 1) return <p className="text-xs text-orange-400">1er ingrediente gratis · precio por ingrediente después</p>;
-                                return <p className="text-xs text-orange-400">Primeros {g} ingredientes gratis · precio por ingrediente después</p>;
-                              })()}
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {opcionales.map((i) => {
-                                const sel = ingredientesSeleccionados.includes(i.id);
-                                return (
-                                  <button key={i.id} onClick={(e) => { e.stopPropagation(); toggleIngrediente(i.id); }} className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500 bg-white"}`}>
-                                    {i.imagen && <img src={i.imagen} alt={i.nombre} className="w-4 h-4 rounded-full object-cover" onError={(e) => (e.target.style.display = "none")} />}
-                                    {i.nombre}{i.precio ? ` +$${Number(i.precio)}` : ""}
-                                  </button>
-                                );
-                              })}
-                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setMostrarIngredientes((v) => !v); }}
+                              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 transition-all"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-orange-700">Elige tus ingredientes</span>
+                                {ingredientesSeleccionados.length > 0 && (
+                                  <span className="text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full">{ingredientesSeleccionados.length}</span>
+                                )}
+                                {(() => {
+                                  const g = p.ingredientesGratis ?? 1;
+                                  if (g === 0) return <span className="text-xs text-orange-500 ml-1">· todos con costo</span>;
+                                  if (g === 1) return <span className="text-xs text-orange-500 ml-1">· 1er gratis</span>;
+                                  return <span className="text-xs text-orange-500 ml-1">· {g} gratis</span>;
+                                })()}
+                              </div>
+                              <span className="text-orange-400 text-sm">{mostrarIngredientes ? "▲" : "▼"}</span>
+                            </button>
+
+                            {mostrarIngredientes && (
+                              <div className="mt-3 space-y-4 px-1">
+                                {gruposOpcionales.map((grupo) => (
+                                  <div key={grupo.label ?? "__sin__"}>
+                                    {grupo.label && (
+                                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">{grupo.label}</p>
+                                    )}
+                                    <div className="flex flex-wrap gap-2">
+                                      {grupo.items.map((i) => {
+                                        const sel = ingredientesSeleccionados.includes(i.id);
+                                        return (
+                                          <button key={i.id} onClick={(e) => { e.stopPropagation(); toggleIngrediente(i.id); }} className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500 bg-white"}`}>
+                                            {i.imagen && <img src={i.imagen} alt={i.nombre} className="w-4 h-4 rounded-full object-cover" onError={(e) => (e.target.style.display = "none")} />}
+                                            {i.nombre}{i.precio ? ` +$${Number(i.precio)}` : ""}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
 
@@ -552,8 +573,12 @@ export default function ClientMenu() {
                                 </p>
                               )}
                             </div>
-                            <button onClick={(e) => { e.stopPropagation(); agregarAlCarrito(p, requeridos); }} className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-full transition-all text-sm shadow-md shadow-orange-200">
-                              + Agregar al carrito
+                            <button
+                              onClick={(e) => { e.stopPropagation(); agregarAlCarrito(p, requeridos); }}
+                              disabled={!cocinaAbierta}
+                              className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-full transition-all text-sm shadow-md shadow-orange-200"
+                            >
+                              {cocinaAbierta ? "+ Agregar al carrito" : "Cocina cerrada"}
                             </button>
                           </div>
                         </div>
@@ -666,8 +691,11 @@ export default function ClientMenu() {
 
             {carrito.length > 0 && (
               <div className="px-6 py-5 border-t border-orange-100">
-                {!cocinaAbierta && (
-                  <p className="text-xs text-red-400 font-medium text-center mb-3">🔴 Cocina cerrada — no se aceptan pedidos</p>
+                {!cocinaAbierta && tieneplatillosEnCarrito && (
+                  <p className="text-xs text-red-400 font-medium text-center mb-3">🔴 Cocina cerrada — retira los platillos para continuar</p>
+                )}
+                {!cocinaAbierta && !tieneplatillosEnCarrito && (
+                  <p className="text-xs text-amber-500 font-medium text-center mb-3">Cocina cerrada · solo bebidas y extras disponibles</p>
                 )}
                 <div className="flex items-center justify-between mb-4 bg-sky-50 border border-sky-100 rounded-xl px-4 py-3">
                   <div>
@@ -698,7 +726,7 @@ export default function ClientMenu() {
                 </div>
                 <button
                   onClick={confirmarPedido}
-                  disabled={confirmando || !cocinaAbierta}
+                  disabled={confirmando || !puedeConfirmar}
                   className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-full transition-all shadow-md shadow-orange-200"
                 >
                   {confirmando ? "Enviando pedido…" : "Confirmar pedido"}
