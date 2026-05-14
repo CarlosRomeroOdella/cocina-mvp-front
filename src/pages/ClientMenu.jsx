@@ -63,6 +63,13 @@ export default function ClientMenu() {
     return () => clearInterval(iv);
   }, []);
 
+  // Al montar: si el pedido ya está en revisión (recarga de página), abrir el modal directamente
+  useEffect(() => {
+    if (pedidoActivo?.status === "en_revision") {
+      getPedido(pedidoActivo.id).then(setPedidoRevision).catch(() => {});
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!pedidoActivo || pedidoActivo.status === "listo" || pedidoActivo.status === "cancelado") return;
     const poll = async () => {
@@ -92,7 +99,9 @@ export default function ClientMenu() {
             mostrarToast(data.nota ? `Nota: ${data.nota}` : "Nota del pedido eliminada");
           }
         }
-      } catch { /* silencioso */ }
+      } catch (err) {
+        console.error("[poll pedido]:", err.message);
+      }
     };
     poll();
     const iv = setInterval(poll, 5000);
@@ -1125,8 +1134,8 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
                       {(item.cantidad ?? 1) > 1 && <span className="text-xs text-gray-400">×{item.cantidad}</span>}
                       <span className="text-xs text-orange-500 font-semibold ml-auto">${Number(item.precio) * (item.cantidad ?? 1)}</span>
                     </div>
-                    {item.tipo === "platillo" && item.ingredientes.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-0.5 truncate">{item.ingredientes.map((i) => i.nombre).join(", ")}</p>
+                    {item.tipo === "platillo" && (item.ingredientes ?? []).length > 0 && (
+                      <p className="text-xs text-gray-400 mt-0.5 truncate">{(item.ingredientes ?? []).map((i) => i.nombre).join(", ")}</p>
                     )}
                     {item.tipo !== "platillo" && (
                       <span className="text-xs text-blue-400 capitalize">{item.tipo}</span>
