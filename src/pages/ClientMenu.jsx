@@ -339,12 +339,15 @@ export default function ClientMenu() {
                 <span className="absolute -top-1.5 -right-1.5 bg-white text-orange-500 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">{carrito.length}</span>
               )}
             </button>
-            <div className="w-px h-5 bg-gray-200 mx-2" />
-            <button onClick={() => setPwdModal(true)} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
+            <div className="hidden sm:block w-px h-5 bg-gray-200 mx-2" />
+            <button onClick={() => setPwdModal(true)} className="hidden sm:flex text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
               Mi contraseña
             </button>
-            <button onClick={logout} className="text-sm text-gray-500 hover:text-red-500 transition-colors px-3 py-1.5 rounded-full hover:bg-red-50 border border-gray-200 hover:border-red-200">
-              Cerrar sesión
+            <button onClick={logout} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors px-3 py-1.5 rounded-full hover:bg-red-50 border border-gray-200 hover:border-red-200">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+              </svg>
+              <span className="hidden sm:inline">Cerrar sesión</span>
             </button>
             <button
               onClick={toggleTheme}
