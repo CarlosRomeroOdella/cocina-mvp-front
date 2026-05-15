@@ -55,6 +55,7 @@ export default function ClientMenu() {
   });
   const prevStatusRef    = useRef(pedidoActivo?.status ?? null);
   const prevNotaRef      = useRef(pedidoActivo?.nota ?? null);
+  const prevPagadoRef    = useRef(pedidoActivo?.pagado ?? false);
   const pedidoActivoRef  = useRef(pedidoActivo);
   pedidoActivoRef.current = pedidoActivo;
   const [toastMsg, setToastMsg] = useState(null);
@@ -85,15 +86,18 @@ export default function ClientMenu() {
     const poll = async () => {
       const activo = pedidoActivoRef.current;
       if (!activo) { clearInterval(ivRef.current); return; }
-      if (activo.status === "listo" || activo.status === "cancelado") { clearInterval(ivRef.current); return; }
+      if (activo.status === "cancelado") { clearInterval(ivRef.current); return; }
+      if (activo.status === "listo" && activo.pagado) { clearInterval(ivRef.current); return; }
       try {
         const data = await getPedido(activo.id);
         const statusChanged = data.status !== prevStatusRef.current;
         const notaChanged   = (data.nota ?? null) !== prevNotaRef.current;
-        if (statusChanged || notaChanged) {
+        const pagadoChanged = (data.pagado ?? false) !== prevPagadoRef.current;
+        if (statusChanged || notaChanged || pagadoChanged) {
           prevStatusRef.current = data.status;
           prevNotaRef.current   = data.nota ?? null;
-          const nuevo = { id: data.id, status: data.status, nota: data.nota ?? null };
+          prevPagadoRef.current = data.pagado ?? false;
+          const nuevo = { id: data.id, status: data.status, nota: data.nota ?? null, pagado: data.pagado ?? false };
           setPedidoActivo(nuevo);
           localStorage.setItem(PEDIDO_KEY, JSON.stringify(nuevo));
           if (data.status === "en_revision") {
@@ -240,7 +244,6 @@ export default function ClientMenu() {
 
   const abrirHistorial = async () => {
     setHistorialAbierto(true);
-    if (historial.length > 0) return;
     setErrorHistorial(false);
     setLoadingHistorial(true);
     try {
@@ -283,10 +286,11 @@ export default function ClientMenu() {
     setConfirmando(true);
     try {
       const pedido = await crearPedido({ items: carrito, total: totalCarrito, nota: nota.trim() || null, modalidad: paraLlevar ? "para_llevar" : "en_cocina" });
-      const activo = { id: pedido.id, status: pedido.status, nota: pedido.nota ?? null };
+      const activo = { id: pedido.id, status: pedido.status, nota: pedido.nota ?? null, pagado: pedido.pagado ?? false };
       setPedidoActivo(activo);
       prevStatusRef.current = pedido.status;
       prevNotaRef.current   = pedido.nota ?? null;
+      prevPagadoRef.current = pedido.pagado ?? false;
       localStorage.setItem(PEDIDO_KEY, JSON.stringify(activo));
       setCarrito([]);
       setNota("");
@@ -357,6 +361,11 @@ export default function ClientMenu() {
               )}
               {pedidoActivo.status === "en_revision" && pedidoActivo.nota && (
                 <p className="text-xs opacity-90 mt-0.5 italic">"{pedidoActivo.nota}"</p>
+              )}
+              {pedidoActivo.status === "listo" && (
+                <p className="text-xs font-semibold mt-1">
+                  {pedidoActivo.pagado ? "✓ Pagado" : "💳 Pendiente de pago"}
+                </p>
               )}
             </div>
           </div>
@@ -865,7 +874,12 @@ export default function ClientMenu() {
                         <p className="text-xs text-gray-400">#{pedido.id} · {fecha} {hora}</p>
                         {pedido.modalidad === "para_llevar" && <span className="text-xs text-sky-500 font-medium">Para llevar</span>}
                       </div>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.color}`}>{cfg.label}</span>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.color}`}>{cfg.label}</span>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${pedido.pagado ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>
+                          {pedido.pagado ? "✓ Pagado" : "Pendiente de pago"}
+                        </span>
+                      </div>
                     </div>
                     <div className="space-y-0.5 mb-3">
                       {(pedido.items ?? []).map((item) => (
