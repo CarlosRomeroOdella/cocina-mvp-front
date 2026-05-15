@@ -99,22 +99,23 @@ export default function AdminDashboard() {
           <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-orange-200">A</div>
           <h1 className="text-lg font-bold text-gray-900 tracking-tight">Dashboard Admin</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* Toggle cocina */}
           <button
             onClick={handleToggleCocina}
             disabled={togglingCocina}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-all ${
               cocinaAbierta
                 ? "bg-green-500 hover:bg-green-600 border-green-500 text-white shadow-sm shadow-green-200"
                 : "bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-500"
             } disabled:opacity-60`}
           >
-            <span className={`w-2 h-2 rounded-full ${cocinaAbierta ? "bg-white" : "bg-gray-400"}`} />
-            {togglingCocina ? "..." : cocinaAbierta ? "Cocina abierta" : "Cocina cerrada"}
+            <span className={`w-2 h-2 rounded-full shrink-0 ${cocinaAbierta ? "bg-white" : "bg-gray-400"}`} />
+            <span className="hidden sm:inline">{togglingCocina ? "..." : cocinaAbierta ? "Cocina abierta" : "Cocina cerrada"}</span>
+            <span className="sm:hidden">{togglingCocina ? "..." : cocinaAbierta ? "Abierta" : "Cerrada"}</span>
           </button>
 
-          <button onClick={() => navigate("/menu")} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50">
+          <button onClick={() => navigate("/menu")} className="hidden sm:block text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50">
             Ver menú cliente
           </button>
           <button
@@ -139,8 +140,8 @@ export default function AdminDashboard() {
       </header>
 
       {/* TABS */}
-      <div className="px-6 border-b border-orange-100 tabs-bg">
-        <nav className="flex gap-1 max-w-6xl mx-auto">
+      <div className="border-b border-orange-100 tabs-bg overflow-x-auto">
+        <nav className="flex gap-1 max-w-6xl mx-auto px-4 sm:px-6 min-w-max sm:min-w-0">
           {["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios"].map((tab) => (
             <button
               key={tab}
