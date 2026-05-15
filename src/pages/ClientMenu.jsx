@@ -42,6 +42,7 @@ export default function ClientMenu() {
   const [mostrarIngredientes, setMostrarIngredientes] = useState(false);
   const [pwdModal, setPwdModal] = useState(false);
   const [modalExtra, setModalExtra] = useState(null); // "bebidas" | "postres" | null
+  const [notifModal, setNotifModal] = useState(false);
   const [historialAbierto, setHistorialAbierto] = useState(false);
   const [historial, setHistorial] = useState([]);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
@@ -125,9 +126,6 @@ export default function ClientMenu() {
     setTimeout(() => setToastMsg(null), 5000);
   };
 
-  const pedirNotificaciones = () => {
-    if (Notification.permission === "default") Notification.requestPermission();
-  };
 
   /* ── Cálculos de precio ── */
   const platilloSeleccionado = platillos.find((p) => p.id === selectedPlatilloId);
@@ -280,10 +278,9 @@ export default function ClientMenu() {
     setCarritoAbierto(true);
   };
 
-  const confirmarPedido = async () => {
+  const enviarPedido = async () => {
     if (!puedeConfirmar) return;
     setConfirmando(true);
-    pedirNotificaciones();
     try {
       const pedido = await crearPedido({ items: carrito, total: totalCarrito, nota: nota.trim() || null, modalidad: paraLlevar ? "para_llevar" : "en_cocina" });
       const activo = { id: pedido.id, status: pedido.status, nota: pedido.nota ?? null };
@@ -299,6 +296,16 @@ export default function ClientMenu() {
       alert(err.message || "Error al enviar el pedido");
     } finally {
       setConfirmando(false);
+    }
+  };
+
+  const confirmarPedido = () => {
+    if (!puedeConfirmar) return;
+    const soporta = "Notification" in window;
+    if (!soporta || Notification.permission === "granted") {
+      enviarPedido();
+    } else {
+      setNotifModal(true);
     }
   };
 
@@ -927,6 +934,23 @@ export default function ClientMenu() {
 
       {pwdModal && <CambiarPasswordModal onClose={() => setPwdModal(false)} />}
 
+      {/* ===== MODAL NOTIFICACIONES ===== */}
+      {notifModal && (
+        <NotifModal
+          onActivar={async () => {
+            const result = await Notification.requestPermission();
+            if (result === "granted") {
+              setNotifModal(false);
+              enviarPedido();
+            }
+          }}
+          onSinNotif={() => {
+            setNotifModal(false);
+            enviarPedido();
+          }}
+        />
+      )}
+
       {pedidoRevision && (
         <RevisionModal
           pedido={pedidoRevision}
@@ -1161,6 +1185,78 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
 }
 
 /* ── Modal de revisión de pedido ─────────────────────────────────────────── */
+/* ── Modal de permisos de notificación ───────────────────────────────────── */
+function NotifModal({ onActivar, onSinNotif }) {
+  const [solicitando, setSolicitando] = useState(false);
+  const negado = "Notification" in window && Notification.permission === "denied";
+
+  const handleActivar = async () => {
+    setSolicitando(true);
+    await onActivar();
+    setSolicitando(false);
+  };
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[70]" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }} />
+      <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
+        <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl" style={{ background: "rgba(255,255,255,0.98)" }}>
+
+          {/* Cabecera naranja */}
+          <div className="bg-orange-500 px-6 pt-8 pb-6 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-white">Activa las notificaciones</h2>
+            <p className="text-sm text-white/80 mt-1">Para saber el estado de tu pedido</p>
+          </div>
+
+          {/* Cuerpo */}
+          <div className="px-6 py-6">
+            {negado ? (
+              <>
+                <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-4 mb-5">
+                  <p className="text-sm font-semibold text-red-600 mb-1">Notificaciones bloqueadas</p>
+                  <p className="text-xs text-red-400 leading-relaxed">
+                    Bloqueaste los permisos anteriormente. Para reactivarlos:
+                  </p>
+                  <ol className="text-xs text-red-400 mt-2 space-y-1 list-decimal list-inside leading-relaxed">
+                    <li>Toca el candado / ícono de info en la barra de dirección</li>
+                    <li>Busca <strong>Notificaciones</strong> y cámbialo a <strong>Permitir</strong></li>
+                    <li>Recarga la página</li>
+                  </ol>
+                </div>
+                <button onClick={onSinNotif} className="w-full py-3 rounded-full text-sm font-semibold text-gray-500 border border-gray-200 hover:bg-gray-50 transition-all">
+                  Continuar sin notificaciones
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-500 leading-relaxed mb-5">
+                  Te avisaremos cuando tu pedido esté <strong className="text-gray-700">en preparación</strong> y cuando esté <strong className="text-gray-700">listo para recoger</strong>. Sin notificaciones tendrás que mantener la app abierta.
+                </p>
+                <button
+                  onClick={handleActivar}
+                  disabled={solicitando}
+                  className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-60 transition-all shadow-md shadow-orange-200 mb-3"
+                >
+                  {solicitando ? "Activando…" : "🔔 Activar notificaciones"}
+                </button>
+                <button onClick={onSinNotif} className="w-full py-2.5 rounded-full text-xs font-medium text-gray-400 hover:text-gray-600 transition-all">
+                  Continuar sin notificaciones
+                </button>
+              </>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
+}
+
 function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar, onCerrar }) {
   const [items, setItems] = useState(pedido.items);
   const [expandedId, setExpandedId] = useState(null);
