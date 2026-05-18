@@ -23,7 +23,23 @@ export default function ClientMenu() {
   const navigate = useNavigate();
   const { platillos, ingredientes, extras, loading } = useProducts();
 
-  const PEDIDO_KEY = `pedido_activo_${user?.id ?? "anon"}`;
+  const PEDIDO_KEY    = `pedido_activo_${user?.id ?? "anon"}`;
+  const HISTORIAL_KEY = `pedidos_historial_${user?.id ?? "anon"}`;
+
+  const guardarEnHistorial = (pedido) => {
+    try {
+      const prev = JSON.parse(localStorage.getItem(HISTORIAL_KEY) ?? "[]");
+      const entrada = {
+        id: pedido.id, status: pedido.status, pagado: pedido.pagado ?? false,
+        total: pedido.total, nota: pedido.nota ?? null,
+        modalidad: pedido.modalidad ?? "en_cocina",
+        createdAt: pedido.createdAt ?? new Date().toISOString(),
+        items: pedido.items ?? [],
+      };
+      const updated = [entrada, ...prev.filter((p) => p.id !== entrada.id)].slice(0, 30);
+      localStorage.setItem(HISTORIAL_KEY, JSON.stringify(updated));
+    } catch {}
+  };
 
   const [menuTab, setMenuTab] = useState("platillos");
   const [busqueda, setBusqueda] = useState("");
@@ -100,6 +116,7 @@ export default function ClientMenu() {
           const nuevo = { id: data.id, status: data.status, nota: data.nota ?? null, pagado: data.pagado ?? false };
           setPedidoActivo(nuevo);
           localStorage.setItem(PEDIDO_KEY, JSON.stringify(nuevo));
+          guardarEnHistorial(data);
           if (data.status === "en_revision") {
             setPedidoRevision(data);
             mostrarToast("Tu pedido necesita revisión — toca el banner");
@@ -248,10 +265,18 @@ export default function ClientMenu() {
     setLoadingHistorial(true);
     try {
       const data = await getMisPedidos();
-      setHistorial(Array.isArray(data) ? data : []);
+      const lista = Array.isArray(data) ? data : [];
+      if (lista.length > 0) localStorage.setItem(HISTORIAL_KEY, JSON.stringify(lista));
+      setHistorial(lista);
     } catch (err) {
       console.error("[historial error]:", err);
-      setErrorHistorial(err.message || "Error desconocido");
+      try {
+        const cached = JSON.parse(localStorage.getItem(HISTORIAL_KEY) ?? "[]");
+        setHistorial(cached);
+        if (cached.length === 0) setErrorHistorial(err.message || "Error desconocido");
+      } catch {
+        setErrorHistorial(err.message || "Error desconocido");
+      }
     } finally {
       setLoadingHistorial(false);
     }
@@ -292,6 +317,7 @@ export default function ClientMenu() {
       prevNotaRef.current   = pedido.nota ?? null;
       prevPagadoRef.current = pedido.pagado ?? false;
       localStorage.setItem(PEDIDO_KEY, JSON.stringify(activo));
+      guardarEnHistorial(pedido);
       setCarrito([]);
       setNota("");
       setCarritoAbierto(false);
