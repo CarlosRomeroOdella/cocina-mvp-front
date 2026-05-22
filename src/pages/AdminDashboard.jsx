@@ -540,7 +540,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   };
 
   return (
-    <div className="space-y-4 max-w-xl">
+    <div className="space-y-4 max-w-2xl mx-auto">
       <div>
         <h2 className="text-lg font-bold text-gray-900">{titulo}</h2>
         <p className="text-xs text-gray-400">{filtrados.length}/{items.length} registrados</p>
@@ -973,7 +973,7 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
         {saveError && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl mt-2">{saveError}</p>}
       </div>
 
-      <div className="space-y-2 max-w-xl">
+      <div className="space-y-2 max-w-2xl mx-auto">
         {items.map((item) => {
           const asignados = platillos.filter((p) => (p.ingredientes ?? []).includes(item.id));
           const isOpen = expanded === item.id;
@@ -1111,7 +1111,7 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
         {saveError && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl mt-2">{saveError}</p>}
       </div>
 
-      <div className="space-y-2 max-w-xl">
+      <div className="space-y-2 max-w-2xl mx-auto">
         {items.map((item) => {
           const asignados = platillos.filter((p) => (p[tipoKey] ?? []).includes(item.id));
           const todosSeleccionados = platillos.length > 0 && asignados.length === platillos.length;
