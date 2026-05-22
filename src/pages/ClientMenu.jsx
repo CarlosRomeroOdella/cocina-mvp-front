@@ -329,10 +329,13 @@ export default function ClientMenu() {
     }
   };
 
+  const enIframe = window.self !== window.top;
+
   const confirmarPedido = () => {
     if (!puedeConfirmar) return;
     const soporta = "Notification" in window;
-    if (!soporta || Notification.permission === "granted") {
+    // En Teams (iFrame) el API de notificaciones no funciona — saltamos el modal
+    if (enIframe || !soporta || Notification.permission === "granted") {
       enviarPedido();
     } else {
       setNotifModal(true);
