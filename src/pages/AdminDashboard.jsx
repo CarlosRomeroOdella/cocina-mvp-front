@@ -354,14 +354,9 @@ function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guard
         conCategoria={true}
         conTamanos={true}
         conSabores={true}
-      />
-      <AsignacionPanel
-        titulo="Asignar extras a platillos"
-        subtitulo="Marca qué extras puede llevar cada platillo"
-        items={extras}
-        platillos={platillos}
-        tipoKey="extras"
-        guardarPlatillo={guardarPlatillo}
+        asignacionPlatillos={platillos}
+        asignacionTipoKey="extras"
+        asignacionGuardar={guardarPlatillo}
       />
     </div>
   );
@@ -376,7 +371,7 @@ const CATEGORIAS_EXTRA = [
   { value: "complemento", label: "Complemento" },
 ];
 
-function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria, categoriaLibre = false, conTamanos = false, conSabores = false }) {
+function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria, categoriaLibre = false, conTamanos = false, conSabores = false, asignacionPlatillos = null, asignacionTipoKey = null, asignacionGuardar = null }) {
   const [nombre, setNombre] = useState("");
   const [precio, setPrecio] = useState("");
   const [categoria, setCategoria] = useState("");
@@ -403,6 +398,10 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [filtroDisponible, setFiltroDisponible] = useState("todos");
   const [apiError, setApiError] = useState(null);
+  const [asignacionExpandida, setAsignacionExpandida] = useState(null);
+  const [togglingAsig, setTogglingAsig] = useState(null);
+  const [selectingAllAsig, setSelectingAllAsig] = useState(null);
+  const [saveErrorAsig, setSaveErrorAsig] = useState(null);
 
   const filtrados = items
     .filter((i) => !filtroCategoria || i.categoria === filtroCategoria)
@@ -452,6 +451,41 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
     try { await onActualizar(item.id, { disponible: !item.disponible }); }
     catch (err) { setApiError(err.message || "Error al actualizar"); }
     finally { setToggling(null); }
+  };
+
+  const handleToggleAsig = async (platillo, itemId) => {
+    const key = `${platillo.id}-${itemId}`;
+    setTogglingAsig(key);
+    setSaveErrorAsig(null);
+    const actuales = platillo[asignacionTipoKey] ?? [];
+    const tiene = actuales.includes(itemId);
+    const nuevos = tiene ? actuales.filter((id) => id !== itemId) : [...actuales, itemId];
+    try { await asignacionGuardar({ ...platillo, [asignacionTipoKey]: nuevos }); }
+    catch (err) { setSaveErrorAsig(err.message || "Error al guardar"); }
+    finally { setTogglingAsig(null); }
+  };
+
+  const handleSelectAllAsig = async (itemId, todosSeleccionados) => {
+    setSelectingAllAsig(itemId);
+    setSaveErrorAsig(null);
+    try {
+      const pending = asignacionPlatillos.filter((p) => {
+        const tiene = (p[asignacionTipoKey] ?? []).includes(itemId);
+        return todosSeleccionados ? tiene : !tiene;
+      });
+      await Promise.all(
+        pending.map((p) => {
+          const nuevos = todosSeleccionados
+            ? (p[asignacionTipoKey] ?? []).filter((id) => id !== itemId)
+            : [...(p[asignacionTipoKey] ?? []), itemId];
+          return asignacionGuardar({ ...p, [asignacionTipoKey]: nuevos });
+        })
+      );
+    } catch (err) {
+      setSaveErrorAsig(err.message || "Error al guardar");
+    } finally {
+      setSelectingAllAsig(null);
+    }
   };
 
   const [editNombre, setEditNombre] = useState("");
@@ -512,7 +546,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         <p className="text-xs text-gray-400">{filtrados.length}/{items.length} registrados</p>
       </div>
 
-      <form onSubmit={handleCrear} className="flex gap-2 flex-wrap">
+      <form id={`crear-${titulo.toLowerCase().replace(/\s+/g, "-")}-form`} onSubmit={handleCrear} className="flex gap-2 flex-wrap">
         <input
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
@@ -555,13 +589,6 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
           placeholder="URL imagen (opcional)"
           className="flex-1 min-w-40 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
         />
-        <button
-          type="submit"
-          disabled={guardando || !nombre.trim()}
-          className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-orange-200 whitespace-nowrap"
-        >
-          {guardando ? "..." : "Agregar"}
-        </button>
       </form>
 
       {/* Tamaños en formulario de creación */}
@@ -607,6 +634,15 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         </div>
       )}
 
+      <button
+        type="submit"
+        form={`crear-${titulo.toLowerCase().replace(/\s+/g, "-")}-form`}
+        disabled={guardando || !nombre.trim()}
+        className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-orange-200 whitespace-nowrap"
+      >
+        {guardando ? "..." : "Agregar"}
+      </button>
+
       {apiError && (
         <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{apiError}</p>
       )}
@@ -636,9 +672,9 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
       <div className="space-y-2">
         {filtrados.length === 0 && items.length > 0 && <p className="text-sm text-gray-400 text-center py-4">Sin resultados</p>}
         {filtrados.map((item) => (
-          <div key={item.id} className={`bg-white border rounded-xl px-4 py-3 transition-all ${item.disponible ? "border-orange-100 hover:border-orange-200" : "border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-300"}`}>
+          <div key={item.id} className={`bg-white border rounded-xl overflow-hidden transition-all ${item.disponible ? "border-orange-100 hover:border-orange-200" : "border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-300"}`}>
             {editandoId === item.id ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 px-4 py-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   <input
                     value={editNombre}
@@ -746,66 +782,133 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                 )}
               </div>
             ) : (
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 flex-wrap min-w-0">
-                  {item.imagen && (
-                    <img src={item.imagen} alt={item.nombre} className="w-7 h-7 rounded-lg object-cover border border-orange-100 shrink-0" onError={(e) => (e.target.style.display = "none")} />
-                  )}
-                  <span className="text-sm font-medium text-gray-700">{item.nombre}</span>
-                  {item.precio != null && (
-                    <span className="text-xs text-orange-500 font-semibold">${Number(item.precio).toFixed(2)}</span>
-                  )}
-                  {item.categoria && (
-                    <span className="text-xs text-blue-500 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full font-medium capitalize">
-                      {item.categoria}
-                    </span>
-                  )}
-                  {Array.isArray(item.tamanos) && item.tamanos.length > 0 && (
-                    <span className="text-xs text-orange-400 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full font-medium">
-                      {item.tamanos.length} tamaño{item.tamanos.length !== 1 ? "s" : ""}
-                    </span>
-                  )}
-                  {Array.isArray(item.sabores) && item.sabores.length > 0 && (
-                    <span className="text-xs text-purple-500 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full font-medium">
-                      {item.sabores.length} sabor{item.sabores.length !== 1 ? "es" : ""}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    onClick={() => handleToggleDisponible(item)}
-                    disabled={toggling === item.id}
-                    title={item.disponible ? "Deshabilitar" : "Habilitar"}
-                    className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all disabled:opacity-50 ${
-                      item.disponible
-                        ? "bg-green-50 border-green-200 text-green-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
-                        : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-green-50 hover:border-green-200 hover:text-green-600"
-                    }`}
-                  >
-                    {toggling === item.id ? "…" : item.disponible ? "Activo" : "Inactivo"}
-                  </button>
-                  <button
-                    onClick={() => handleStartEdit(item)}
-                    className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
-                  >
-                    Editar
-                  </button>
-                  {confirmandoEliminarId === item.id ? (
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => handleEliminar(item.id)} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-all">Sí</button>
-                      <button onClick={() => setConfirmandoEliminarId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-100 transition-all">No</button>
-                    </div>
-                  ) : (
+              <>
+                <div className="flex items-center justify-between gap-2 px-4 py-3">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    {item.imagen && (
+                      <img src={item.imagen} alt={item.nombre} className="w-7 h-7 rounded-lg object-cover border border-orange-100 shrink-0" onError={(e) => (e.target.style.display = "none")} />
+                    )}
+                    <span className="text-sm font-medium text-gray-700">{item.nombre}</span>
+                    {item.precio != null && (
+                      <span className="text-xs text-orange-500 font-semibold">${Number(item.precio).toFixed(2)}</span>
+                    )}
+                    {item.categoria && (
+                      <span className="text-xs text-blue-500 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full font-medium capitalize">
+                        {item.categoria}
+                      </span>
+                    )}
+                    {Array.isArray(item.tamanos) && item.tamanos.length > 0 && (
+                      <span className="text-xs text-orange-400 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full font-medium">
+                        {item.tamanos.length} tamaño{item.tamanos.length !== 1 ? "s" : ""}
+                      </span>
+                    )}
+                    {Array.isArray(item.sabores) && item.sabores.length > 0 && (
+                      <span className="text-xs text-purple-500 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full font-medium">
+                        {item.sabores.length} sabor{item.sabores.length !== 1 ? "es" : ""}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
                     <button
-                      onClick={() => setConfirmandoEliminarId(item.id)}
-                      disabled={eliminando === item.id}
-                      className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all disabled:opacity-50"
+                      onClick={() => handleToggleDisponible(item)}
+                      disabled={toggling === item.id}
+                      title={item.disponible ? "Deshabilitar" : "Habilitar"}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all disabled:opacity-50 ${
+                        item.disponible
+                          ? "bg-green-50 border-green-200 text-green-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+                          : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-green-50 hover:border-green-200 hover:text-green-600"
+                      }`}
                     >
-                      {eliminando === item.id ? "..." : "Eliminar"}
+                      {toggling === item.id ? "…" : item.disponible ? "Activo" : "Inactivo"}
                     </button>
-                  )}
+                    <button
+                      onClick={() => handleStartEdit(item)}
+                      className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
+                    >
+                      Editar
+                    </button>
+                    {confirmandoEliminarId === item.id ? (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleEliminar(item.id)} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-all">Sí</button>
+                        <button onClick={() => setConfirmandoEliminarId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-100 transition-all">No</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmandoEliminarId(item.id)}
+                        disabled={eliminando === item.id}
+                        className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all disabled:opacity-50"
+                      >
+                        {eliminando === item.id ? "..." : "Eliminar"}
+                      </button>
+                    )}
+                    {asignacionPlatillos && (
+                      <button
+                        onClick={() => setAsignacionExpandida(asignacionExpandida === item.id ? null : item.id)}
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all ${
+                          asignacionExpandida === item.id
+                            ? "bg-orange-500 border-orange-500 text-white"
+                            : "bg-white border-orange-200 text-orange-500 hover:bg-orange-50"
+                        }`}
+                      >
+                        Platillos {asignacionExpandida === item.id ? "▲" : "▼"}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+                {asignacionPlatillos && asignacionExpandida === item.id && (() => {
+                  const asignados = asignacionPlatillos.filter((p) => (p[asignacionTipoKey] ?? []).includes(item.id));
+                  const todosSeleccionados = asignacionPlatillos.length > 0 && asignados.length === asignacionPlatillos.length;
+                  const algunosSeleccionados = asignados.length > 0 && !todosSeleccionados;
+                  const loadingAll = selectingAllAsig === item.id;
+                  return (
+                    <div className="px-4 pb-4 pt-3 border-t border-orange-50 space-y-3 bg-orange-50/30">
+                      {saveErrorAsig && <p className="text-xs text-red-500">{saveErrorAsig}</p>}
+                      {asignacionPlatillos.length === 0 ? (
+                        <p className="text-xs text-gray-400 py-2">No hay platillos registrados</p>
+                      ) : (
+                        <>
+                          <label className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all font-semibold text-sm ${
+                            todosSeleccionados ? "bg-orange-100 border-orange-400 text-orange-700" : "border-orange-200 text-orange-500 hover:bg-orange-50"
+                          } ${loadingAll ? "opacity-50 cursor-wait" : ""}`}>
+                            <input
+                              type="checkbox"
+                              checked={todosSeleccionados}
+                              ref={(el) => { if (el) el.indeterminate = algunosSeleccionados; }}
+                              disabled={loadingAll}
+                              onChange={() => handleSelectAllAsig(item.id, todosSeleccionados)}
+                              className="accent-orange-500 w-4 h-4 shrink-0"
+                            />
+                            {loadingAll ? "Guardando..." : todosSeleccionados ? "Desmarcar todos" : "Marcar todos los platillos"}
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {asignacionPlatillos.map((p) => {
+                              const asignado = (p[asignacionTipoKey] ?? []).includes(item.id);
+                              const key = `${p.id}-${item.id}`;
+                              return (
+                                <label
+                                  key={p.id}
+                                  className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all ${
+                                    togglingAsig === key || loadingAll ? "opacity-50" : ""
+                                  } ${asignado ? "bg-orange-50 border-orange-300 text-orange-700" : "border-gray-100 text-gray-600 hover:border-orange-200 bg-white"}`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={asignado}
+                                    disabled={togglingAsig === key || loadingAll}
+                                    onChange={() => handleToggleAsig(p, item.id)}
+                                    className="accent-orange-500 w-4 h-4 shrink-0"
+                                  />
+                                  <span className="text-xs font-medium truncate">{p.nombre}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+              </>
             )}
           </div>
         ))}
