@@ -15,6 +15,7 @@ export default function Login() {
   const { login } = useContext(AuthContext);
   const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
+  const enTeams = window.self !== window.top;
 
   const procesarTokenMicrosoft = async (idToken) => {
     setLoadingMs(true);
@@ -102,32 +103,36 @@ export default function Login() {
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={handleMicrosoftLogin}
-            disabled={inProgress !== "none" || loading || loadingMs}
-            className="w-full flex items-center justify-center gap-3 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-60 disabled:cursor-not-allowed text-gray-700 font-semibold py-2.5 rounded-xl transition-all mb-4"
-          >
-            {loadingMs ? (
-              <span className="text-sm">Conectando...</span>
-            ) : (
-              <>
-                <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
-                  <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-                  <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-                  <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-                  <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-                </svg>
-                <span className="text-sm">Entrar con Microsoft</span>
-              </>
-            )}
-          </button>
+          {!enTeams && (
+            <>
+              <button
+                type="button"
+                onClick={handleMicrosoftLogin}
+                disabled={inProgress !== "none" || loading || loadingMs}
+                className="w-full flex items-center justify-center gap-3 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-60 disabled:cursor-not-allowed text-gray-700 font-semibold py-2.5 rounded-xl transition-all mb-4"
+              >
+                {loadingMs ? (
+                  <span className="text-sm">Conectando...</span>
+                ) : (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
+                      <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+                      <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+                      <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+                      <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+                    </svg>
+                    <span className="text-sm">Entrar con Microsoft</span>
+                  </>
+                )}
+              </button>
 
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-xs text-gray-300 font-medium">o</span>
-            <div className="flex-1 h-px bg-gray-100" />
-          </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px bg-gray-100" />
+                <span className="text-xs text-gray-300 font-medium">o</span>
+                <div className="flex-1 h-px bg-gray-100" />
+              </div>
+            </>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
