@@ -9,18 +9,17 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { msalInstance } from "./lib/msalConfig";
 import "./index.css";
 
-msalInstance.initialize().then(() => {
-  ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-      <MsalProvider instance={msalInstance}>
-        <ThemeProvider>
-          <AuthProvider>
-            <ProductsProvider>
-              <RouterProvider router={router} />
-            </ProductsProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </MsalProvider>
-    </React.StrictMode>
-  );
-});
+// MsalProvider se encarga de inicializar msalInstance internamente
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <MsalProvider instance={msalInstance}>
+      <ThemeProvider>
+        <AuthProvider>
+          <ProductsProvider>
+            <RouterProvider router={router} />
+          </ProductsProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </MsalProvider>
+  </React.StrictMode>
+);

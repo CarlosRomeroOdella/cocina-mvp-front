@@ -13,11 +13,13 @@ export default function Login() {
   const [loadingMs, setLoadingMs] = useState(false);
 
   const { login } = useContext(AuthContext);
-  const { instance } = useMsal();
+  const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
 
-  // Maneja el resultado cuando Microsoft redirige de vuelta a la app
+  // Cuando MSAL termina de procesar el redirect de Microsoft, manejamos el resultado
   useEffect(() => {
+    if (inProgress !== "none") return;
+
     instance.handleRedirectPromise()
       .then(async (result) => {
         if (!result?.idToken) return;
@@ -40,11 +42,11 @@ export default function Login() {
         }
       })
       .catch((error) => {
-        if (error.errorCode !== "user_cancelled") {
-          setErr(error.message || "Error con Microsoft");
+        if (error?.errorCode !== "user_cancelled") {
+          setErr(error?.message || "Error con Microsoft");
         }
       });
-  }, []);
+  }, [inProgress]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,16 +70,20 @@ export default function Login() {
     }
   };
 
-  const handleMicrosoftLogin = () => {
+  const handleMicrosoftLogin = async () => {
+    if (inProgress !== "none") return;
     setErr(null);
-    instance.loginRedirect(msalLoginRequest);
+    try {
+      await instance.loginRedirect(msalLoginRequest);
+    } catch (error) {
+      setErr(error?.message || "Error al iniciar sesión con Microsoft");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 page-bg">
       <div className="w-full max-w-sm">
 
-        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-orange-200 mb-4">
             C
@@ -86,7 +92,6 @@ export default function Login() {
           <p className="text-sm text-gray-400 mt-1">Inicia sesión para continuar</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl border border-orange-100 p-8 shadow-xl shadow-orange-50">
 
           {err && (
@@ -95,14 +100,13 @@ export default function Login() {
             </div>
           )}
 
-          {/* Botón Microsoft */}
           <button
             type="button"
             onClick={handleMicrosoftLogin}
-            disabled={loadingMs || loading}
+            disabled={inProgress !== "none" || loading || loadingMs}
             className="w-full flex items-center justify-center gap-3 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-60 disabled:cursor-not-allowed text-gray-700 font-semibold py-2.5 rounded-xl transition-all mb-4"
           >
-            {loadingMs ? (
+            {loadingMs || inProgress === "handleRedirect" ? (
               <span className="text-sm">Conectando...</span>
             ) : (
               <>
@@ -154,7 +158,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading || loadingMs}
+              disabled={loading || loadingMs || inProgress !== "none"}
               className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all shadow-md shadow-orange-200 mt-2"
             >
               {loading ? "Entrando..." : "Entrar"}
