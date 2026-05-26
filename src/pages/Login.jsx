@@ -47,9 +47,18 @@ export default function Login() {
   useEffect(() => {
     if (!enTeams) return;
     setLoadingMs(true);
+    const fallback = setTimeout(() => {
+      setLoadingMs(false);
+      setTeamsSSOfailed(true);
+    }, 6000);
+
     microsoftTeams.app.initialize()
-      .then(() => microsoftTeams.authentication.getAuthToken())
+      .then(() => {
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 5000));
+        return Promise.race([microsoftTeams.authentication.getAuthToken(), timeout]);
+      })
       .then(async (teamsToken) => {
+        clearTimeout(fallback);
         const data = await loginTeams({ teamsToken });
         const normalizedUser = {
           id: data.usuario.id,
@@ -62,6 +71,7 @@ export default function Login() {
         navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
       })
       .catch(() => {
+        clearTimeout(fallback);
         setLoadingMs(false);
         setTeamsSSOfailed(true);
       });
