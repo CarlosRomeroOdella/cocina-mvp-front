@@ -17,10 +17,9 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // handleRedirectPromise devuelve el resultado cacheado por initialize()
-    // Si venimos del redirect de Microsoft, result.idToken estará presente
     instance.handleRedirectPromise()
       .then(async (result) => {
+        console.log("[MSAL] handleRedirectPromise result:", result);
         if (!result?.idToken) return;
         setLoadingMs(true);
         try {
