@@ -17,9 +17,7 @@ export default function Login() {
   const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
   const enTeams = window.self !== window.top;
-  const [teamsSSOfailed, setTeamsSSOfailed] = useState(
-    () => !!sessionStorage.getItem("teams_sso_attempted")
-  );
+  const [teamsSSOfailed, setTeamsSSOfailed] = useState(false);
   const [teamsSSOStep, setTeamsSSOStep] = useState("");
   const ssoStarted = useRef(false);
 
@@ -51,7 +49,6 @@ export default function Login() {
   useEffect(() => {
     if (!enTeams || ssoStarted.current || teamsSSOfailed) return;
     ssoStarted.current = true;
-    sessionStorage.setItem("teams_sso_attempted", "1");
     setLoadingMs(true);
 
     let cancelled = false;

@@ -417,7 +417,9 @@ export default function ClientMenu() {
             <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-orange-200">C</div>
             <div>
               <h1 className="text-lg font-bold text-gray-900 tracking-tight leading-none">Cocina Odellā</h1>
-              <p className="text-xs text-gray-400 mt-0.5">Menú del día</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {user?.nombre ? `Bienvenido, ${user.nombre.split(" ")[0]}` : "Menú del día"}
+              </p>
             </div>
           </div>
 
