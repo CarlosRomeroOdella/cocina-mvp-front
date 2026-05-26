@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
-import { EventType } from "@azure/msal-browser";
 import { AuthContext } from "../context/AuthContext";
 import { login as loginRequest, loginMicrosoft } from "../services/authService";
 import { loginRequest as msalLoginRequest } from "../lib/msalConfig";
@@ -17,46 +16,34 @@ export default function Login() {
   const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
 
-  const procesarTokenMicrosoft = async (idToken) => {
-    setLoadingMs(true);
-    setErr(null);
-    try {
-      const data = await loginMicrosoft({ idToken });
-      const normalizedUser = {
-        id: data.usuario.id,
-        correo: data.usuario.correo,
-        nombre: data.usuario.nombre,
-        role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
-        token: data.access_token,
-      };
-      login(normalizedUser);
-      navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
-    } catch (error) {
-      setErr(error.message || "Error al iniciar sesión con Microsoft");
-      setLoadingMs(false);
-    }
-  };
-
   useEffect(() => {
-    // Escucha el evento de login exitoso de MSAL (cubre el caso redirect)
-    const callbackId = instance.addEventCallback((event) => {
-      if (event.eventType === EventType.LOGIN_SUCCESS && event.payload?.idToken) {
-        procesarTokenMicrosoft(event.payload.idToken);
-      }
-    });
-
-    // También intenta capturar resultado si el evento ya ocurrió antes de montar
+    // handleRedirectPromise devuelve el resultado cacheado por initialize()
+    // Si venimos del redirect de Microsoft, result.idToken estará presente
     instance.handleRedirectPromise()
-      .then((result) => {
-        if (result?.idToken) procesarTokenMicrosoft(result.idToken);
+      .then(async (result) => {
+        if (!result?.idToken) return;
+        setLoadingMs(true);
+        try {
+          const data = await loginMicrosoft({ idToken: result.idToken });
+          const normalizedUser = {
+            id: data.usuario.id,
+            correo: data.usuario.correo,
+            nombre: data.usuario.nombre,
+            role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
+            token: data.access_token,
+          };
+          login(normalizedUser);
+          navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
+        } catch (error) {
+          setErr(error.message || "Error al iniciar sesión con Microsoft");
+          setLoadingMs(false);
+        }
       })
       .catch((error) => {
         if (error?.errorCode !== "user_cancelled") {
           setErr(error?.message || "Error con Microsoft");
         }
       });
-
-    return () => instance.removeEventCallback(callbackId);
   }, []);
 
   const handleSubmit = async (e) => {
