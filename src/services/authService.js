@@ -15,12 +15,15 @@ export async function login({ email, password }) {
   return res.data;
 }
 
-// ✅ NUEVO: logout también puede llamar al backend si es necesario
+export async function loginMicrosoft({ idToken }) {
+  const res = await api.post("/auth/login-microsoft", { id_token: idToken });
+  return res.data;
+}
+
 export async function logout() {
   if (USE_MOCK) return;
 
   try {
     await api.post("/auth/logout");
   } catch {}
-  // Aunque falle el backend, el AuthContext limpia la sesión local
 }
