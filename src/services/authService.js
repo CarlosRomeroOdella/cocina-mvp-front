@@ -20,6 +20,11 @@ export async function loginMicrosoft({ idToken }) {
   return res.data;
 }
 
+export async function loginTeams({ teamsToken }) {
+  const res = await api.post("/auth/login-teams", { teams_token: teamsToken });
+  return res.data;
+}
+
 export async function logout() {
   if (USE_MOCK) return;
 

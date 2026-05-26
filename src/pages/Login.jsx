@@ -1,8 +1,9 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
+import * as microsoftTeams from "@microsoft/teams-js";
 import { AuthContext } from "../context/AuthContext";
-import { login as loginRequest, loginMicrosoft } from "../services/authService";
+import { login as loginRequest, loginMicrosoft, loginTeams } from "../services/authService";
 import { loginRequest as msalLoginRequest, msalRedirectPromise } from "../lib/msalConfig";
 
 export default function Login() {
@@ -16,6 +17,7 @@ export default function Login() {
   const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
   const enTeams = window.self !== window.top;
+  const [teamsSSOfailed, setTeamsSSOfailed] = useState(false);
 
   const procesarTokenMicrosoft = async (idToken) => {
     setLoadingMs(true);
@@ -40,6 +42,29 @@ export default function Login() {
     msalRedirectPromise
       .then((result) => { if (result?.idToken) procesarTokenMicrosoft(result.idToken); })
       .catch((error) => { if (error?.errorCode !== "user_cancelled") setErr(error?.message || "Error con Microsoft"); });
+  }, []);
+
+  useEffect(() => {
+    if (!enTeams) return;
+    setLoadingMs(true);
+    microsoftTeams.app.initialize()
+      .then(() => microsoftTeams.authentication.getAuthToken())
+      .then(async (teamsToken) => {
+        const data = await loginTeams({ teamsToken });
+        const normalizedUser = {
+          id: data.usuario.id,
+          correo: data.usuario.correo,
+          nombre: data.usuario.nombre,
+          role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
+          token: data.access_token,
+        };
+        login(normalizedUser);
+        navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
+      })
+      .catch(() => {
+        setLoadingMs(false);
+        setTeamsSSOfailed(true);
+      });
   }, []);
 
   const handleSubmit = async (e) => {
@@ -82,6 +107,17 @@ export default function Login() {
       }
     }
   };
+
+  if (enTeams && loadingMs && !teamsSSOfailed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center page-bg">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-400">Iniciando sesión...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 page-bg">
