@@ -16,32 +16,29 @@ export default function Login() {
   const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
 
+  const procesarTokenMicrosoft = async (idToken) => {
+    setLoadingMs(true);
+    try {
+      const data = await loginMicrosoft({ idToken });
+      const normalizedUser = {
+        id: data.usuario.id,
+        correo: data.usuario.correo,
+        nombre: data.usuario.nombre,
+        role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
+        token: data.access_token,
+      };
+      login(normalizedUser);
+      navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
+    } catch (error) {
+      setErr(error.message || "Error al iniciar sesión con Microsoft");
+      setLoadingMs(false);
+    }
+  };
+
   useEffect(() => {
-    // Usa la promesa capturada en el momento de initialize() — no se pierde el resultado
-    msalRedirectPromise.then(async (result) => {
-      console.log("[MSAL] redirect result:", result);
-      if (!result?.idToken) return;
-      setLoadingMs(true);
-      try {
-        const data = await loginMicrosoft({ idToken: result.idToken });
-        const normalizedUser = {
-          id: data.usuario.id,
-          correo: data.usuario.correo,
-          nombre: data.usuario.nombre,
-          role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
-          token: data.access_token,
-        };
-        login(normalizedUser);
-        navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
-      } catch (error) {
-        setErr(error.message || "Error al iniciar sesión con Microsoft");
-        setLoadingMs(false);
-      }
-    }).catch((error) => {
-      if (error?.errorCode !== "user_cancelled") {
-        setErr(error?.message || "Error con Microsoft");
-      }
-    });
+    msalRedirectPromise
+      .then((result) => { if (result?.idToken) procesarTokenMicrosoft(result.idToken); })
+      .catch((error) => { if (error?.errorCode !== "user_cancelled") setErr(error?.message || "Error con Microsoft"); });
   }, []);
 
   const handleSubmit = async (e) => {
@@ -69,10 +66,19 @@ export default function Login() {
   const handleMicrosoftLogin = async () => {
     if (inProgress !== "none") return;
     setErr(null);
+    const enIframe = window.self !== window.top;
     try {
-      await instance.loginRedirect(msalLoginRequest);
+      if (enIframe) {
+        // En Teams/iFrame no se puede hacer redirect, usar popup
+        const result = await instance.loginPopup(msalLoginRequest);
+        if (result?.idToken) await procesarTokenMicrosoft(result.idToken);
+      } else {
+        await instance.loginRedirect(msalLoginRequest);
+      }
     } catch (error) {
-      setErr(error?.message || "Error al iniciar sesión con Microsoft");
+      if (error?.errorCode !== "user_cancelled") {
+        setErr(error?.message || "Error al iniciar sesión con Microsoft");
+      }
     }
   };
 
