@@ -115,8 +115,9 @@ export default function AdminDashboard() {
             <span className="sm:hidden">{togglingCocina ? "..." : cocinaAbierta ? "Abierta" : "Cerrada"}</span>
           </button>
 
-          <button onClick={() => navigate("/menu")} className="hidden sm:block text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50">
-            Ver menú cliente
+          <button onClick={() => navigate("/menu")} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
+            <span className="hidden sm:inline">Ver menú cliente</span>
+            <span className="sm:hidden">Menú</span>
           </button>
           <button
             onClick={toggleTheme}
