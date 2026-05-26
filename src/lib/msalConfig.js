@@ -14,7 +14,6 @@ export const msalConfig = {
 
 export const loginRequest = {
   scopes: ["openid", "profile", "email"],
-  redirectUri: `${window.location.origin}/blank.html`,
 };
 
 export const msalInstance = new PublicClientApplication(msalConfig);
