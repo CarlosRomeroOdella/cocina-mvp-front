@@ -70,7 +70,8 @@ export default function Login() {
         login(normalizedUser);
         navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[Teams SSO] failed:", err);
         clearTimeout(fallback);
         setLoadingMs(false);
         setTeamsSSOfailed(true);
