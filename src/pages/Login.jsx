@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 import { AuthContext } from "../context/AuthContext";
 import { login as loginRequest, loginMicrosoft } from "../services/authService";
-import { loginRequest as msalLoginRequest } from "../lib/msalConfig";
+import { loginRequest as msalLoginRequest, msalRedirectPromise } from "../lib/msalConfig";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,32 +17,31 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    instance.handleRedirectPromise()
-      .then(async (result) => {
-        console.log("[MSAL] handleRedirectPromise result:", result);
-        if (!result?.idToken) return;
-        setLoadingMs(true);
-        try {
-          const data = await loginMicrosoft({ idToken: result.idToken });
-          const normalizedUser = {
-            id: data.usuario.id,
-            correo: data.usuario.correo,
-            nombre: data.usuario.nombre,
-            role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
-            token: data.access_token,
-          };
-          login(normalizedUser);
-          navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
-        } catch (error) {
-          setErr(error.message || "Error al iniciar sesión con Microsoft");
-          setLoadingMs(false);
-        }
-      })
-      .catch((error) => {
-        if (error?.errorCode !== "user_cancelled") {
-          setErr(error?.message || "Error con Microsoft");
-        }
-      });
+    // Usa la promesa capturada en el momento de initialize() — no se pierde el resultado
+    msalRedirectPromise.then(async (result) => {
+      console.log("[MSAL] redirect result:", result);
+      if (!result?.idToken) return;
+      setLoadingMs(true);
+      try {
+        const data = await loginMicrosoft({ idToken: result.idToken });
+        const normalizedUser = {
+          id: data.usuario.id,
+          correo: data.usuario.correo,
+          nombre: data.usuario.nombre,
+          role: data.usuario.rol === "cliente" ? "client" : data.usuario.rol,
+          token: data.access_token,
+        };
+        login(normalizedUser);
+        navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
+      } catch (error) {
+        setErr(error.message || "Error al iniciar sesión con Microsoft");
+        setLoadingMs(false);
+      }
+    }).catch((error) => {
+      if (error?.errorCode !== "user_cancelled") {
+        setErr(error?.message || "Error con Microsoft");
+      }
+    });
   }, []);
 
   const handleSubmit = async (e) => {

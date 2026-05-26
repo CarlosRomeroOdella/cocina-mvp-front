@@ -17,3 +17,9 @@ export const loginRequest = {
 };
 
 export const msalInstance = new PublicClientApplication(msalConfig);
+
+// Promesa que resuelve al resultado del redirect de Microsoft (o null si no hay redirect)
+// Se captura inmediatamente después de initialize() para no perder el resultado
+export const msalRedirectPromise = msalInstance
+  .initialize()
+  .then(() => msalInstance.handleRedirectPromise());

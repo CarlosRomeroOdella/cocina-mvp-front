@@ -6,10 +6,10 @@ import { router } from "./router";
 import { AuthProvider } from "./context/AuthContext";
 import { ProductsProvider } from "./context/ProductsContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import { msalInstance } from "./lib/msalConfig";
+import { msalInstance, msalRedirectPromise } from "./lib/msalConfig";
 import "./index.css";
 
-msalInstance.initialize().then(() => {
+msalRedirectPromise.then(() => {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
       <MsalProvider instance={msalInstance}>
