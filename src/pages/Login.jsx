@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 import * as microsoftTeams from "@microsoft/teams-js";
@@ -17,7 +17,11 @@ export default function Login() {
   const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
   const enTeams = window.self !== window.top;
-  const [teamsSSOfailed, setTeamsSSOfailed] = useState(false);
+  const [teamsSSOfailed, setTeamsSSOfailed] = useState(
+    () => !!sessionStorage.getItem("teams_sso_attempted")
+  );
+  const [teamsSSOStep, setTeamsSSOStep] = useState("");
+  const ssoStarted = useRef(false);
 
   const procesarTokenMicrosoft = async (idToken) => {
     setLoadingMs(true);
@@ -45,21 +49,34 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
-    if (!enTeams) return;
+    if (!enTeams || ssoStarted.current || teamsSSOfailed) return;
+    ssoStarted.current = true;
+    sessionStorage.setItem("teams_sso_attempted", "1");
     setLoadingMs(true);
+
+    let cancelled = false;
     const fallback = setTimeout(() => {
+      if (cancelled) return;
       setLoadingMs(false);
       setTeamsSSOfailed(true);
-    }, 6000);
+      setErr("SSO timeout — usa tu correo y contraseña");
+    }, 8000);
 
-    microsoftTeams.app.initialize()
-      .then(() => {
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 5000));
-        return Promise.race([microsoftTeams.authentication.getAuthToken(), timeout]);
-      })
-      .then(async (teamsToken) => {
-        clearTimeout(fallback);
+    const run = async () => {
+      try {
+        setTeamsSSOStep("Conectando con Teams...");
+        await microsoftTeams.app.initialize();
+
+        setTeamsSSOStep("Obteniendo token...");
+        const teamsToken = await Promise.race([
+          microsoftTeams.authentication.getAuthToken(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("getAuthToken timeout")), 5000)),
+        ]);
+
+        setTeamsSSOStep("Validando usuario...");
         const data = await loginTeams({ teamsToken });
+        if (cancelled) return;
+        clearTimeout(fallback);
         const normalizedUser = {
           id: data.usuario.id,
           correo: data.usuario.correo,
@@ -69,13 +86,19 @@ export default function Login() {
         };
         login(normalizedUser);
         navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
-      })
-      .catch((err) => {
-        console.error("[Teams SSO] failed:", err);
+      } catch (e) {
+        if (cancelled) return;
+        const msg = e?.message || e?.errorCode || String(e);
+        console.error("[Teams SSO] failed:", e);
         clearTimeout(fallback);
         setLoadingMs(false);
         setTeamsSSOfailed(true);
-      });
+        setErr(`SSO: ${msg}`);
+      }
+    };
+
+    run();
+    return () => { cancelled = true; clearTimeout(fallback); };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -124,7 +147,7 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center page-bg">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-400">Iniciando sesión...</p>
+          <p className="text-sm text-gray-400">{teamsSSOStep || "Iniciando sesión..."}</p>
         </div>
       </div>
     );
