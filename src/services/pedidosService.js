@@ -104,3 +104,11 @@ export async function getCocinaEstado() {
 export async function setCocinaEstado(abierta) {
   return apiFetch("/configuracion/cocina", { method: "PATCH", body: JSON.stringify({ abierta }) });
 }
+
+export async function getYoutubeUrl() {
+  return apiFetch("/configuracion/youtube");
+}
+
+export async function setYoutubeUrl(url) {
+  return apiFetch("/configuracion/youtube", { method: "PATCH", body: JSON.stringify({ url }) });
+}

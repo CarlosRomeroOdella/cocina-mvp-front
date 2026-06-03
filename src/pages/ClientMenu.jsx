@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
-import { crearPedido, getPedido, getMisPedidos, getCocinaEstado, reenviarPedido, cancelarPedido } from "../services/pedidosService";
+import { crearPedido, getPedido, getMisPedidos, getCocinaEstado, reenviarPedido, cancelarPedido, getYoutubeUrl } from "../services/pedidosService";
+import YoutubePlayer from "../components/YoutubePlayer";
 import { changeMyPassword } from "../services/usuariosService";
 
 const STATUS_LABEL = {
@@ -65,6 +66,7 @@ export default function ClientMenu() {
   const [errorHistorial, setErrorHistorial] = useState(false);
 
   const [cocinaAbierta, setCocinaAbierta] = useState(null);
+  const [youtubeUrl, setYoutubeUrl]       = useState(null);
 
   const [pedidoActivo, setPedidoActivo] = useState(() => {
     try { return JSON.parse(localStorage.getItem(PEDIDO_KEY) ?? "null"); } catch { return null; }
@@ -78,6 +80,7 @@ export default function ClientMenu() {
   const [pedidoRevision, setPedidoRevision] = useState(null);
 
   useEffect(() => {
+    getYoutubeUrl().then((d) => setYoutubeUrl(d.url)).catch(() => {});
     getCocinaEstado()
       .then((d) => setCocinaAbierta(d.abierta))
       .catch(() => setCocinaAbierta(false));
@@ -1576,6 +1579,7 @@ function CambiarPasswordModal({ onClose }) {
           </form>
         )}
       </div>
+      <YoutubePlayer url={youtubeUrl} />
     </div>
   );
 }

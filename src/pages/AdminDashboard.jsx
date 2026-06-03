@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
-import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen, actualizarNota, eliminarItemPedido } from "../services/pedidosService";
+import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen, actualizarNota, eliminarItemPedido, getYoutubeUrl, setYoutubeUrl } from "../services/pedidosService";
 import { getUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, resetPassword } from "../services/usuariosService";
 
 export default function AdminDashboard() {
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
       {/* TABS */}
       <div className="border-b border-orange-100 tabs-bg overflow-x-auto">
         <nav className="flex gap-1 max-w-6xl mx-auto px-4 sm:px-6 min-w-max sm:min-w-0">
-          {["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios"].map((tab) => (
+          {["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios", "ajustes"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -204,6 +204,7 @@ export default function AdminDashboard() {
             guardarPlatillo={guardarPlatillo}
           />
         )}
+        {activeTab === "ajustes" && <AjustesTab />}
       </main>
 
       {editModal && (
@@ -217,6 +218,76 @@ export default function AdminDashboard() {
           error={saveError}
         />
       )}
+    </div>
+  );
+}
+
+function AjustesTab() {
+  const [url, setUrl]       = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved]   = useState(false);
+
+  useEffect(() => {
+    getYoutubeUrl().then((d) => setUrl(d.url || "")).catch(() => {});
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await setYoutubeUrl(url.trim());
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-lg">
+      <h2 className="text-lg font-bold text-gray-900 mb-1">Ajustes</h2>
+      <p className="text-sm text-gray-400 mb-6">Configuración general de la app</p>
+
+      <div className="bg-white rounded-2xl border border-orange-100 p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 text-red-600" fill="currentColor">
+              <path d="M21.582 6.186a2.506 2.506 0 0 0-1.765-1.77C18.265 4 12 4 12 4s-6.265 0-7.817.416a2.506 2.506 0 0 0-1.765 1.77C2 7.742 2 12 2 12s0 4.258.418 5.814a2.506 2.506 0 0 0 1.765 1.77C5.735 20 12 20 12 20s6.265 0 7.817-.416a2.506 2.506 0 0 0 1.765-1.77C22 16.258 22 12 22 12s0-4.258-.418-5.814zM10 15.464V8.536L16 12l-6 3.464z"/>
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Música para clientes</p>
+            <p className="text-xs text-gray-400">Los clientes verán un mini player en la esquina inferior derecha</p>
+          </div>
+        </div>
+
+        <input
+          type="url"
+          placeholder="https://www.youtube.com/watch?v=... o playlist"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all mb-3"
+        />
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-orange-200"
+          >
+            {saving ? "Guardando..." : "Guardar"}
+          </button>
+          {url && (
+            <button
+              onClick={() => { setUrl(""); setYoutubeUrl(""); setSaved(true); setTimeout(() => setSaved(false), 2500); }}
+              className="text-sm text-gray-400 hover:text-red-500 transition-colors"
+            >
+              Quitar música
+            </button>
+          )}
+          {saved && <span className="text-sm text-green-500 font-medium">✓ Guardado</span>}
+        </div>
+      </div>
     </div>
   );
 }
