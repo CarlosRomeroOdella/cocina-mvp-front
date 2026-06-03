@@ -106,7 +106,7 @@ export async function setCocinaEstado(abierta) {
 }
 
 export async function getYoutubeUrl() {
-  return apiFetch("/configuracion/youtube");
+  return apiFetch(`/configuracion/youtube?_=${Date.now()}`);
 }
 
 export async function setYoutubeUrl(url) {
