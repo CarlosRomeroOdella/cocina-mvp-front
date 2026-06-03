@@ -17,6 +17,7 @@ export default function YoutubePlayer({ url }) {
   const [closed, setClosed]       = useState(false);
 
   const embedUrl = toEmbedUrl(url);
+  console.log("[YoutubePlayer] url=", url, "embedUrl=", embedUrl);
   if (!embedUrl || closed) return null;
 
   if (minimized) {
