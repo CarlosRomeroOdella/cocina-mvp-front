@@ -1026,6 +1026,7 @@ export default function ClientMenu() {
           onCerrar={() => setPedidoRevision(null)}
         />
       )}
+      <YoutubePlayer url={youtubeUrl} />
     </div>
   );
 }
@@ -1579,7 +1580,6 @@ function CambiarPasswordModal({ onClose }) {
           </form>
         )}
       </div>
-      <YoutubePlayer url={youtubeUrl} />
     </div>
   );
 }
