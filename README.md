@@ -464,8 +464,3 @@ El scope solicitado es `["openid", "profile", "email"]`. La inicialización de M
 - Los headers CSP permiten que la app sea embebida en Teams, Office y SharePoint
 - El archivo `public/blank.html` se usa como redirect URI de MSAL para flujos dentro de iframes
 
----
-
-## Contribuidores
-
-- **Joss** — Desarrollo y arquitectura del proyecto
