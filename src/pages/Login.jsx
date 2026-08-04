@@ -33,7 +33,7 @@ export default function Login() {
         token: data.access_token,
       };
       login(normalizedUser);
-      navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
+      navigate(["admin", "jefe_cocina"].includes(normalizedUser.role) ? "/admin" : "/menu", { replace: true });
     } catch (error) {
       setErr(error.message || "Error al iniciar sesión con Microsoft");
       setLoadingMs(false);
@@ -82,7 +82,7 @@ export default function Login() {
           token: data.access_token,
         };
         login(normalizedUser);
-        navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
+        navigate(["admin", "jefe_cocina"].includes(normalizedUser.role) ? "/admin" : "/menu", { replace: true });
       } catch (e) {
         if (cancelled) return;
         const msg = e?.message || e?.errorCode || String(e);
@@ -112,7 +112,7 @@ export default function Login() {
         token: data.access_token,
       };
       login(normalizedUser);
-      navigate(normalizedUser.role === "admin" ? "/admin" : "/menu", { replace: true });
+      navigate(["admin", "jefe_cocina"].includes(normalizedUser.role) ? "/admin" : "/menu", { replace: true });
     } catch (error) {
       setErr(error.message || "Credenciales incorrectas");
     } finally {

@@ -13,7 +13,7 @@
  *   id: 1,
  *   correo: "admin@demo.com",
  *   nombre: "Admin",
- *   rol: "admin" | "cliente"
+ *   role: "admin" | "jefe_cocina" | "client"
  * }
  */
 import { createContext, useState, useEffect } from "react";

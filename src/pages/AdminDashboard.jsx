@@ -7,8 +7,12 @@ import { useProducts } from "../context/ProductsContext";
 import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen, actualizarNota, eliminarItemPedido, getYoutubeUrl, setYoutubeUrl } from "../services/pedidosService";
 import { getUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, resetPassword } from "../services/usuariosService";
 
+const TABS_JEFE_COCINA = ["pedidos", "platillos", "ingredientes", "extras"];
+const TABS_ADMIN = ["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios", "ajustes"];
+
 export default function AdminDashboard() {
-  const { logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const visibleTabs = user?.role === "jefe_cocina" ? TABS_JEFE_COCINA : TABS_ADMIN;
   const { dark, toggle: toggleTheme } = useTheme();
   const ctx = useProducts();
   const platillos = ctx?.platillos ?? [];
@@ -143,7 +147,7 @@ export default function AdminDashboard() {
       {/* TABS */}
       <div className="border-b border-orange-100 tabs-bg overflow-x-auto">
         <nav className="flex gap-1 max-w-6xl mx-auto px-4 sm:px-6 min-w-max sm:min-w-0">
-          {["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios", "ajustes"].map((tab) => (
+          {visibleTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -2096,6 +2100,13 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
 
 /* ══════════════════════════════════════════════════════ */
 
+const ROL_LABELS = { admin: "Admin", jefe_cocina: "Jefe de cocina", cliente: "Cliente" };
+const ROL_PILL_CLASSES = {
+  admin: "bg-orange-100 text-orange-600 border-orange-200",
+  jefe_cocina: "bg-blue-100 text-blue-600 border-blue-200",
+  cliente: "bg-gray-100 text-gray-500 border-gray-200",
+};
+
 function UsuariosTab() {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -2129,12 +2140,11 @@ function UsuariosTab() {
     } catch { /* silencioso */ }
   };
 
-  const [confirmandoRolId, setConfirmandoRolId] = useState(null);
+  const [pendienteRol, setPendienteRol] = useState(null); // null | { id, nuevoRol }
   const [confirmandoEliminarUsuarioId, setConfirmandoEliminarUsuarioId] = useState(null);
 
-  const handleCambiarRol = async (u) => {
-    const nuevoRol = u.rol === "admin" ? "cliente" : "admin";
-    setConfirmandoRolId(null);
+  const handleCambiarRol = async (u, nuevoRol) => {
+    setPendienteRol(null);
     try {
       const actualizado = await actualizarUsuario(u.id, { rol: nuevoRol });
       setUsuarios((prev) => prev.map((x) => (x.id === actualizado.id ? actualizado : x)));
@@ -2198,7 +2208,7 @@ function UsuariosTab() {
           {busquedaUsuarios && <button onClick={() => setBusquedaUsuarios("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
         </div>
         <div className="flex gap-1">
-          {[{ k: "", l: "Todos" }, { k: "admin", l: "Admin" }, { k: "cliente", l: "Cliente" }].map(({ k, l }) => (
+          {[{ k: "", l: "Todos" }, { k: "admin", l: "Admin" }, { k: "jefe_cocina", l: "Jefe cocina" }, { k: "cliente", l: "Cliente" }].map(({ k, l }) => (
             <button key={k} onClick={() => setFiltroRol(k)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroRol === k ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
           ))}
         </div>
@@ -2211,24 +2221,25 @@ function UsuariosTab() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold text-gray-900">{u.nombre}</p>
-                {confirmandoRolId === u.id ? (
+                {pendienteRol?.id === u.id ? (
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-400">→ {u.rol === "admin" ? "cliente" : "admin"}?</span>
-                    <button onClick={() => handleCambiarRol(u)} className="text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 px-2 py-0.5 rounded-full transition-all">Sí</button>
-                    <button onClick={() => setConfirmandoRolId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded-full hover:bg-gray-100 transition-all">No</button>
+                    <span className="text-xs text-gray-400">→ {ROL_LABELS[pendienteRol.nuevoRol] ?? pendienteRol.nuevoRol}?</span>
+                    <button onClick={() => handleCambiarRol(u, pendienteRol.nuevoRol)} className="text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 px-2 py-0.5 rounded-full transition-all">Sí</button>
+                    <button onClick={() => setPendienteRol(null)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded-full hover:bg-gray-100 transition-all">No</button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setConfirmandoRolId(u.id)}
-                    title="Click para cambiar rol"
-                    className={`text-xs font-medium px-2 py-0.5 rounded-full border transition-all hover:scale-105 ${
-                      u.rol === "admin"
-                        ? "bg-orange-100 text-orange-600 border-orange-200 hover:bg-orange-200"
-                        : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"
+                  <select
+                    value={u.rol}
+                    onChange={(e) => setPendienteRol({ id: u.id, nuevoRol: e.target.value })}
+                    title="Cambiar rol"
+                    className={`text-xs font-medium pl-2 pr-5 py-0.5 rounded-full border transition-all cursor-pointer outline-none ${
+                      ROL_PILL_CLASSES[u.rol] ?? ROL_PILL_CLASSES.cliente
                     }`}
                   >
-                    {u.rol}
-                  </button>
+                    <option value="admin">{ROL_LABELS.admin}</option>
+                    <option value="jefe_cocina">{ROL_LABELS.jefe_cocina}</option>
+                    <option value="cliente">{ROL_LABELS.cliente}</option>
+                  </select>
                 )}
               </div>
               <p className="text-xs text-gray-400 mt-0.5">{u.correo}</p>
@@ -2325,6 +2336,7 @@ function UsuarioModal({ onSave, onClose, guardando, error }) {
               className="w-full border border-gray-200 focus:border-orange-400 rounded-xl px-4 py-2.5 text-sm outline-none bg-white"
             >
               <option value="cliente">Cliente</option>
+              <option value="jefe_cocina">Jefe de cocina</option>
               <option value="admin">Admin</option>
             </select>
           </div>

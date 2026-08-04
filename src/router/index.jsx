@@ -22,7 +22,7 @@ export const router = createBrowserRouter([
       {
         path: "admin",
         element: (
-          <PrivateRoute allowedRoles={["admin"]}>
+          <PrivateRoute allowedRoles={["admin", "jefe_cocina"]}>
             <AdminDashboard />
           </PrivateRoute>
         ),
@@ -30,7 +30,7 @@ export const router = createBrowserRouter([
       {
         path: "menu",
         element: (
-          <PrivateRoute allowedRoles={["admin", "client"]}>
+          <PrivateRoute allowedRoles={["admin", "jefe_cocina", "client"]}>
             <ClientMenu />
           </PrivateRoute>
         ),

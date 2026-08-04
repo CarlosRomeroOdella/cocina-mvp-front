@@ -427,7 +427,7 @@ export default function ClientMenu() {
           </div>
 
           <div className="flex items-center gap-2">
-            {user?.role === "admin" && (
+            {["admin", "jefe_cocina"].includes(user?.role) && (
               <button onClick={() => navigate("/admin")} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
                 Panel Admin
               </button>
