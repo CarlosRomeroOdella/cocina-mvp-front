@@ -2,9 +2,9 @@
  * utils/exportarPedidos.js — Exportar pedidos a Excel (.xlsx)
  *
  * Genera un libro con una fila por pedido (número, cliente, fecha, ítems,
- * ingredientes, extras, modalidad, estado, pagado, total y nota) y dispara
- * la descarga en el navegador. No depende del backend: recibe los pedidos
- * ya cargados.
+ * ingredientes, extras, modalidad, estado, pagado, si es deudor, total y
+ * nota) y dispara la descarga en el navegador. No depende del backend:
+ * recibe los pedidos ya cargados.
  */
 import * as XLSX from "xlsx";
 import { STATUS_CONFIG } from "../lib/estadosPedido";
@@ -43,6 +43,8 @@ export function exportarPedidosExcel(pedidos) {
     Modalidad: MODALIDAD_LABEL[p.modalidad] ?? p.modalidad,
     Estado: STATUS_CONFIG[p.status]?.label ?? p.status,
     Pagado: p.pagado ? "Sí" : "No",
+    // Mismo criterio que el reporte de Deudores: listo y sin cobrar.
+    Deudor: p.status === "listo" && !p.pagado ? "Sí" : "No",
     Total: Number(p.total),
     Nota: p.nota ?? "",
   }));
