@@ -79,6 +79,21 @@ export default function ClientMenu() {
   const [toastMsg, setToastMsg] = useState(null);
   const [pedidoRevision, setPedidoRevision] = useState(null);
 
+  const platilloCardRef = useRef(null);
+  useEffect(() => {
+    if (!selectedPlatilloId) return;
+    const cerrarSiEsFuera = (e) => {
+      if (platilloCardRef.current && !platilloCardRef.current.contains(e.target)) {
+        setSelectedPlatilloId(null);
+        setExtrasCantidad({});
+        setCantidad(1);
+        setMostrarIngredientes(false);
+      }
+    };
+    document.addEventListener("mousedown", cerrarSiEsFuera);
+    return () => document.removeEventListener("mousedown", cerrarSiEsFuera);
+  }, [selectedPlatilloId]);
+
   useEffect(() => {
     getYoutubeUrl().then((d) => setYoutubeUrl(d.url)).catch(() => {});
     getCocinaEstado()
@@ -556,6 +571,7 @@ export default function ClientMenu() {
                 return (
                   <div
                     key={p.id}
+                    ref={isSelected ? platilloCardRef : null}
                     onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); } }}
                     className={`relative rounded-2xl border overflow-hidden transition-all duration-500 modal-bg ${
                       isSelected

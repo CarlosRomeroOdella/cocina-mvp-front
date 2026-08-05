@@ -70,27 +70,27 @@ html.dark {
 .dark .border-blue-100          { border-color: #314d6b !important; }
 
 /* Textos — menos contraste extremo (ni blanco puro ni gris invisible) */
-.dark .text-gray-900            { color: #d8e1ec !important; }
-.dark .text-gray-800            { color: #c2cede !important; }
-.dark .text-gray-700            { color: #a7b6cb !important; }
-.dark .text-gray-600            { color: #8695ab !important; }
-.dark .text-gray-500            { color: #6d7c92 !important; }
-.dark .text-gray-400            { color: #58677c !important; }
-.dark .text-gray-300            { color: #445468 !important; }
-.dark .text-brand-400           { color: #99b3d4 !important; }
-.dark .text-brand-500           { color: #8aa8cc !important; }
-.dark .text-brand-600           { color: #a3bedd !important; }
-.dark .text-brand-700           { color: #b7cde6 !important; }
-.dark .text-accent-400          { color: #a3aad9 !important; }
-.dark .text-accent-500          { color: #9aa2d4 !important; }
-.dark .text-accent-600          { color: #aab0dd !important; }
-.dark .text-accent-700          { color: #b8bee3 !important; }
-.dark .text-accent-800          { color: #c9cee9 !important; }
-.dark .text-red-500             { color: #e08585 !important; }
-.dark .text-red-400             { color: #eeb0b0 !important; }
-.dark .text-green-600           { color: #6cc48f !important; }
-.dark .text-blue-500            { color: #7aa8e0 !important; }
-.dark .text-blue-400            { color: #a8c5ea !important; }
+.dark .text-gray-900            { color: #e6effa !important; }
+.dark .text-gray-800            { color: #d0dcec !important; }
+.dark .text-gray-700            { color: #b5c4d9 !important; }
+.dark .text-gray-600            { color: #94a3b9 !important; }
+.dark .text-gray-500            { color: #7b8aa0 !important; }
+.dark .text-gray-400            { color: #66758a !important; }
+.dark .text-gray-300            { color: #526276 !important; }
+.dark .text-brand-400           { color: #a7c1e2 !important; }
+.dark .text-brand-500           { color: #98b6da !important; }
+.dark .text-brand-600           { color: #b1cceb !important; }
+.dark .text-brand-700           { color: #c5dbf4 !important; }
+.dark .text-accent-400          { color: #b1b8e7 !important; }
+.dark .text-accent-500          { color: #a8b0e2 !important; }
+.dark .text-accent-600          { color: #b8beeb !important; }
+.dark .text-accent-700          { color: #c6ccf1 !important; }
+.dark .text-accent-800          { color: #d7dcf7 !important; }
+.dark .text-red-500             { color: #ee9393 !important; }
+.dark .text-red-400             { color: #fcbebe !important; }
+.dark .text-green-600           { color: #7ad29d !important; }
+.dark .text-blue-500            { color: #88b6ee !important; }
+.dark .text-blue-400            { color: #b6d3f8 !important; }
 
 /* Inputs, selects, textareas */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -98,11 +98,11 @@ html.dark {
 .dark select {
   background-color: #101720 !important;
   border-color:     #314d6b !important;
-  color:            #d8e1ec !important;
+  color:            #e6effa !important;
 }
 .dark input::placeholder,
-.dark textarea::placeholder { color: #58677c !important; }
-.dark select option          { background-color: #141d28; color: #d8e1ec; }
+.dark textarea::placeholder { color: #66758a !important; }
+.dark select option          { background-color: #141d28; color: #e6effa; }
 
 /* Hover sobre fondos claros */
 .dark .hover\:bg-brand-50:hover   { background-color: #1c2d40 !important; }
@@ -117,10 +117,10 @@ html.dark {
 .dark .hover\:bg-accent-700:hover { background-color: #565fb0 !important; }
 
 /* Hover/focus sobre texto y bordes de marca — deben aclararse, no oscurecerse */
-.dark .hover\:text-brand-500:hover  { color: #8aa8cc !important; }
-.dark .hover\:text-brand-600:hover  { color: #a3bedd !important; }
-.dark .hover\:text-accent-500:hover { color: #9aa2d4 !important; }
-.dark .hover\:text-accent-700:hover { color: #b8bee3 !important; }
+.dark .hover\:text-brand-500:hover  { color: #98b6da !important; }
+.dark .hover\:text-brand-600:hover  { color: #b1cceb !important; }
+.dark .hover\:text-accent-500:hover { color: #a8b0e2 !important; }
+.dark .hover\:text-accent-700:hover { color: #c6ccf1 !important; }
 .dark .focus\:border-brand-400:focus { border-color: #7fa0c9 !important; }
 
 /* Bordes dashed vacíos */
