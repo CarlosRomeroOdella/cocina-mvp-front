@@ -356,7 +356,7 @@ export default function ClientMenu() {
 
   if (loading || cocinaAbierta === null) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+      <div className="w-6 h-6 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
     </div>
   );
 
@@ -414,10 +414,10 @@ export default function ClientMenu() {
       )}
 
       {/* ===== HEADER ===== */}
-      <header className="sticky top-0 z-40 px-6 py-4 border-b border-orange-100 header-bg">
+      <header className="sticky top-0 z-40 px-6 py-4 border-b border-brand-100 header-bg">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-orange-200">C</div>
+            <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-brand-200">C</div>
             <div>
               <h1 className="text-lg font-bold text-gray-900 tracking-tight leading-none">Cocina Odellā</h1>
               <p className="text-xs text-gray-400 mt-0.5">
@@ -428,30 +428,30 @@ export default function ClientMenu() {
 
           <div className="flex items-center gap-2">
             {["admin", "jefe_cocina"].includes(user?.role) && (
-              <button onClick={() => navigate("/admin")} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
+              <button onClick={() => navigate("/admin")} className="text-sm text-gray-500 hover:text-brand-500 transition-colors px-3 py-1.5 rounded-full hover:bg-brand-50 border border-gray-200 hover:border-brand-200">
                 Panel Admin
               </button>
             )}
             <button
               onClick={() => setCarritoAbierto(true)}
-              className="relative flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-full transition-all shadow-md shadow-orange-200"
+              className="relative flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-full transition-all shadow-md shadow-brand-200"
             >
               <span>Carrito</span>
               {carrito.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-white text-orange-500 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">{carrito.length}</span>
+                <span className="absolute -top-1.5 -right-1.5 bg-white text-brand-500 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">{carrito.length}</span>
               )}
             </button>
             <button
               onClick={abrirHistorial}
               title="Mis pedidos"
-              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all border border-gray-200 hover:border-orange-200"
+              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-all border border-gray-200 hover:border-brand-200"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10"/><path strokeLinecap="round" d="M12 6v6l4 2"/>
               </svg>
             </button>
             <div className="hidden sm:block w-px h-5 bg-gray-200 mx-2" />
-            <button onClick={() => setPwdModal(true)} className="hidden sm:flex text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
+            <button onClick={() => setPwdModal(true)} className="hidden sm:flex text-sm text-gray-500 hover:text-brand-500 transition-colors px-3 py-1.5 rounded-full hover:bg-brand-50 border border-gray-200 hover:border-brand-200">
               Mi contraseña
             </button>
             <button onClick={logout} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors px-3 py-1.5 rounded-full hover:bg-red-50 border border-gray-200 hover:border-red-200">
@@ -463,7 +463,7 @@ export default function ClientMenu() {
             <button
               onClick={toggleTheme}
               title={dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all border border-gray-200 hover:border-orange-200"
+              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-all border border-gray-200 hover:border-brand-200"
             >
               {dark ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -488,7 +488,7 @@ export default function ClientMenu() {
               key={key}
               onClick={() => { setMenuTab(key); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); setBusqueda(""); }}
               className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
-                menuTab === key ? "bg-orange-500 text-white shadow-sm shadow-orange-200" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                menuTab === key ? "bg-brand-500 text-white shadow-sm shadow-brand-200" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               }`}
             >
               {label}
@@ -515,7 +515,7 @@ export default function ClientMenu() {
                 value={busqueda}
                 onChange={(e) => { setBusqueda(e.target.value); setSelectedPlatilloId(null); }}
                 placeholder="Buscar platillo..."
-                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-full outline-none transition-all bg-white"
+                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-full outline-none transition-all bg-white"
               />
               {busqueda && (
                 <button onClick={() => setBusqueda("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>
@@ -524,14 +524,14 @@ export default function ClientMenu() {
 
             <p className="text-gray-400 text-xs uppercase tracking-widest mb-4">
               {platillosFiltrados.length} {platillosFiltrados.length === 1 ? "resultado" : "resultados"}
-              {busqueda && <span className="normal-case ml-1">para "<span className="text-orange-400">{busqueda}</span>"</span>}
+              {busqueda && <span className="normal-case ml-1">para "<span className="text-brand-400">{busqueda}</span>"</span>}
             </p>
 
             {platillosFiltrados.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-4xl mb-3">🔍</p>
                 <p className="text-gray-400 text-sm">Sin resultados</p>
-                <button onClick={() => setBusqueda("")} className="mt-3 text-xs text-orange-500 hover:underline">Limpiar búsqueda</button>
+                <button onClick={() => setBusqueda("")} className="mt-3 text-xs text-brand-500 hover:underline">Limpiar búsqueda</button>
               </div>
             )}
 
@@ -559,8 +559,8 @@ export default function ClientMenu() {
                     onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); } }}
                     className={`relative rounded-2xl border overflow-hidden transition-all duration-500 ${
                       isSelected
-                        ? "border-orange-400 col-span-1 sm:col-span-2 lg:col-span-3 shadow-xl shadow-orange-100"
-                        : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-lg hover:shadow-orange-100 cursor-pointer"
+                        ? "border-brand-400 col-span-1 sm:col-span-2 lg:col-span-3 shadow-xl shadow-brand-100"
+                        : "border-brand-100 bg-white hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100 cursor-pointer"
                     } ${selectedPlatilloId && !isSelected ? "opacity-40 scale-95" : ""}`}
                     style={isSelected ? { background: "rgba(255,255,255,0.97)" } : {}}
                   >
@@ -570,7 +570,7 @@ export default function ClientMenu() {
                       {p.imagen ? (
                         <img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="flex flex-col items-center gap-2 text-orange-300">
+                        <div className="flex flex-col items-center gap-2 text-brand-300">
                           <span className="text-4xl">🍽️</span>
                           <span className="text-xs">Sin imagen</span>
                         </div>
@@ -584,7 +584,7 @@ export default function ClientMenu() {
                           {p.descripcion && <p className="text-xs text-gray-400 mt-0.5 leading-snug">{p.descripcion}</p>}
                         </div>
                         {isSelected && (
-                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg leading-none ml-2 shrink-0">×</button>
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedPlatilloId(null); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); }} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center transition-all text-lg leading-none ml-2 shrink-0">×</button>
                         )}
                       </div>
 
@@ -595,21 +595,21 @@ export default function ClientMenu() {
                           <div className="mb-5">
                             <button
                               onClick={(e) => { e.stopPropagation(); setMostrarIngredientes((v) => !v); }}
-                              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 transition-all"
+                              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-100 transition-all"
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold text-orange-700">Elige tus ingredientes</span>
+                                <span className="text-sm font-semibold text-brand-700">Elige tus ingredientes</span>
                                 {ingredientesSeleccionados.length > 0 && (
-                                  <span className="text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full">{ingredientesSeleccionados.length}</span>
+                                  <span className="text-xs font-bold bg-brand-500 text-white px-2 py-0.5 rounded-full">{ingredientesSeleccionados.length}</span>
                                 )}
                                 {(() => {
                                   const g = p.ingredientesGratis ?? 1;
-                                  if (g === 0) return <span className="text-xs text-orange-500 ml-1">· todos con costo</span>;
-                                  if (g === 1) return <span className="text-xs text-orange-500 ml-1">· 1er gratis</span>;
-                                  return <span className="text-xs text-orange-500 ml-1">· {g} gratis</span>;
+                                  if (g === 0) return <span className="text-xs text-brand-500 ml-1">· todos con costo</span>;
+                                  if (g === 1) return <span className="text-xs text-brand-500 ml-1">· 1er gratis</span>;
+                                  return <span className="text-xs text-brand-500 ml-1">· {g} gratis</span>;
                                 })()}
                               </div>
-                              <span className="text-orange-400 text-sm">{mostrarIngredientes ? "▲" : "▼"}</span>
+                              <span className="text-brand-400 text-sm">{mostrarIngredientes ? "▲" : "▼"}</span>
                             </button>
 
                             {mostrarIngredientes && (
@@ -623,7 +623,7 @@ export default function ClientMenu() {
                                       {grupo.items.map((i) => {
                                         const sel = ingredientesSeleccionados.includes(i.id);
                                         return (
-                                          <button key={i.id} onClick={(e) => { e.stopPropagation(); toggleIngrediente(i.id); }} className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-200" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500 bg-white"}`}>
+                                          <button key={i.id} onClick={(e) => { e.stopPropagation(); toggleIngrediente(i.id); }} className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition-all ${sel ? "bg-brand-500 border-brand-500 text-white shadow-sm shadow-brand-200" : "border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-500 bg-white"}`}>
                                             {i.imagen && <img src={i.imagen} alt={i.nombre} className="w-4 h-4 rounded-full object-cover" onError={(e) => (e.target.style.display = "none")} />}
                                             {i.nombre}{i.precio ? ` +$${Number(i.precio)}` : ""}
                                           </button>
@@ -655,20 +655,20 @@ export default function ClientMenu() {
                         </div>
 
                         {/* ── Cantidad + footer ── */}
-                        <div className="pt-4 border-t border-orange-100 space-y-3">
+                        <div className="pt-4 border-t border-brand-100 space-y-3">
                           <div className="flex items-center justify-between">
                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Cantidad</p>
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={(e) => { e.stopPropagation(); setCantidad((c) => Math.max(1, c - 1)); }}
-                                className="w-8 h-8 rounded-full border border-gray-200 text-gray-500 hover:border-orange-400 hover:text-orange-500 flex items-center justify-center text-lg font-bold transition-all"
+                                className="w-8 h-8 rounded-full border border-gray-200 text-gray-500 hover:border-brand-400 hover:text-brand-500 flex items-center justify-center text-lg font-bold transition-all"
                               >
                                 −
                               </button>
                               <span className="text-base font-bold text-gray-900 w-6 text-center">{cantidad}</span>
                               <button
                                 onClick={(e) => { e.stopPropagation(); setCantidad((c) => c + 1); }}
-                                className="w-8 h-8 rounded-full border border-gray-200 text-gray-500 hover:border-orange-400 hover:text-orange-500 flex items-center justify-center text-lg font-bold transition-all"
+                                className="w-8 h-8 rounded-full border border-gray-200 text-gray-500 hover:border-brand-400 hover:text-brand-500 flex items-center justify-center text-lg font-bold transition-all"
                               >
                                 +
                               </button>
@@ -678,12 +678,12 @@ export default function ClientMenu() {
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-xs text-gray-400">Total</p>
-                              <p className="text-2xl font-bold text-orange-500">${totalActual}</p>
+                              <p className="text-2xl font-bold text-brand-500">${totalActual}</p>
                               {(cargoIngredientes > 0 || cargoExtras > 0 || cantidad > 1) && (
                                 <p className="text-xs text-gray-400 mt-0.5">
                                   ${precioUnitario} c/u
-                                  {cargoIngredientes > 0 && <span className="text-orange-400"> +${cargoIngredientes} ing.</span>}
-                                  {cargoExtras > 0 && <span className="text-orange-400"> +${cargoExtras} extras</span>}
+                                  {cargoIngredientes > 0 && <span className="text-brand-400"> +${cargoIngredientes} ing.</span>}
+                                  {cargoExtras > 0 && <span className="text-brand-400"> +${cargoExtras} extras</span>}
                                 </p>
                               )}
                             </div>
@@ -695,7 +695,7 @@ export default function ClientMenu() {
                                 <button
                                   onClick={(e) => { e.stopPropagation(); if (!bloqueado) agregarAlCarrito(p, requeridos); }}
                                   disabled={bloqueado}
-                                  className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-full transition-all text-sm shadow-md shadow-orange-200"
+                                  className="bg-brand-500 hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-full transition-all text-sm shadow-md shadow-brand-200"
                                 >
                                   {label}
                                 </button>
@@ -745,7 +745,7 @@ export default function ClientMenu() {
       {/* ===== CARRITO FLOTANTE ===== */}
       {carrito.length > 0 && !carritoAbierto && menuTab === "platillos" && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <button onClick={() => setCarritoAbierto(true)} className="flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-2xl shadow-orange-300 transition-all">
+          <button onClick={() => setCarritoAbierto(true)} className="flex items-center gap-3 bg-brand-500 hover:bg-brand-600 text-white font-semibold px-6 py-3 rounded-full shadow-2xl shadow-brand-300 transition-all">
             <span>{carrito.length} {carrito.length === 1 ? "ítem" : "ítems"}</span>
             <span className="bg-white/25 px-2.5 py-0.5 rounded-full text-sm font-bold">${totalCarrito}</span>
           </button>
@@ -756,13 +756,13 @@ export default function ClientMenu() {
       {carritoAbierto && (
         <>
           <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.2)", backdropFilter: "blur(4px)" }} onClick={() => setCarritoAbierto(false)} />
-          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-orange-100" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)" }}>
-            <div className="flex justify-between items-center px-6 py-5 border-b border-orange-100">
+          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-brand-100" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)" }}>
+            <div className="flex justify-between items-center px-6 py-5 border-b border-brand-100">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Tu pedido</h2>
                 <p className="text-xs text-gray-400">{carrito.length} {carrito.length === 1 ? "ítem" : "ítems"}</p>
               </div>
-              <button onClick={() => setCarritoAbierto(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
+              <button onClick={() => setCarritoAbierto(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
@@ -770,13 +770,13 @@ export default function ClientMenu() {
                 <div className="text-center mt-16"><p className="text-gray-400 text-sm">Tu carrito está vacío</p></div>
               ) : (
                 carrito.map((item) => (
-                  <div key={item.id} className="bg-orange-50 border border-orange-100 rounded-xl p-4">
+                  <div key={item.id} className="bg-brand-50 border border-brand-100 rounded-xl p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <h3 className="font-bold text-sm text-gray-900">
                           {item.nombre}
                           {(item.cantidad ?? 1) > 1 && (
-                            <span className="ml-1.5 text-xs font-semibold bg-orange-500 text-white px-1.5 py-0.5 rounded-full">×{item.cantidad}</span>
+                            <span className="ml-1.5 text-xs font-semibold bg-brand-500 text-white px-1.5 py-0.5 rounded-full">×{item.cantidad}</span>
                           )}
                         </h3>
                         {item.tipo !== "platillo" && <span className="text-xs text-blue-400 font-medium capitalize">{item.tipo}</span>}
@@ -793,7 +793,7 @@ export default function ClientMenu() {
                     {item.extras.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
                         {item.extras.map((e) => (
-                          <span key={e.id} className="text-xs text-orange-500 bg-orange-100 border border-orange-200 px-2 py-0.5 rounded-full font-medium">
+                          <span key={e.id} className="text-xs text-brand-500 bg-brand-100 border border-brand-200 px-2 py-0.5 rounded-full font-medium">
                             + {e.nombre}{(e.cantidad ?? 1) > 1 ? ` ×${e.cantidad}` : ""}
                           </span>
                         ))}
@@ -804,14 +804,14 @@ export default function ClientMenu() {
                         Sabor: {item.sabor}
                       </span>
                     )}
-                    <p className="text-orange-500 font-bold text-sm mt-1">${item.total}</p>
+                    <p className="text-brand-500 font-bold text-sm mt-1">${item.total}</p>
                   </div>
                 ))
               )}
             </div>
 
             {carrito.length > 0 && (
-              <div className="px-6 py-5 border-t border-orange-100">
+              <div className="px-6 py-5 border-t border-brand-100">
                 {!cocinaAbierta && tieneplatillosEnCarrito && (
                   <p className="text-xs text-red-400 font-medium text-center mb-3">🔴 Cocina cerrada — retira los platillos para continuar</p>
                 )}
@@ -838,17 +838,17 @@ export default function ClientMenu() {
                     onChange={(e) => setNota(e.target.value)}
                     placeholder="Ej: sin cebolla, sin chile..."
                     rows={2}
-                    className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-3 py-2 text-sm outline-none transition-all resize-none"
+                    className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-3 py-2 text-sm outline-none transition-all resize-none"
                   />
                 </div>
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-gray-400 text-sm font-medium">Total</span>
-                  <span className="text-2xl font-bold text-orange-500">${totalCarrito}</span>
+                  <span className="text-2xl font-bold text-brand-500">${totalCarrito}</span>
                 </div>
                 <button
                   onClick={confirmarPedido}
                   disabled={confirmando || !puedeConfirmar}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-full transition-all shadow-md shadow-orange-200"
+                  className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-full transition-all shadow-md shadow-brand-200"
                 >
                   {confirmando ? "Enviando pedido…" : "Confirmar pedido"}
                 </button>
@@ -862,18 +862,18 @@ export default function ClientMenu() {
       {historialAbierto && (
         <>
           <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.2)", backdropFilter: "blur(4px)" }} onClick={() => setHistorialAbierto(false)} />
-          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-orange-100" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)" }}>
-            <div className="flex justify-between items-center px-6 py-5 border-b border-orange-100 shrink-0">
+          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-brand-100" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)" }}>
+            <div className="flex justify-between items-center px-6 py-5 border-b border-brand-100 shrink-0">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Mis pedidos</h2>
                 <p className="text-xs text-gray-400">{historial.length} pedidos registrados</p>
               </div>
-              <button onClick={() => setHistorialAbierto(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
+              <button onClick={() => setHistorialAbierto(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
               {loadingHistorial && (
                 <div className="flex items-center justify-center py-16">
-                  <div className="w-6 h-6 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin" />
                 </div>
               )}
               {!loadingHistorial && errorHistorial && (
@@ -881,7 +881,7 @@ export default function ClientMenu() {
                   <p className="text-4xl mb-3">⚠️</p>
                   <p className="text-gray-400 text-sm mb-3">No se pudieron cargar tus pedidos</p>
                   <p className="text-xs text-gray-300 italic mb-3">{errorHistorial}</p>
-                  <button onClick={() => { setHistorial([]); setErrorHistorial(null); abrirHistorial(); }} className="text-xs font-semibold text-orange-500 hover:underline">Reintentar</button>
+                  <button onClick={() => { setHistorial([]); setErrorHistorial(null); abrirHistorial(); }} className="text-xs font-semibold text-brand-500 hover:underline">Reintentar</button>
                 </div>
               )}
               {!loadingHistorial && !errorHistorial && historial.length === 0 && (
@@ -903,7 +903,7 @@ export default function ClientMenu() {
                 const hora  = new Date(pedido.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
                 const esUltimo = i === 0;
                 return (
-                  <div key={pedido.id} className={`rounded-2xl border p-4 ${esUltimo ? "border-orange-300 bg-orange-50" : "border-gray-100 bg-white"}`}>
+                  <div key={pedido.id} className={`rounded-2xl border p-4 ${esUltimo ? "border-brand-300 bg-brand-50" : "border-gray-100 bg-white"}`}>
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <p className="text-xs text-gray-400">#{pedido.id} · {fecha} {hora}</p>
@@ -911,7 +911,7 @@ export default function ClientMenu() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.color}`}>{cfg.label}</span>
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${pedido.pagado ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${pedido.pagado ? "bg-green-100 text-green-700" : "bg-brand-100 text-brand-700"}`}>
                           {pedido.pagado ? "✓ Pagado" : "Pendiente de pago"}
                         </span>
                       </div>
@@ -926,10 +926,10 @@ export default function ClientMenu() {
                       ))}
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-orange-500">${pedido.total}</span>
+                      <span className="text-sm font-bold text-brand-500">${pedido.total}</span>
                       <button
                         onClick={() => volverAPedir(pedido)}
-                        className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${esUltimo ? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-200" : "border border-orange-200 text-orange-500 hover:bg-orange-50"}`}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${esUltimo ? "bg-brand-500 hover:bg-brand-600 text-white shadow-sm shadow-brand-200" : "border border-brand-200 text-brand-500 hover:bg-brand-50"}`}
                       >
                         {esUltimo ? "⟳ Repetir pedido" : "Pedir de nuevo"}
                       </button>
@@ -946,12 +946,12 @@ export default function ClientMenu() {
       {modalExtra && (
         <>
           <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }} onClick={() => setModalExtra(null)} />
-          <div className="fixed inset-x-4 top-10 bottom-6 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[min(90vw,820px)] z-50 flex flex-col rounded-2xl shadow-2xl border border-orange-100 overflow-hidden" style={{ background: "rgba(255,255,255,0.98)" }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-orange-100 shrink-0">
+          <div className="fixed inset-x-4 top-10 bottom-6 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[min(90vw,820px)] z-50 flex flex-col rounded-2xl shadow-2xl border border-brand-100 overflow-hidden" style={{ background: "rgba(255,255,255,0.98)" }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-brand-100 shrink-0">
               <h2 className="text-base font-bold text-gray-900">
                 {modalExtra === "bebidas" ? "🥤 Bebidas" : "🍰 Postres"}
               </h2>
-              <button onClick={() => setModalExtra(null)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
+              <button onClick={() => setModalExtra(null)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center transition-all text-xl leading-none">×</button>
             </div>
             <div className="flex-1 overflow-y-auto px-5 py-4">
               <CategoriaTab
@@ -1078,7 +1078,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder={`Buscar ${btnLabel}...`}
-            className="w-full sm:w-72 pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-full outline-none transition-all bg-white"
+            className="w-full sm:w-72 pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-full outline-none transition-all bg-white"
           />
           {busqueda && (
             <button onClick={() => setBusqueda("")} className="absolute left-[17rem] top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none sm:block hidden">×</button>
@@ -1097,8 +1097,8 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
             {filtrados.length === 0 && (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-400 text-sm">Sin resultados para "<span className="text-orange-400">{busqueda}</span>"</p>
-                <button onClick={() => setBusqueda("")} className="mt-2 text-xs text-orange-500 hover:underline">Limpiar</button>
+                <p className="text-gray-400 text-sm">Sin resultados para "<span className="text-brand-400">{busqueda}</span>"</p>
+                <button onClick={() => setBusqueda("")} className="mt-2 text-xs text-brand-500 hover:underline">Limpiar</button>
               </div>
             )}
             {filtrados.map((item) => {
@@ -1117,7 +1117,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
               })();
 
               return (
-                <div key={item.id} className={`relative rounded-2xl border p-4 transition-all ${cant > 0 ? "border-orange-400 bg-orange-50 shadow-lg shadow-orange-100" : "border-orange-100 bg-white hover:border-orange-300 hover:shadow-md hover:shadow-orange-100"}`}>
+                <div key={item.id} className={`relative rounded-2xl border p-4 transition-all ${cant > 0 ? "border-brand-400 bg-brand-50 shadow-lg shadow-brand-100" : "border-brand-100 bg-white hover:border-brand-300 hover:shadow-md hover:shadow-brand-100"}`}>
                   <div className="icon-bg w-full h-24 rounded-xl overflow-hidden flex items-center justify-center mb-3">
                     {item.imagen
                       ? <img src={item.imagen} alt={item.nombre} className="w-full h-full object-cover" onError={(e) => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }} />
@@ -1125,7 +1125,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
                     <span className={`text-4xl ${item.imagen ? "hidden" : "flex"}`}>{btnLabel === "bebida" ? "🥤" : "🍰"}</span>
                   </div>
                   <p className="text-sm font-bold text-gray-900 leading-tight">{item.nombre}</p>
-                  {precioMostrado != null && <p className="text-sm font-semibold text-orange-500 mt-0.5">${precioMostrado}</p>}
+                  {precioMostrado != null && <p className="text-sm font-semibold text-brand-500 mt-0.5">${precioMostrado}</p>}
 
                   {/* Selector de tamaño */}
                   {hasTamanos && (
@@ -1136,7 +1136,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
                           <button
                             key={t.nombre}
                             onClick={() => setSelTamanos((prev) => ({ ...prev, [String(item.id)]: prev[String(item.id)] === t.nombre ? "" : t.nombre }))}
-                            className={`text-xs px-2 py-0.5 rounded-full border font-medium transition-all ${tamanoSel === t.nombre ? "bg-orange-500 border-orange-500 text-white" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500"}`}
+                            className={`text-xs px-2 py-0.5 rounded-full border font-medium transition-all ${tamanoSel === t.nombre ? "bg-brand-500 border-brand-500 text-white" : "border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-500"}`}
                           >
                             {t.nombre} ${t.precio}
                           </button>
@@ -1152,7 +1152,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
                       <select
                         value={saborSel}
                         onChange={(e) => setSelSabores((prev) => ({ ...prev, [String(item.id)]: e.target.value }))}
-                        className="w-full text-xs border border-gray-200 focus:border-orange-400 rounded-lg px-2 py-1 outline-none bg-white text-gray-600"
+                        className="w-full text-xs border border-gray-200 focus:border-brand-400 rounded-lg px-2 py-1 outline-none bg-white text-gray-600"
                       >
                         <option value="">— Elige sabor —</option>
                         {item.sabores.map((s) => (
@@ -1182,14 +1182,14 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => onSetCantidad(item.id, cant - 1)}
-                                className="w-7 h-7 rounded-full bg-white border border-orange-300 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center text-base font-bold transition-all"
+                                className="w-7 h-7 rounded-full bg-white border border-brand-300 text-brand-500 hover:bg-brand-500 hover:text-white flex items-center justify-center text-base font-bold transition-all"
                               >
                                 −
                               </button>
                               <span className="text-sm font-bold text-gray-900 w-5 text-center">{cant}</span>
                               <button
                                 onClick={() => onSetCantidad(item.id, cant + 1)}
-                                className="w-7 h-7 rounded-full bg-orange-500 border border-orange-500 text-white hover:bg-orange-600 flex items-center justify-center text-base font-bold transition-all"
+                                className="w-7 h-7 rounded-full bg-brand-500 border border-brand-500 text-white hover:bg-brand-600 flex items-center justify-center text-base font-bold transition-all"
                               >
                                 +
                               </button>
@@ -1198,7 +1198,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
                             <button
                               onClick={() => puedeAgregar && onSetCantidad(item.id, 1)}
                               disabled={!puedeAgregar}
-                              className={`w-full py-1.5 rounded-full text-xs font-semibold transition-all ${puedeAgregar ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+                              className={`w-full py-1.5 rounded-full text-xs font-semibold transition-all ${puedeAgregar ? "bg-brand-500 hover:bg-brand-600 text-white" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
                             >
                               {falta ?? "+ Agregar"}
                             </button>
@@ -1221,7 +1221,7 @@ function CategoriaTab({ items, cantidades, onSetCantidad, onAgregar, emptyIcon, 
               <button
                 onClick={handleAgregar}
                 disabled={!puedeFinalizarCarrito}
-                className={`flex items-center gap-3 font-semibold px-8 py-3 rounded-full shadow-2xl transition-all ${puedeFinalizarCarrito ? "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-300" : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-gray-200"}`}
+                className={`flex items-center gap-3 font-semibold px-8 py-3 rounded-full shadow-2xl transition-all ${puedeFinalizarCarrito ? "bg-brand-500 hover:bg-brand-600 text-white shadow-brand-300" : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-gray-200"}`}
               >
                 <span>Agregar al carrito ({totalSeleccionados})</span>
                 <span className="bg-white/25 px-2.5 py-0.5 rounded-full text-sm font-bold">${computedTotal}</span>
@@ -1253,7 +1253,7 @@ function NotifModal({ onActivar, onSinNotif }) {
         <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl" style={{ background: "rgba(255,255,255,0.98)" }}>
 
           {/* Cabecera naranja */}
-          <div className="bg-orange-500 px-6 pt-8 pb-6 text-center">
+          <div className="bg-brand-500 px-6 pt-8 pb-6 text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -1290,7 +1290,7 @@ function NotifModal({ onActivar, onSinNotif }) {
                 <button
                   onClick={handleActivar}
                   disabled={solicitando}
-                  className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-60 transition-all shadow-md shadow-orange-200 mb-3"
+                  className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-60 transition-all shadow-md shadow-brand-200 mb-3"
                 >
                   {solicitando ? "Activando…" : "🔔 Activar notificaciones"}
                 </button>
@@ -1414,13 +1414,13 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
               .filter((i) => i && i.disponible && idsRequeridos.has(i.id));
 
             return (
-              <div key={item.id} className="border border-orange-100 rounded-2xl overflow-hidden">
+              <div key={item.id} className="border border-brand-100 rounded-2xl overflow-hidden">
                 <div className="flex items-start gap-3 p-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-gray-900">{item.nombre}</span>
                       {(item.cantidad ?? 1) > 1 && <span className="text-xs text-gray-400">×{item.cantidad}</span>}
-                      <span className="text-xs text-orange-500 font-semibold ml-auto">${Number(item.precio) * (item.cantidad ?? 1)}</span>
+                      <span className="text-xs text-brand-500 font-semibold ml-auto">${Number(item.precio) * (item.cantidad ?? 1)}</span>
                     </div>
                     {item.tipo === "platillo" && (item.ingredientes ?? []).length > 0 && (
                       <p className="text-xs text-gray-400 mt-0.5 truncate">{(item.ingredientes ?? []).map((i) => i.nombre).join(", ")}</p>
@@ -1449,7 +1449,7 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
 
                 {/* Ingredientes opcionales expandibles */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t border-orange-50 pt-3">
+                  <div className="px-4 pb-4 border-t border-brand-50 pt-3">
                     {ingredientesRequeridos.length > 0 && (
                       <div className="mb-3">
                         <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest mb-1.5">Incluye siempre</p>
@@ -1468,7 +1468,7 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
                           <button
                             key={ing.id}
                             onClick={() => toggleIngredienteEnItem(item.id, ing.id)}
-                            className={`text-xs px-3 py-1 rounded-full border font-medium transition-all ${sel ? "bg-orange-500 border-orange-500 text-white" : "border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500"}`}
+                            className={`text-xs px-3 py-1 rounded-full border font-medium transition-all ${sel ? "bg-brand-500 border-brand-500 text-white" : "border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-500"}`}
                           >
                             {ing.nombre}
                           </button>
@@ -1483,12 +1483,12 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-5 border-t border-orange-100 space-y-2 shrink-0">
+        <div className="px-6 py-5 border-t border-brand-100 space-y-2 shrink-0">
           {error && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{error}</p>}
           <button
             onClick={handleReenviar}
             disabled={enviando || items.length === 0}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-semibold py-3 rounded-full transition-all shadow-md shadow-orange-200 text-sm"
+            className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-semibold py-3 rounded-full transition-all shadow-md shadow-brand-200 text-sm"
           >
             {enviando ? "Reenviando…" : "Confirmar y re-enviar pedido"}
           </button>
@@ -1540,17 +1540,17 @@ function CambiarPasswordModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.25)", backdropFilter: "blur(6px)" }}>
-      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-orange-100 bg-white p-6">
+      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-brand-100 bg-white p-6">
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-base font-bold text-gray-900">Cambiar contraseña</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center text-lg">×</button>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center text-lg">×</button>
         </div>
 
         {ok ? (
           <div className="text-center py-6 space-y-3">
             <p className="text-3xl">✅</p>
             <p className="text-sm font-semibold text-green-600">Contraseña actualizada</p>
-            <button onClick={onClose} className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all">Cerrar</button>
+            <button onClick={onClose} className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all">Cerrar</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -1566,14 +1566,14 @@ function CambiarPasswordModal({ onClose }) {
                   value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                   placeholder={placeholder}
-                  className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                  className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
                 />
               </div>
             ))}
             {error && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{error}</p>}
             <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={onClose} disabled={guardando} className="text-sm text-gray-400 hover:text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-50">Cancelar</button>
-              <button type="submit" disabled={guardando || !form.actual || !form.nueva || !form.confirmar} className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-orange-200">
+              <button type="submit" disabled={guardando || !form.actual || !form.nueva || !form.confirmar} className="bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-brand-200">
                 {guardando ? "Guardando..." : "Cambiar"}
               </button>
             </div>

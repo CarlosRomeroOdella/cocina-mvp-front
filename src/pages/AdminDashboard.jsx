@@ -87,7 +87,7 @@ export default function AdminDashboard() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+      <div className="w-6 h-6 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
     </div>
   );
 
@@ -101,9 +101,9 @@ export default function AdminDashboard() {
     <div className="min-h-screen page-bg">
 
       {/* HEADER */}
-      <header className="sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-orange-100 header-bg">
+      <header className="sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-brand-100 header-bg">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-orange-200">A</div>
+          <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-brand-200">A</div>
           <h1 className="text-lg font-bold text-gray-900 tracking-tight">Dashboard Admin</h1>
         </div>
         <div className="flex items-center gap-2">
@@ -122,14 +122,14 @@ export default function AdminDashboard() {
             <span className="sm:hidden">{togglingCocina ? "..." : cocinaAbierta ? "Abierta" : "Cerrada"}</span>
           </button>
 
-          <button onClick={() => navigate("/menu")} className="text-sm text-gray-500 hover:text-orange-500 transition-colors px-3 py-1.5 rounded-full hover:bg-orange-50 border border-gray-200 hover:border-orange-200">
+          <button onClick={() => navigate("/menu")} className="text-sm text-gray-500 hover:text-brand-500 transition-colors px-3 py-1.5 rounded-full hover:bg-brand-50 border border-gray-200 hover:border-brand-200">
             <span className="hidden sm:inline">Ver menú cliente</span>
             <span className="sm:hidden">Menú</span>
           </button>
           <button
             onClick={toggleTheme}
             title={dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-            className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-all"
           >
             {dark ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -141,21 +141,21 @@ export default function AdminDashboard() {
               </svg>
             )}
           </button>
-          <button onClick={logout} className="text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 px-4 py-1.5 rounded-full transition-all shadow-sm shadow-orange-200">
+          <button onClick={logout} className="text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 px-4 py-1.5 rounded-full transition-all shadow-sm shadow-brand-200">
             Salir
           </button>
         </div>
       </header>
 
       {/* TABS */}
-      <div className="border-b border-orange-100 tabs-bg overflow-x-auto">
+      <div className="border-b border-brand-100 tabs-bg overflow-x-auto">
         <nav className="flex gap-1 max-w-6xl mx-auto px-4 sm:px-6 min-w-max sm:min-w-0">
           {visibleTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`py-3 px-4 text-sm font-medium border-b-2 capitalize transition-all ${
-                activeTab === tab ? "border-orange-500 text-orange-500" : "border-transparent text-gray-400 hover:text-gray-600"
+                activeTab === tab ? "border-brand-500 text-brand-500" : "border-transparent text-gray-400 hover:text-gray-600"
               }`}
             >
               <span className="relative inline-flex items-center gap-1.5">
@@ -259,7 +259,7 @@ function AjustesTab() {
       <h2 className="text-lg font-bold text-gray-900 mb-1">Ajustes</h2>
       <p className="text-sm text-gray-400 mb-6">Configuración general de la app</p>
 
-      <div className="bg-white rounded-2xl border border-orange-100 p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-brand-100 p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-5 h-5 text-red-600" fill="currentColor">
@@ -277,14 +277,14 @@ function AjustesTab() {
           placeholder="https://www.youtube.com/watch?v=... o playlist"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all mb-3"
+          className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all mb-3"
         />
 
         <div className="flex items-center gap-3">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-orange-200"
+            className="bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-brand-200"
           >
             {saving ? "Guardando..." : "Guardar"}
           </button>
@@ -323,7 +323,7 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGes
           <p className="text-xs text-gray-400">{filtrados.length}/{platillos.length} registrados</p>
         </div>
         {puedeGestionar && (
-          <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 flex items-center gap-1.5">
+          <button onClick={onAdd} className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-brand-200 flex items-center gap-1.5">
             <span className="text-lg leading-none">+</span> Agregar platillo
           </button>
         )}
@@ -332,12 +332,12 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGes
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
-          <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar platillo..." className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white" />
+          <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar platillo..." className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl outline-none transition-all bg-white" />
           {busqueda && <button onClick={() => setBusqueda("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
         </div>
         <div className="flex gap-1 shrink-0">
           {[{ k: "todos", l: "Todos" }, { k: "disponibles", l: "Disp." }, { k: "no_disponibles", l: "No disp." }].map(({ k, l }) => (
-            <button key={k} onClick={() => setFiltroDisp(k)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroDisp === k ? "bg-orange-500 text-white shadow-sm" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
+            <button key={k} onClick={() => setFiltroDisp(k)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroDisp === k ? "bg-brand-500 text-white shadow-sm" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
           ))}
         </div>
       </div>
@@ -347,8 +347,8 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGes
         {filtrados.map((p) => (
           <div
             key={p.id}
-            className={`group bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100 ${
-              p.disponible ? "border-orange-100 hover:border-orange-300" : "border-gray-100 opacity-60 hover:opacity-90"
+            className={`group bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-100 ${
+              p.disponible ? "border-brand-100 hover:border-brand-300" : "border-gray-100 opacity-60 hover:opacity-90"
             }`}
           >
             <div className="p-4 flex items-center justify-between gap-3">
@@ -363,7 +363,7 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGes
                       onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
                     />
                   ) : null}
-                  <div className={`w-full h-full items-center justify-center text-lg font-bold text-orange-300 ${p.imagen ? "hidden" : "flex"}`}>
+                  <div className={`w-full h-full items-center justify-center text-lg font-bold text-brand-300 ${p.imagen ? "hidden" : "flex"}`}>
                     {p.nombre.charAt(0).toUpperCase()}
                   </div>
                 </div>
@@ -373,12 +373,12 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGes
                     <p className={`text-xs font-medium ${p.disponible ? "text-green-600" : "text-red-400"}`}>
                       {p.disponible ? "Disponible" : "No disp."}
                     </p>
-                    {p.precio && <span className="text-xs font-bold text-orange-500">${Number(p.precio).toFixed(0)}</span>}
+                    {p.precio && <span className="text-xs font-bold text-brand-500">${Number(p.precio).toFixed(0)}</span>}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                <button onClick={() => onEdit(p)} className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-orange-50 transition-all">{puedeGestionar ? "Editar" : "Ver detalle"}</button>
+                <button onClick={() => onEdit(p)} className="text-xs text-brand-500 hover:text-brand-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-brand-50 transition-all">{puedeGestionar ? "Editar" : "Ver detalle"}</button>
                 {puedeGestionar && (
                   confirmandoDeleteId === p.id ? (
                     <div className="flex items-center gap-1">
@@ -391,7 +391,7 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGes
                 )}
                 <button
                   onClick={() => onToggle(p.id)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 shadow-inner ${p.disponible ? "bg-orange-500" : "bg-gray-200"}`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 shadow-inner ${p.disponible ? "bg-brand-500" : "bg-gray-200"}`}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${p.disponible ? "translate-x-6" : "translate-x-1"}`} />
                 </button>
@@ -644,7 +644,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           placeholder={`Nombre del ${titulo === "Extras" ? "extra" : "ingrediente"}...`}
-          className="flex-1 min-w-32 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+          className="flex-1 min-w-32 border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
         />
         {conPrecio && (
           <input
@@ -654,14 +654,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
             type="number"
             min="0"
             step="0.50"
-            className="w-24 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
+            className="w-24 border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
           />
         )}
         {conCategoria && !categoriaLibre && (
           <select
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
-            className="border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all bg-white text-gray-600"
+            className="border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all bg-white text-gray-600"
           >
             {CATEGORIAS_EXTRA.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
@@ -673,14 +673,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
             placeholder="Categoría (ej: Carnes)"
-            className="w-36 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
+            className="w-36 border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
           />
         )}
         <input
           value={imagen}
           onChange={(e) => setImagen(e.target.value)}
           placeholder="URL imagen (opcional)"
-          className="flex-1 min-w-40 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+          className="flex-1 min-w-40 border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
         />
       </form>
 
@@ -689,16 +689,16 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 space-y-2">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tamaños (opcional)</p>
           <div className="flex gap-2 flex-wrap">
-            <input value={newTamanoNombre} onChange={(e) => setNewTamanoNombre(e.target.value)} placeholder="Ej: Chico" className="flex-1 min-w-24 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-3 py-1.5 text-sm outline-none" />
-            <input value={newTamanoPrecio} onChange={(e) => setNewTamanoPrecio(e.target.value)} placeholder="$Precio" type="number" min="0" step="0.50" className="w-24 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-3 py-1.5 text-sm outline-none" />
-            <button type="button" onClick={() => addTamano(tamanos, setTamanos, newTamanoNombre, setNewTamanoNombre, newTamanoPrecio, setNewTamanoPrecio)} disabled={!newTamanoNombre.trim() || !newTamanoPrecio} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-3 py-1.5 rounded-lg transition-all disabled:opacity-40">+ Agregar</button>
+            <input value={newTamanoNombre} onChange={(e) => setNewTamanoNombre(e.target.value)} placeholder="Ej: Chico" className="flex-1 min-w-24 border border-gray-200 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-3 py-1.5 text-sm outline-none" />
+            <input value={newTamanoPrecio} onChange={(e) => setNewTamanoPrecio(e.target.value)} placeholder="$Precio" type="number" min="0" step="0.50" className="w-24 border border-gray-200 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-3 py-1.5 text-sm outline-none" />
+            <button type="button" onClick={() => addTamano(tamanos, setTamanos, newTamanoNombre, setNewTamanoNombre, newTamanoPrecio, setNewTamanoPrecio)} disabled={!newTamanoNombre.trim() || !newTamanoPrecio} className="text-xs font-semibold text-brand-500 border border-brand-300 hover:bg-brand-50 px-3 py-1.5 rounded-lg transition-all disabled:opacity-40">+ Agregar</button>
           </div>
           {tamanos.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {tamanos.map((t, i) => (
-                <span key={i} className="flex items-center gap-1 text-xs bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-full font-medium">
+                <span key={i} className="flex items-center gap-1 text-xs bg-brand-100 text-brand-700 border border-brand-200 px-2 py-0.5 rounded-full font-medium">
                   {t.nombre} ${t.precio}
-                  <button type="button" onClick={() => setTamanos((prev) => prev.filter((_, j) => j !== i))} className="text-orange-400 hover:text-red-500 ml-0.5 leading-none">×</button>
+                  <button type="button" onClick={() => setTamanos((prev) => prev.filter((_, j) => j !== i))} className="text-brand-400 hover:text-red-500 ml-0.5 leading-none">×</button>
                 </span>
               ))}
             </div>
@@ -711,8 +711,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 space-y-2">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sabores (opcional)</p>
           <div className="flex gap-2">
-            <input value={newSabor} onChange={(e) => setNewSabor(e.target.value)} placeholder="Ej: Vainilla" className="flex-1 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-3 py-1.5 text-sm outline-none" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSabor(sabores, setSabores, newSabor, setNewSabor); } }} />
-            <button type="button" onClick={() => addSabor(sabores, setSabores, newSabor, setNewSabor)} disabled={!newSabor.trim()} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-3 py-1.5 rounded-lg transition-all disabled:opacity-40">+ Agregar</button>
+            <input value={newSabor} onChange={(e) => setNewSabor(e.target.value)} placeholder="Ej: Vainilla" className="flex-1 border border-gray-200 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-3 py-1.5 text-sm outline-none" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSabor(sabores, setSabores, newSabor, setNewSabor); } }} />
+            <button type="button" onClick={() => addSabor(sabores, setSabores, newSabor, setNewSabor)} disabled={!newSabor.trim()} className="text-xs font-semibold text-brand-500 border border-brand-300 hover:bg-brand-50 px-3 py-1.5 rounded-lg transition-all disabled:opacity-40">+ Agregar</button>
           </div>
           {sabores.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -731,7 +731,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         type="submit"
         form={`crear-${titulo.toLowerCase().replace(/\s+/g, "-")}-form`}
         disabled={guardando || !nombre.trim()}
-        className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-orange-200 whitespace-nowrap"
+        className="bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-brand-200 whitespace-nowrap"
       >
         {guardando ? "..." : "Agregar"}
       </button>
@@ -746,19 +746,19 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
       <div className="flex gap-2 flex-wrap">
         <div className="relative flex-1 min-w-40">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
-          <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder={`Buscar ${titulo === "Extras" ? "extra" : "ingrediente"}...`} className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white" />
+          <input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder={`Buscar ${titulo === "Extras" ? "extra" : "ingrediente"}...`} className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl outline-none transition-all bg-white" />
           {busqueda && <button onClick={() => setBusqueda("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
         </div>
         <div className="flex gap-1">
           {[{ v: "todos", l: "Todos" }, { v: "si", l: "Activos" }, { v: "no", l: "Inactivos" }].map(({ v, l }) => (
-            <button key={v} onClick={() => setFiltroDisponible(v)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroDisponible === v ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
+            <button key={v} onClick={() => setFiltroDisponible(v)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroDisponible === v ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
           ))}
         </div>
         {conCategoria && categoriasPresentes.length > 0 && (
           <div className="flex gap-1 flex-wrap">
-            <button onClick={() => setFiltroCategoria("")} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroCategoria === "" ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>Todas</button>
+            <button onClick={() => setFiltroCategoria("")} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroCategoria === "" ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>Todas</button>
             {categoriasPresentes.map((cat) => (
-              <button key={cat} onClick={() => setFiltroCategoria(filtroCategoria === cat ? "" : cat)} className={`px-3 py-2 text-xs font-semibold rounded-xl capitalize transition-all ${filtroCategoria === cat ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{cat}</button>
+              <button key={cat} onClick={() => setFiltroCategoria(filtroCategoria === cat ? "" : cat)} className={`px-3 py-2 text-xs font-semibold rounded-xl capitalize transition-all ${filtroCategoria === cat ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{cat}</button>
             ))}
           </div>
         )}
@@ -767,7 +767,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
       <div className="space-y-2">
         {filtrados.length === 0 && items.length > 0 && <p className="text-sm text-gray-400 text-center py-4">Sin resultados</p>}
         {filtrados.map((item) => (
-          <div key={item.id} className={`bg-white border rounded-xl overflow-hidden transition-all ${item.disponible ? "border-orange-100 hover:border-orange-200" : "border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-300"}`}>
+          <div key={item.id} className={`bg-white border rounded-xl overflow-hidden transition-all ${item.disponible ? "border-brand-100 hover:border-brand-200" : "border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-300"}`}>
             {editandoId === item.id ? (
               <div className="flex flex-col gap-2 px-4 py-3">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -775,7 +775,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                     <input
                       value={editNombre}
                       onChange={(e) => setEditNombre(e.target.value)}
-                      className="flex-1 min-w-28 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                      className="flex-1 min-w-28 border border-brand-300 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-lg px-2 py-1 text-sm outline-none"
                       autoFocus
                     />
                     {conPrecio && (
@@ -786,14 +786,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                         min="0"
                         step="0.50"
                         placeholder="$Precio"
-                        className="w-24 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                        className="w-24 border border-brand-300 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-lg px-2 py-1 text-sm outline-none"
                       />
                     )}
                     {conCategoria && !categoriaLibre && (
                       <select
                         value={editCategoria}
                         onChange={(e) => setEditCategoria(e.target.value)}
-                        className="border border-orange-300 focus:border-orange-400 rounded-lg px-2 py-1 text-sm outline-none bg-white text-gray-600"
+                        className="border border-brand-300 focus:border-brand-400 rounded-lg px-2 py-1 text-sm outline-none bg-white text-gray-600"
                       >
                         {CATEGORIAS_EXTRA.map((c) => (
                           <option key={c.value} value={c.value}>{c.label}</option>
@@ -805,7 +805,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                         value={editCategoria}
                         onChange={(e) => setEditCategoria(e.target.value)}
                         placeholder="Categoría"
-                        className="w-32 border border-orange-300 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                        className="w-32 border border-brand-300 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-2 py-1 text-sm outline-none"
                       />
                     )}
                   </fieldset>
@@ -814,7 +814,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       <button
                         onClick={() => handleGuardarEdit(item)}
                         disabled={guardandoEdit}
-                        className="text-xs text-white bg-orange-500 hover:bg-orange-600 font-semibold px-3 py-1 rounded-lg transition-all disabled:opacity-50"
+                        className="text-xs text-white bg-brand-500 hover:bg-brand-600 font-semibold px-3 py-1 rounded-lg transition-all disabled:opacity-50"
                       >
                         {guardandoEdit ? "..." : "Guardar"}
                       </button>
@@ -840,10 +840,10 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       value={editImagen}
                       onChange={(e) => setEditImagen(e.target.value)}
                       placeholder="URL imagen (opcional)"
-                      className="flex-1 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                      className="flex-1 border border-brand-300 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-lg px-2 py-1 text-sm outline-none"
                     />
                     {editImagen && (
-                      <img src={editImagen} alt="preview" className="w-8 h-8 rounded-lg object-cover border border-orange-200 shrink-0" onError={(e) => (e.target.style.display = "none")} />
+                      <img src={editImagen} alt="preview" className="w-8 h-8 rounded-lg object-cover border border-brand-200 shrink-0" onError={(e) => (e.target.style.display = "none")} />
                     )}
                   </fieldset>
                 </div>
@@ -854,16 +854,16 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                   <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 space-y-1.5">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tamaños</p>
                     <div className="flex gap-2 flex-wrap">
-                      <input value={editNewTamanoNombre} onChange={(e) => setEditNewTamanoNombre(e.target.value)} placeholder="Ej: Grande" className="flex-1 min-w-20 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-xs outline-none" />
-                      <input value={editNewTamanoPrecio} onChange={(e) => setEditNewTamanoPrecio(e.target.value)} placeholder="$" type="number" min="0" step="0.50" className="w-20 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-xs outline-none" />
-                      <button type="button" onClick={() => addTamano(editTamanos, setEditTamanos, editNewTamanoNombre, setEditNewTamanoNombre, editNewTamanoPrecio, setEditNewTamanoPrecio)} disabled={!editNewTamanoNombre.trim() || !editNewTamanoPrecio} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-40">+</button>
+                      <input value={editNewTamanoNombre} onChange={(e) => setEditNewTamanoNombre(e.target.value)} placeholder="Ej: Grande" className="flex-1 min-w-20 border border-gray-200 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-2 py-1 text-xs outline-none" />
+                      <input value={editNewTamanoPrecio} onChange={(e) => setEditNewTamanoPrecio(e.target.value)} placeholder="$" type="number" min="0" step="0.50" className="w-20 border border-gray-200 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-2 py-1 text-xs outline-none" />
+                      <button type="button" onClick={() => addTamano(editTamanos, setEditTamanos, editNewTamanoNombre, setEditNewTamanoNombre, editNewTamanoPrecio, setEditNewTamanoPrecio)} disabled={!editNewTamanoNombre.trim() || !editNewTamanoPrecio} className="text-xs font-semibold text-brand-500 border border-brand-300 hover:bg-brand-50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-40">+</button>
                     </div>
                     {editTamanos.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {editTamanos.map((t, i) => (
-                          <span key={i} className="flex items-center gap-1 text-xs bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-full">
+                          <span key={i} className="flex items-center gap-1 text-xs bg-brand-100 text-brand-700 border border-brand-200 px-2 py-0.5 rounded-full">
                             {t.nombre} ${t.precio}
-                            <button type="button" onClick={() => setEditTamanos((prev) => prev.filter((_, j) => j !== i))} className="text-orange-400 hover:text-red-500 leading-none">×</button>
+                            <button type="button" onClick={() => setEditTamanos((prev) => prev.filter((_, j) => j !== i))} className="text-brand-400 hover:text-red-500 leading-none">×</button>
                           </span>
                         ))}
                       </div>
@@ -878,8 +878,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                   <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 space-y-1.5">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sabores</p>
                     <div className="flex gap-2">
-                      <input value={editNewSabor} onChange={(e) => setEditNewSabor(e.target.value)} placeholder="Ej: Chocolate" className="flex-1 border border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-xs outline-none" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSabor(editSabores, setEditSabores, editNewSabor, setEditNewSabor); } }} />
-                      <button type="button" onClick={() => addSabor(editSabores, setEditSabores, editNewSabor, setEditNewSabor)} disabled={!editNewSabor.trim()} className="text-xs font-semibold text-orange-500 border border-orange-300 hover:bg-orange-50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-40">+</button>
+                      <input value={editNewSabor} onChange={(e) => setEditNewSabor(e.target.value)} placeholder="Ej: Chocolate" className="flex-1 border border-gray-200 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-2 py-1 text-xs outline-none" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSabor(editSabores, setEditSabores, editNewSabor, setEditNewSabor); } }} />
+                      <button type="button" onClick={() => addSabor(editSabores, setEditSabores, editNewSabor, setEditNewSabor)} disabled={!editNewSabor.trim()} className="text-xs font-semibold text-brand-500 border border-brand-300 hover:bg-brand-50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-40">+</button>
                     </div>
                     {editSabores.length > 0 && (
                       <div className="flex flex-wrap gap-1">
@@ -900,11 +900,11 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                 <div className="flex items-center justify-between gap-2 px-4 py-3">
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
                     {item.imagen && (
-                      <img src={item.imagen} alt={item.nombre} className="w-7 h-7 rounded-lg object-cover border border-orange-100 shrink-0" onError={(e) => (e.target.style.display = "none")} />
+                      <img src={item.imagen} alt={item.nombre} className="w-7 h-7 rounded-lg object-cover border border-brand-100 shrink-0" onError={(e) => (e.target.style.display = "none")} />
                     )}
                     <span className="text-sm font-medium text-gray-700">{item.nombre}</span>
                     {item.precio != null && (
-                      <span className="text-xs text-orange-500 font-semibold">${Number(item.precio).toFixed(2)}</span>
+                      <span className="text-xs text-brand-500 font-semibold">${Number(item.precio).toFixed(2)}</span>
                     )}
                     {item.categoria && (
                       <span className="text-xs text-blue-500 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full font-medium capitalize">
@@ -912,7 +912,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       </span>
                     )}
                     {Array.isArray(item.tamanos) && item.tamanos.length > 0 && (
-                      <span className="text-xs text-orange-400 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full font-medium">
+                      <span className="text-xs text-brand-400 bg-brand-50 border border-brand-100 px-2 py-0.5 rounded-full font-medium">
                         {item.tamanos.length} tamaño{item.tamanos.length !== 1 ? "s" : ""}
                       </span>
                     )}
@@ -937,7 +937,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                     </button>
                     <button
                       onClick={() => handleStartEdit(item)}
-                      className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
+                      className="text-xs text-brand-500 hover:text-brand-600 font-semibold px-2 py-1 rounded-lg hover:bg-brand-50 transition-all"
                     >
                       {puedeGestionar ? "Editar" : "Ver detalle"}
                     </button>
@@ -962,8 +962,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                         onClick={() => setAsignacionExpandida(asignacionExpandida === item.id ? null : item.id)}
                         className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all ${
                           asignacionExpandida === item.id
-                            ? "bg-orange-500 border-orange-500 text-white"
-                            : "bg-white border-orange-200 text-orange-500 hover:bg-orange-50"
+                            ? "bg-brand-500 border-brand-500 text-white"
+                            : "bg-white border-brand-200 text-brand-500 hover:bg-brand-50"
                         }`}
                       >
                         Platillos {asignacionExpandida === item.id ? "▲" : "▼"}
@@ -977,14 +977,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                   const algunosSeleccionados = asignados.length > 0 && !todosSeleccionados;
                   const loadingAll = selectingAllAsig === item.id;
                   return (
-                    <div className="px-4 pb-4 pt-3 border-t border-orange-50 space-y-3 bg-orange-50/30">
+                    <div className="px-4 pb-4 pt-3 border-t border-brand-50 space-y-3 bg-brand-50/30">
                       {saveErrorAsig && <p className="text-xs text-red-500">{saveErrorAsig}</p>}
                       {asignacionPlatillos.length === 0 ? (
                         <p className="text-xs text-gray-400 py-2">No hay platillos registrados</p>
                       ) : (
                         <>
                           <label className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all font-semibold text-sm ${
-                            todosSeleccionados ? "bg-orange-100 border-orange-400 text-orange-700" : "border-orange-200 text-orange-500 hover:bg-orange-50"
+                            todosSeleccionados ? "bg-brand-100 border-brand-400 text-brand-700" : "border-brand-200 text-brand-500 hover:bg-brand-50"
                           } ${loadingAll ? "opacity-50 cursor-wait" : ""}`}>
                             <input
                               type="checkbox"
@@ -992,7 +992,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                               ref={(el) => { if (el) el.indeterminate = algunosSeleccionados; }}
                               disabled={loadingAll}
                               onChange={() => handleSelectAllAsig(item.id, todosSeleccionados)}
-                              className="accent-orange-500 w-4 h-4 shrink-0"
+                              className="accent-brand-500 w-4 h-4 shrink-0"
                             />
                             {loadingAll ? "Guardando..." : todosSeleccionados ? "Desmarcar todos" : "Marcar todos los platillos"}
                           </label>
@@ -1005,14 +1005,14 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                                   key={p.id}
                                   className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all ${
                                     togglingAsig === key || loadingAll ? "opacity-50" : ""
-                                  } ${asignado ? "bg-orange-50 border-orange-300 text-orange-700" : "border-gray-100 text-gray-600 hover:border-orange-200 bg-white"}`}
+                                  } ${asignado ? "bg-brand-50 border-brand-300 text-brand-700" : "border-gray-100 text-gray-600 hover:border-brand-200 bg-white"}`}
                                 >
                                   <input
                                     type="checkbox"
                                     checked={asignado}
                                     disabled={togglingAsig === key || loadingAll}
                                     onChange={() => handleToggleAsig(p, item.id)}
-                                    className="accent-orange-500 w-4 h-4 shrink-0"
+                                    className="accent-brand-500 w-4 h-4 shrink-0"
                                   />
                                   <span className="text-xs font-medium truncate">{p.nombre}</span>
                                 </label>
@@ -1083,7 +1083,7 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
 
   return (
     <div className="space-y-4">
-      <div className="border-t border-orange-100 pt-6">
+      <div className="border-t border-brand-100 pt-6">
         <h3 className="text-base font-bold text-gray-900">Asignar ingredientes a platillos</h3>
         <p className="text-xs text-gray-400 mt-0.5">Marca a qué platillos pertenece cada ingrediente · activa "Req." para que aparezca incluido por defecto</p>
         {saveError && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl mt-2">{saveError}</p>}
@@ -1095,14 +1095,14 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
           const isOpen = expanded === item.id;
 
           return (
-            <div key={item.id} className="bg-white border border-orange-100 rounded-xl overflow-hidden">
+            <div key={item.id} className="bg-white border border-brand-100 rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpanded(isOpen ? null : item.id)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-orange-50 transition-all"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-brand-50 transition-all"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-sm font-semibold text-gray-800 truncate">{item.nombre}</span>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${asignados.length > 0 ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-400"}`}>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${asignados.length > 0 ? "bg-brand-100 text-brand-600" : "bg-gray-100 text-gray-400"}`}>
                     {asignados.length}/{platillos.length} platillos
                   </span>
                 </div>
@@ -1110,7 +1110,7 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
               </button>
 
               {isOpen && (
-                <div className="px-4 pb-4 pt-3 border-t border-orange-50 space-y-2">
+                <div className="px-4 pb-4 pt-3 border-t border-brand-50 space-y-2">
                   {platillos.length === 0 ? (
                     <p className="text-xs text-gray-400 py-2">No hay platillos registrados</p>
                   ) : (
@@ -1126,7 +1126,7 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
                         <div
                           key={p.id}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${
-                            asignado ? (esRequerido ? "bg-green-50 border-green-200" : "bg-orange-50 border-orange-200") : "border-gray-100 bg-white"
+                            asignado ? (esRequerido ? "bg-green-50 border-green-200" : "bg-brand-50 border-brand-200") : "border-gray-100 bg-white"
                           }`}
                         >
                           {/* Checkbox asignar */}
@@ -1136,7 +1136,7 @@ function AsignacionIngredientesPanel({ items, platillos, guardarPlatillo }) {
                               checked={asignado}
                               disabled={loadingAsg || loadingReq}
                               onChange={() => handleToggleAsignado(p, item.id)}
-                              className="accent-orange-500 w-4 h-4 shrink-0"
+                              className="accent-brand-500 w-4 h-4 shrink-0"
                             />
                             <span className="text-xs font-medium text-gray-700 truncate">{p.nombre}</span>
                           </label>
@@ -1221,7 +1221,7 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
 
   return (
     <div className="space-y-4">
-      <div className="border-t border-orange-100 pt-6">
+      <div className="border-t border-brand-100 pt-6">
         <h3 className="text-base font-bold text-gray-900">{titulo}</h3>
         <p className="text-xs text-gray-400 mt-0.5">{subtitulo}</p>
         {saveError && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl mt-2">{saveError}</p>}
@@ -1236,10 +1236,10 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
           const loadingAll = selectingAll === item.id;
 
           return (
-            <div key={item.id} className="bg-white border border-orange-100 rounded-xl overflow-hidden">
+            <div key={item.id} className="bg-white border border-brand-100 rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpanded(isOpen ? null : item.id)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-orange-50 transition-all"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-brand-50 transition-all"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-sm font-semibold text-gray-800 truncate">{item.nombre}</span>
@@ -1248,7 +1248,7 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
                       {item.categoria}
                     </span>
                   )}
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${asignados.length > 0 ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-400"}`}>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${asignados.length > 0 ? "bg-brand-100 text-brand-600" : "bg-gray-100 text-gray-400"}`}>
                     {asignados.length}/{platillos.length} platillos
                   </span>
                 </div>
@@ -1256,13 +1256,13 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
               </button>
 
               {isOpen && (
-                <div className="px-4 pb-4 pt-3 border-t border-orange-50 space-y-3">
+                <div className="px-4 pb-4 pt-3 border-t border-brand-50 space-y-3">
                   {platillos.length === 0 ? (
                     <p className="text-xs text-gray-400 py-2">No hay platillos registrados</p>
                   ) : (
                     <>
                       <label className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all font-semibold text-sm ${
-                        todosSeleccionados ? "bg-orange-100 border-orange-400 text-orange-700" : "border-orange-200 text-orange-500 hover:bg-orange-50"
+                        todosSeleccionados ? "bg-brand-100 border-brand-400 text-brand-700" : "border-brand-200 text-brand-500 hover:bg-brand-50"
                       } ${loadingAll ? "opacity-50 cursor-wait" : ""}`}>
                         <input
                           type="checkbox"
@@ -1270,7 +1270,7 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
                           ref={(el) => { if (el) el.indeterminate = algunosSeleccionados; }}
                           disabled={loadingAll}
                           onChange={() => handleSelectAll(item.id, todosSeleccionados)}
-                          className="accent-orange-500 w-4 h-4 shrink-0"
+                          className="accent-brand-500 w-4 h-4 shrink-0"
                         />
                         {loadingAll ? "Guardando..." : todosSeleccionados ? "Desmarcar todos" : "Marcar todos los platillos"}
                       </label>
@@ -1284,14 +1284,14 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
                               key={p.id}
                               className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all ${
                                 toggling === key || loadingAll ? "opacity-50" : ""
-                              } ${asignado ? "bg-orange-50 border-orange-300 text-orange-700" : "border-gray-100 text-gray-600 hover:border-orange-200 bg-white"}`}
+                              } ${asignado ? "bg-brand-50 border-brand-300 text-brand-700" : "border-gray-100 text-gray-600 hover:border-brand-200 bg-white"}`}
                             >
                               <input
                                 type="checkbox"
                                 checked={asignado}
                                 disabled={toggling === key || loadingAll}
                                 onChange={() => handleToggle(p, item.id)}
-                                className="accent-orange-500 w-4 h-4 shrink-0"
+                                className="accent-brand-500 w-4 h-4 shrink-0"
                               />
                               <span className="text-xs font-medium truncate">{p.nombre}</span>
                             </label>
@@ -1351,11 +1351,11 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
-      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-orange-100 modal-bg">
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-brand-100 modal-bg">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-gray-900">{readOnly ? "Detalle del platillo" : platillo.id ? "Editar platillo" : "Nuevo platillo"}</h2>
-            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg">×</button>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center transition-all text-lg">×</button>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -1366,7 +1366,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                 value={form.nombre}
                 onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                 placeholder="Nombre del platillo"
-                className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
               />
             </div>
 
@@ -1377,7 +1377,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                 onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
                 placeholder="Breve descripción del platillo..."
                 rows={2}
-                className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all resize-none"
+                className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all resize-none"
               />
             </div>
 
@@ -1392,7 +1392,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                   type="number"
                   min="0"
                   step="0.50"
-                  className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none transition-all"
+                  className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none transition-all"
                 />
               </div>
             </div>
@@ -1408,7 +1408,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                   type="number"
                   min="0"
                   step="1"
-                  className="w-24 border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                  className="w-24 border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
                 />
                 <p className="text-xs text-gray-400">
                   {Number(form.ingredientesGratis) === 0
@@ -1426,14 +1426,14 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                 value={form.imagen ?? ""}
                 onChange={(e) => setForm({ ...form, imagen: e.target.value })}
                 placeholder="https://ejemplo.com/imagen.jpg"
-                className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
               />
               {form.imagen && (
-                <img src={form.imagen} alt="preview" className="mt-2 w-full h-36 object-cover rounded-xl border border-orange-100" onError={(e) => (e.target.style.display = "none")} />
+                <img src={form.imagen} alt="preview" className="mt-2 w-full h-36 object-cover rounded-xl border border-brand-100" onError={(e) => (e.target.style.display = "none")} />
               )}
             </div>
 
-            <div className="flex items-center justify-between bg-orange-50 rounded-xl px-4 py-3 border border-orange-100">
+            <div className="flex items-center justify-between bg-brand-50 rounded-xl px-4 py-3 border border-brand-100">
               <div>
                 <p className="text-sm font-semibold text-gray-700">Disponible</p>
                 <p className="text-xs text-gray-400">Visible en el menú del cliente</p>
@@ -1441,7 +1441,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
               <button
                 type="button"
                 onClick={() => setForm({ ...form, disponible: !form.disponible })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.disponible ? "bg-orange-500" : "bg-gray-200"}`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.disponible ? "bg-brand-500" : "bg-gray-200"}`}
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.disponible ? "translate-x-6" : "translate-x-1"}`} />
               </button>
@@ -1477,7 +1477,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                               <div
                                 key={item.id}
                                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all ${
-                                  asignado ? (esRequerido ? "bg-green-50 border-green-200" : "bg-orange-50 border-orange-300") : "bg-white border-gray-100"
+                                  asignado ? (esRequerido ? "bg-green-50 border-green-200" : "bg-brand-50 border-brand-300") : "bg-white border-gray-100"
                                 }`}
                               >
                                 <input
@@ -1487,9 +1487,9 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                                     toggleItem("ingredientes", item.id);
                                     if (asignado && esRequerido) toggleRequerido(item.id);
                                   }}
-                                  className="accent-orange-500 w-4 h-4 shrink-0"
+                                  className="accent-brand-500 w-4 h-4 shrink-0"
                                 />
-                                <span className={`text-sm font-medium flex-1 ${asignado ? (esRequerido ? "text-green-700" : "text-orange-700") : "text-gray-600"}`}>
+                                <span className={`text-sm font-medium flex-1 ${asignado ? (esRequerido ? "text-green-700" : "text-brand-700") : "text-gray-600"}`}>
                                   {item.nombre}
                                 </span>
                                 {asignado && (
@@ -1525,12 +1525,12 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                   <label
                     key={item.id}
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border cursor-pointer transition-all ${
-                      form.extras.includes(item.id) ? "bg-orange-50 border-orange-300 text-orange-700" : "bg-white border-gray-100 hover:border-orange-200 text-gray-600"
+                      form.extras.includes(item.id) ? "bg-brand-50 border-brand-300 text-brand-700" : "bg-white border-gray-100 hover:border-brand-200 text-gray-600"
                     }`}
                   >
-                    <input type="checkbox" checked={form.extras.includes(item.id)} onChange={() => toggleItem("extras", item.id)} className="accent-orange-500 w-4 h-4" />
+                    <input type="checkbox" checked={form.extras.includes(item.id)} onChange={() => toggleItem("extras", item.id)} className="accent-brand-500 w-4 h-4" />
                     <span className="text-sm font-medium flex-1">{item.nombre}</span>
-                    {item.precio && <span className="text-xs text-orange-400 font-semibold">${Number(item.precio).toFixed(2)}</span>}
+                    {item.precio && <span className="text-xs text-brand-400 font-semibold">${Number(item.precio).toFixed(2)}</span>}
                     {item.categoria && (
                       <span className="text-xs text-blue-400 font-medium capitalize">{item.categoria}</span>
                     )}
@@ -1555,7 +1555,7 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                   <button type="button" onClick={onClose} disabled={saving} className="text-sm text-gray-400 hover:text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50">
                     Cancelar
                   </button>
-                  <button type="submit" disabled={saving} className="bg-orange-500 hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-6 py-2 rounded-xl transition-all shadow-md shadow-orange-200">
+                  <button type="submit" disabled={saving} className="bg-brand-500 hover:bg-brand-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-6 py-2 rounded-xl transition-all shadow-md shadow-brand-200">
                     {saving ? "Guardando..." : "Guardar"}
                   </button>
                 </>
@@ -1596,7 +1596,7 @@ function ReportesTab({ role }) {
 
   if (loading) return (
     <div className="flex justify-center py-20">
-      <div className="w-6 h-6 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+      <div className="w-6 h-6 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
     </div>
   );
 
@@ -1611,7 +1611,7 @@ function ReportesTab({ role }) {
       {!soloDeudores && (
       <>
       {/* ── Header + selector + número principal ── */}
-      <div className="bg-white border border-orange-100 rounded-2xl p-5">
+      <div className="bg-white border border-brand-100 rounded-2xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Ventas cobradas</h2>
           {data.pendientes.pedidos > 0 && (
@@ -1629,7 +1629,7 @@ function ReportesTab({ role }) {
               onClick={() => setPeriodo(key)}
               className={`flex-1 py-1.5 text-xs font-semibold rounded-full transition-all ${
                 periodo === key
-                  ? "bg-orange-500 text-white shadow-sm shadow-orange-200"
+                  ? "bg-brand-500 text-white shadow-sm shadow-brand-200"
                   : "text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200"
               }`}
             >
@@ -1658,20 +1658,20 @@ function ReportesTab({ role }) {
           <div className="space-y-2">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-1">Top ítems</p>
             {data.topItems.map((item, i) => (
-              <div key={item.nombre} className="bg-white border border-orange-100 rounded-xl px-4 py-2.5">
+              <div key={item.nombre} className="bg-white border border-brand-100 rounded-xl px-4 py-2.5">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-xs text-gray-300 font-bold w-3 shrink-0">{i + 1}</span>
                     <span className="text-sm font-semibold text-gray-800 truncate">{item.nombre}</span>
                   </div>
                   <div className="shrink-0 ml-2 flex items-center gap-2">
-                    <span className="text-xs font-bold text-orange-500">{item.cantidad} uds</span>
+                    <span className="text-xs font-bold text-brand-500">{item.cantidad} uds</span>
                     <span className="text-xs text-gray-400">${item.ingreso.toFixed(0)}</span>
                   </div>
                 </div>
-                <div className="h-1 bg-orange-100 rounded-full overflow-hidden">
+                <div className="h-1 bg-brand-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-orange-400 rounded-full"
+                    className="h-full bg-brand-400 rounded-full"
                     style={{ width: `${Math.round((item.cantidad / maxCant) * 100)}%` }}
                   />
                 </div>
@@ -1685,7 +1685,7 @@ function ReportesTab({ role }) {
           <div className="space-y-2">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-1">Cobros recientes</p>
             {data.recientes.map((p) => (
-              <div key={p.id} className="bg-white border border-orange-100 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3">
+              <div key={p.id} className="bg-white border border-brand-100 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-gray-300">#{p.id}</span>
@@ -1694,7 +1694,7 @@ function ReportesTab({ role }) {
                   <p className="text-xs text-gray-400 truncate">{p.items}</p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="text-sm font-bold text-orange-500">${p.total.toFixed(0)}</p>
+                  <p className="text-sm font-bold text-brand-500">${p.total.toFixed(0)}</p>
                   <p className="text-xs text-gray-300">
                     {new Date(p.createdAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
                   </p>
@@ -1726,12 +1726,12 @@ function ReportesTab({ role }) {
           )}
         </div>
         {deudores.length === 0 ? (
-          <p className="text-sm text-gray-400 bg-white border border-orange-100 rounded-xl px-4 py-6 text-center">Sin pedidos pendientes por pagar</p>
+          <p className="text-sm text-gray-400 bg-white border border-brand-100 rounded-xl px-4 py-6 text-center">Sin pedidos pendientes por pagar</p>
         ) : (
-          <div className="bg-white border border-orange-100 rounded-xl overflow-x-auto">
+          <div className="bg-white border border-brand-100 rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-orange-100">
+                <tr className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-brand-100">
                   <th className="px-4 py-2.5">#</th>
                   <th className="px-4 py-2.5">Cliente</th>
                   <th className="px-4 py-2.5">Fecha</th>
@@ -1742,11 +1742,11 @@ function ReportesTab({ role }) {
               </thead>
               <tbody>
                 {deudores.map((p) => (
-                  <tr key={p.id} className="border-b border-orange-50 last:border-0">
+                  <tr key={p.id} className="border-b border-brand-50 last:border-0">
                     <td className="px-4 py-2.5">
                       <button
                         onClick={() => setPedidoSeleccionado(p)}
-                        className="text-gray-400 hover:text-orange-500 underline decoration-dotted transition-colors"
+                        className="text-gray-400 hover:text-brand-500 underline decoration-dotted transition-colors"
                         title="Ver detalle del pedido"
                       >
                         #{p.id}
@@ -1794,14 +1794,14 @@ function DetallePedidoModal({ pedido, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }} onClick={onClose}>
-      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-orange-100 modal-bg" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-brand-100 modal-bg" onClick={(e) => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-xs text-gray-400 font-medium">Pedido #{pedido.id} · {fecha}</p>
               <p className="text-sm font-bold text-gray-900 mt-0.5">{pedido.cliente?.nombre ?? "Cliente"}</p>
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg">×</button>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center transition-all text-lg">×</button>
           </div>
 
           <div className="space-y-1.5 mb-3">
@@ -1817,7 +1817,7 @@ function DetallePedidoModal({ pedido, onClose }) {
                     <p className="text-xs text-gray-400 truncate">{item.ingredientes.map((i) => i.nombre).join(", ")}</p>
                   )}
                   {Array.isArray(item.extras) && item.extras.length > 0 && (
-                    <p className="text-xs text-orange-400 truncate">+ {item.extras.map((e) => e.nombre).join(", ")}</p>
+                    <p className="text-xs text-brand-400 truncate">+ {item.extras.map((e) => e.nombre).join(", ")}</p>
                   )}
                 </div>
               </div>
@@ -1828,9 +1828,9 @@ function DetallePedidoModal({ pedido, onClose }) {
             <p className="text-xs text-gray-500 bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-1.5 mb-3 italic">"{pedido.nota}"</p>
           )}
 
-          <div className="flex items-center justify-between pt-3 border-t border-orange-50">
+          <div className="flex items-center justify-between pt-3 border-t border-brand-50">
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${cfg.color}`}>{cfg.label}</span>
-            <p className="text-sm font-bold text-orange-500">${Number(pedido.total).toFixed(0)}</p>
+            <p className="text-sm font-bold text-brand-500">${Number(pedido.total).toFixed(0)}</p>
           </div>
         </div>
       </div>
@@ -1931,7 +1931,7 @@ function PedidosTab({ onPendientesChange, role }) {
 
   if (loadingPedidos) return (
     <div className="flex justify-center py-20">
-      <div className="w-6 h-6 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+      <div className="w-6 h-6 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
     </div>
   );
 
@@ -1966,7 +1966,7 @@ function PedidosTab({ onPendientesChange, role }) {
         <div className="flex items-center gap-2">
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
-            <input value={busquedaPedidos} onChange={(e) => setBusquedaPedidos(e.target.value)} placeholder="Buscar cliente o #id..." className="pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white w-52" />
+            <input value={busquedaPedidos} onChange={(e) => setBusquedaPedidos(e.target.value)} placeholder="Buscar cliente o #id..." className="pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl outline-none transition-all bg-white w-52" />
             {busquedaPedidos && <button onClick={() => setBusquedaPedidos("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
           </div>
           {puedeExportar && (
@@ -1974,7 +1974,7 @@ function PedidosTab({ onPendientesChange, role }) {
               onClick={handleExportar}
               disabled={exportando}
               title="Exportar a Excel (todos los pedidos, incluye cancelados)"
-              className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-orange-500 bg-white border border-gray-200 hover:border-orange-200 px-3 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-brand-500 bg-white border border-gray-200 hover:border-brand-200 px-3 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16" /></svg>
               <span className="hidden sm:inline">{exportando ? "Exportando..." : "Exportar Excel"}</span>
@@ -1985,9 +1985,9 @@ function PedidosTab({ onPendientesChange, role }) {
         {hayNuevos && (
           <button
             onClick={() => { setHayNuevos(false); cargarPedidos(); }}
-            className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 border border-orange-200 px-4 py-2 rounded-full animate-pulse font-semibold"
+            className="flex items-center gap-2 text-sm text-brand-600 bg-brand-50 border border-brand-200 px-4 py-2 rounded-full animate-pulse font-semibold"
           >
-            <span className="w-2 h-2 rounded-full bg-orange-500" />
+            <span className="w-2 h-2 rounded-full bg-brand-500" />
             Nuevos pedidos — actualizar
           </button>
         )}
@@ -2026,7 +2026,7 @@ function PedidosTab({ onPendientesChange, role }) {
           { titulo: "Listos (sin cobrar)", dot: "bg-green-500", lista: listos },
         ].map(({ titulo, dot, lista }) => (
           <div key={titulo} className="space-y-3">
-            <div className="flex items-center gap-2 pb-2 border-b border-orange-100">
+            <div className="flex items-center gap-2 pb-2 border-b border-brand-100">
               <span className={`w-2.5 h-2.5 rounded-full ${dot}`} />
               <h3 className="text-sm font-bold text-gray-700">{titulo}</h3>
               {lista.length > 0 && <span className="ml-auto text-xs font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{lista.length}</span>}
@@ -2054,11 +2054,11 @@ function PedidosTab({ onPendientesChange, role }) {
       {/* PENDIENTES POR PAGAR */}
       {pendientesPago.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center gap-3 pt-4 border-t border-orange-100">
+          <div className="flex items-center gap-3 pt-4 border-t border-brand-100">
             <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
             <h3 className="text-sm font-bold text-gray-700">Pendientes por pagar</h3>
             <span className="text-xs font-semibold bg-red-100 text-red-500 border border-red-200 px-2 py-0.5 rounded-full">{pendientesPago.length}</span>
-            <span className="ml-auto text-sm font-bold text-orange-500">
+            <span className="ml-auto text-sm font-bold text-brand-500">
               Total: ${pendientesPago.reduce((s, p) => s + Number(p.total), 0).toFixed(0)}
             </span>
           </div>
@@ -2082,7 +2082,7 @@ function PedidosTab({ onPendientesChange, role }) {
       {/* COBRADOS HOY */}
       {cobrados.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center gap-3 pt-4 border-t border-orange-100">
+          <div className="flex items-center gap-3 pt-4 border-t border-brand-100">
             <span className="w-2.5 h-2.5 rounded-full bg-gray-300" />
             <h3 className="text-sm font-bold text-gray-400">Cobrados recientes</h3>
           </div>
@@ -2143,7 +2143,7 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
   const canEditNota  = !dimmed && pedido.status !== "cancelado";
 
   return (
-    <div className={`bg-white border rounded-2xl p-4 shadow-sm transition-all ${dimmed ? "opacity-50" : "hover:shadow-md"} ${resaltarPago ? "border-red-200" : "border-orange-100 hover:border-orange-200"}`}>
+    <div className={`bg-white border rounded-2xl p-4 shadow-sm transition-all ${dimmed ? "opacity-50" : "hover:shadow-md"} ${resaltarPago ? "border-red-200" : "border-brand-100 hover:border-brand-200"}`}>
       <div className="flex items-start justify-between mb-3">
         <div>
           <p className="text-xs text-gray-400 font-medium">#{pedido.id} · {hora}</p>
@@ -2171,7 +2171,7 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
                 <p className="text-xs text-gray-400 truncate">{item.ingredientes.map((i) => i.nombre).join(", ")}</p>
               )}
               {Array.isArray(item.extras) && item.extras.length > 0 && (
-                <p className="text-xs text-orange-400 truncate">+ {item.extras.map((e) => e.nombre).join(", ")}</p>
+                <p className="text-xs text-brand-400 truncate">+ {item.extras.map((e) => e.nombre).join(", ")}</p>
               )}
             </div>
             {canEditItems && (
@@ -2196,13 +2196,13 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
                 placeholder="Agregar nota al pedido..."
                 rows={2}
                 autoFocus
-                className="w-full border border-yellow-300 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2.5 py-1.5 text-xs outline-none resize-none transition-all"
+                className="w-full border border-yellow-300 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 rounded-lg px-2.5 py-1.5 text-xs outline-none resize-none transition-all"
               />
               <div className="flex gap-1.5">
                 <button
                   onClick={handleGuardarNota}
                   disabled={notaGuardando}
-                  className="flex-1 text-xs py-1 rounded-full bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all"
+                  className="flex-1 text-xs py-1 rounded-full bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50 transition-all"
                 >
                   {notaGuardando ? "..." : "Guardar"}
                 </button>
@@ -2241,8 +2241,8 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
                 disabled={loadingStatus || pedido.status === s.value}
                 className={`flex-1 text-xs py-1 rounded-full border font-medium transition-all ${
                   pedido.status === s.value
-                    ? "bg-orange-500 border-orange-500 text-white"
-                    : "border-gray-200 text-gray-400 hover:border-orange-300 hover:text-orange-500"
+                    ? "bg-brand-500 border-brand-500 text-white"
+                    : "border-gray-200 text-gray-400 hover:border-brand-300 hover:text-brand-500"
                 } disabled:cursor-not-allowed`}
               >
                 {loadingStatus && pedido.status !== s.value ? "" : s.label}
@@ -2271,8 +2271,8 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-3 border-t border-orange-50">
-        <p className="text-sm font-bold text-orange-500">${Number(pedido.total).toFixed(0)}</p>
+      <div className="flex items-center justify-between pt-3 border-t border-brand-50">
+        <p className="text-sm font-bold text-brand-500">${Number(pedido.total).toFixed(0)}</p>
         {pedido.pagado && confirmandoRevertirPago ? (
           <div className="flex gap-1">
             <button
@@ -2312,7 +2312,7 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
 
 const ROL_LABELS = { admin: "Admin", jefe_cocina: "Jefe de cocina", cliente: "Cliente" };
 const ROL_PILL_CLASSES = {
-  admin: "bg-orange-100 text-orange-600 border-orange-200",
+  admin: "bg-brand-100 text-brand-600 border-brand-200",
   jefe_cocina: "bg-blue-100 text-blue-600 border-blue-200",
   cliente: "bg-gray-100 text-gray-500 border-gray-200",
 };
@@ -2394,7 +2394,7 @@ function UsuariosTab() {
       u.correo.toLowerCase().includes(busquedaUsuarios.trim().toLowerCase())
     );
 
-  if (loading) return <div className="flex justify-center py-20"><div className="w-6 h-6 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" /></div>;
+  if (loading) return <div className="flex justify-center py-20"><div className="w-6 h-6 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" /></div>;
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -2405,7 +2405,7 @@ function UsuariosTab() {
         </div>
         <button
           onClick={() => { setError(null); setModal("crear"); }}
-          className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 flex items-center gap-1.5"
+          className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-brand-200 flex items-center gap-1.5"
         >
           <span className="text-lg leading-none">+</span> Nuevo usuario
         </button>
@@ -2414,12 +2414,12 @@ function UsuariosTab() {
       <div className="flex gap-2 flex-wrap">
         <div className="relative flex-1 min-w-48">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
-          <input value={busquedaUsuarios} onChange={(e) => setBusquedaUsuarios(e.target.value)} placeholder="Buscar por nombre o correo..." className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white" />
+          <input value={busquedaUsuarios} onChange={(e) => setBusquedaUsuarios(e.target.value)} placeholder="Buscar por nombre o correo..." className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl outline-none transition-all bg-white" />
           {busquedaUsuarios && <button onClick={() => setBusquedaUsuarios("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
         </div>
         <div className="flex gap-1">
           {[{ k: "", l: "Todos" }, { k: "admin", l: "Admin" }, { k: "jefe_cocina", l: "Jefe cocina" }, { k: "cliente", l: "Cliente" }].map(({ k, l }) => (
-            <button key={k} onClick={() => setFiltroRol(k)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroRol === k ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
+            <button key={k} onClick={() => setFiltroRol(k)} className={`px-3 py-2 text-xs font-semibold rounded-xl transition-all ${filtroRol === k ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{l}</button>
           ))}
         </div>
       </div>
@@ -2427,14 +2427,14 @@ function UsuariosTab() {
       <div className="space-y-2">
         {usuariosFiltrados.length === 0 && usuarios.length > 0 && <p className="text-sm text-gray-400 text-center py-4">Sin resultados</p>}
         {usuariosFiltrados.map((u) => (
-          <div key={u.id} className={`bg-white border border-orange-100 rounded-xl p-4 flex items-center justify-between gap-3 transition-all ${!u.activo ? "opacity-50" : ""}`}>
+          <div key={u.id} className={`bg-white border border-brand-100 rounded-xl p-4 flex items-center justify-between gap-3 transition-all ${!u.activo ? "opacity-50" : ""}`}>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold text-gray-900">{u.nombre}</p>
                 {pendienteRol?.id === u.id ? (
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-gray-400">→ {ROL_LABELS[pendienteRol.nuevoRol] ?? pendienteRol.nuevoRol}?</span>
-                    <button onClick={() => handleCambiarRol(u, pendienteRol.nuevoRol)} className="text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 px-2 py-0.5 rounded-full transition-all">Sí</button>
+                    <button onClick={() => handleCambiarRol(u, pendienteRol.nuevoRol)} className="text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 px-2 py-0.5 rounded-full transition-all">Sí</button>
                     <button onClick={() => setPendienteRol(null)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded-full hover:bg-gray-100 transition-all">No</button>
                   </div>
                 ) : (
@@ -2457,13 +2457,13 @@ function UsuariosTab() {
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => { setError(null); setResetModal({ id: u.id, nombre: u.nombre }); }}
-                className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
+                className="text-xs text-brand-500 hover:text-brand-600 font-semibold px-2 py-1 rounded-lg hover:bg-brand-50 transition-all"
               >
                 Reset contraseña
               </button>
               <button
                 onClick={() => handleToggleActivo(u)}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${u.activo ? "bg-orange-500" : "bg-gray-200"}`}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${u.activo ? "bg-brand-500" : "bg-gray-200"}`}
                 title={u.activo ? "Desactivar" : "Activar"}
               >
                 <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${u.activo ? "translate-x-4" : "translate-x-0.5"}`} />
@@ -2516,10 +2516,10 @@ function UsuarioModal({ onSave, onClose, guardando, error }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
-      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-orange-100 modal-bg p-6">
+      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-brand-100 modal-bg p-6">
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-base font-bold text-gray-900">Nuevo usuario</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center text-lg">×</button>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center text-lg">×</button>
         </div>
         <div className="space-y-3">
           {[
@@ -2534,7 +2534,7 @@ function UsuarioModal({ onSave, onClose, guardando, error }) {
                 value={form[key]}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                 placeholder={placeholder}
-                className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
               />
             </div>
           ))}
@@ -2543,7 +2543,7 @@ function UsuarioModal({ onSave, onClose, guardando, error }) {
             <select
               value={form.rol}
               onChange={(e) => setForm({ ...form, rol: e.target.value })}
-              className="w-full border border-gray-200 focus:border-orange-400 rounded-xl px-4 py-2.5 text-sm outline-none bg-white"
+              className="w-full border border-gray-200 focus:border-brand-400 rounded-xl px-4 py-2.5 text-sm outline-none bg-white"
             >
               <option value="cliente">Cliente</option>
               <option value="jefe_cocina">Jefe de cocina</option>
@@ -2556,7 +2556,7 @@ function UsuarioModal({ onSave, onClose, guardando, error }) {
             <button
               onClick={() => onSave(form)}
               disabled={guardando || !form.nombre || !form.correo || !form.contrasena}
-              className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-orange-200"
+              className="bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-brand-200"
             >
               {guardando ? "Creando..." : "Crear usuario"}
             </button>
@@ -2572,13 +2572,13 @@ function ResetPasswordModal({ usuario, onSave, onClose, guardando, error }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
-      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-orange-100 modal-bg p-6">
+      <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-brand-100 modal-bg p-6">
         <div className="flex justify-between items-center mb-5">
           <div>
             <h2 className="text-base font-bold text-gray-900">Resetear contraseña</h2>
             <p className="text-xs text-gray-400 mt-0.5">{usuario.nombre}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center text-lg">×</button>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-100 text-gray-400 hover:text-brand-500 flex items-center justify-center text-lg">×</button>
         </div>
         <div className="space-y-3">
           <div>
@@ -2588,7 +2588,7 @@ function ResetPasswordModal({ usuario, onSave, onClose, guardando, error }) {
               value={pwd}
               onChange={(e) => setPwd(e.target.value)}
               placeholder="Nueva contraseña temporal"
-              className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+              className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
             />
           </div>
           {error && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{error}</p>}
@@ -2597,7 +2597,7 @@ function ResetPasswordModal({ usuario, onSave, onClose, guardando, error }) {
             <button
               onClick={() => onSave(pwd)}
               disabled={guardando || !pwd}
-              className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-orange-200"
+              className="bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-all shadow-md shadow-brand-200"
             >
               {guardando ? "Guardando..." : "Resetear"}
             </button>

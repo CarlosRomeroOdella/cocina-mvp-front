@@ -143,7 +143,7 @@ export default function Login() {
     return (
       <div className="min-h-screen flex items-center justify-center page-bg">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-400">{teamsSSOStep || "Iniciando sesión..."}</p>
         </div>
       </div>
@@ -155,14 +155,14 @@ export default function Login() {
       <div className="w-full max-w-sm">
 
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-orange-200 mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-brand-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-brand-200 mb-4">
             C
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Cocina Odellā</h1>
           <p className="text-sm text-gray-400 mt-1">Inicia sesión para continuar</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-orange-100 p-8 shadow-xl shadow-orange-50">
+        <div className="bg-white rounded-2xl border border-brand-100 p-8 shadow-xl shadow-brand-50">
 
           {err && (
             <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-100 rounded-xl text-sm text-red-500">
@@ -211,7 +211,7 @@ export default function Login() {
                 placeholder="correo@ejemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
                 required
               />
             </div>
@@ -225,7 +225,7 @@ export default function Login() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+                className="w-full border border-gray-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
                 required
               />
             </div>
@@ -233,7 +233,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading || loadingMs || inProgress !== "none"}
-              className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all shadow-md shadow-orange-200 mt-2"
+              className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all shadow-md shadow-brand-200 mt-2"
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>

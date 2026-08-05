@@ -10,7 +10,7 @@ export default function ProductToggleCard({
     <div
       onClick={onSelect}
       className={`cursor-pointer rounded-lg p-4 shadow border transition
-        ${isActive ? "border-orange-500 bg-orange-50" : "bg-white"}
+        ${isActive ? "border-brand-500 bg-brand-50" : "bg-white"}
       `}
     >
       <div className="flex items-center justify-between">
@@ -40,7 +40,7 @@ export default function ProductToggleCard({
             type="checkbox"
             checked={available}
             onChange={onToggle}
-            className="w-5 h-5 accent-orange-500 cursor-pointer"
+            className="w-5 h-5 accent-brand-500 cursor-pointer"
           />
         </div>
       </div>

@@ -71,7 +71,7 @@ export default function ProductForm() {
 
               <button
                 type="submit"
-                className="bg-orange-500 text-white px-4 py-2 rounded"
+                className="bg-brand-500 text-white px-4 py-2 rounded"
               >
                 Guardar
               </button>
