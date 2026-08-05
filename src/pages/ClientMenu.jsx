@@ -573,14 +573,14 @@ export default function ClientMenu() {
                     key={p.id}
                     ref={isSelected ? platilloCardRef : null}
                     onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); } }}
-                    className={`relative rounded-2xl border overflow-hidden transition-all duration-500 modal-bg ${
+                    className={`relative rounded-2xl border overflow-hidden transition-all duration-700 modal-bg ${
                       isSelected
                         ? "border-brand-400 col-span-1 sm:col-span-2 lg:col-span-3 shadow-xl shadow-brand-100"
                         : "border-brand-100 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100 cursor-pointer"
                     } ${selectedPlatilloId && !isSelected ? "opacity-40 scale-95" : ""}`}
                   >
                     <div
-                      className={`icon-bg flex items-center justify-center transition-all duration-500 ${isSelected ? "h-48 sm:h-64" : "h-40"}`}
+                      className={`icon-bg flex items-center justify-center transition-all duration-700 ${isSelected ? "h-48 sm:h-64" : "h-40"}`}
                     >
                       {p.imagen ? (
                         <img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover" />
@@ -603,7 +603,7 @@ export default function ClientMenu() {
                         )}
                       </div>
 
-                      <div className={`overflow-hidden transition-all duration-500 ${isSelected ? "max-h-[1200px] opacity-100 mt-5" : "max-h-0 opacity-0"}`}>
+                      <div className={`overflow-hidden transition-all duration-700 ${isSelected ? "max-h-[1200px] opacity-100 mt-5" : "max-h-0 opacity-0"}`}>
 
                         {/* ── Ingredientes opcionales colapsables ── */}
                         {opcionales.length > 0 && (
