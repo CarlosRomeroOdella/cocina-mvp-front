@@ -13,7 +13,7 @@ const TABS_ADMIN = ["pedidos", "reportes", "platillos", "ingredientes", "extras"
 export default function AdminDashboard() {
   const { user, logout } = useContext(AuthContext);
   const visibleTabs = user?.role === "jefe_cocina" ? TABS_JEFE_COCINA : TABS_ADMIN;
-  const puedeCrear = user?.role !== "jefe_cocina";
+  const puedeGestionar = user?.role !== "jefe_cocina";
   const { dark, toggle: toggleTheme } = useTheme();
   const ctx = useProducts();
   const platillos = ctx?.platillos ?? [];
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
             onEdit={handleEdit}
             onAdd={handleAddPlatillo}
             onDelete={handleDelete}
-            puedeCrear={puedeCrear}
+            puedeGestionar={puedeGestionar}
           />
         )}
         {activeTab === "ingredientes" && (
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
             onActualizar={actualizarIngrediente}
             onEliminar={eliminarIngrediente}
             guardarPlatillo={guardarPlatillo}
-            puedeCrear={puedeCrear}
+            puedeGestionar={puedeGestionar}
           />
         )}
         {activeTab === "extras" && (
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
             onActualizar={actualizarExtra}
             onEliminar={eliminarExtra}
             guardarPlatillo={guardarPlatillo}
-            puedeCrear={puedeCrear}
+            puedeGestionar={puedeGestionar}
           />
         )}
         {activeTab === "ajustes" && <AjustesTab />}
@@ -224,6 +224,7 @@ export default function AdminDashboard() {
           onClose={() => setEditModal(null)}
           saving={saving}
           error={saveError}
+          readOnly={!puedeGestionar}
         />
       )}
     </div>
@@ -302,7 +303,7 @@ function AjustesTab() {
 
 /* ═══════════════════════════════════════════════════════ */
 
-function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeCrear = true }) {
+function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGestionar = true }) {
   const [busqueda, setBusqueda] = useState("");
   const [filtroDisp, setFiltroDisp] = useState("todos");
   const [confirmandoDeleteId, setConfirmandoDeleteId] = useState(null);
@@ -319,7 +320,7 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeCre
           <h2 className="text-lg font-bold text-gray-900">Platillos</h2>
           <p className="text-xs text-gray-400">{filtrados.length}/{platillos.length} registrados</p>
         </div>
-        {puedeCrear && (
+        {puedeGestionar && (
           <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 flex items-center gap-1.5">
             <span className="text-lg leading-none">+</span> Agregar platillo
           </button>
@@ -375,14 +376,16 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeCre
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                <button onClick={() => onEdit(p)} className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-orange-50 transition-all">Editar</button>
-                {confirmandoDeleteId === p.id ? (
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => { setConfirmandoDeleteId(null); onDelete(p.id); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg transition-all">Sí</button>
-                    <button onClick={() => setConfirmandoDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-all">No</button>
-                  </div>
-                ) : (
-                  <button onClick={() => setConfirmandoDeleteId(p.id)} className="text-xs text-red-400 hover:text-red-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all">Eliminar</button>
+                <button onClick={() => onEdit(p)} className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-orange-50 transition-all">{puedeGestionar ? "Editar" : "Ver detalle"}</button>
+                {puedeGestionar && (
+                  confirmandoDeleteId === p.id ? (
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => { setConfirmandoDeleteId(null); onDelete(p.id); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg transition-all">Sí</button>
+                      <button onClick={() => setConfirmandoDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-all">No</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfirmandoDeleteId(p.id)} className="text-xs text-red-400 hover:text-red-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all">Eliminar</button>
+                  )
                 )}
                 <button
                   onClick={() => onToggle(p.id)}
@@ -401,7 +404,7 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeCre
 
 /* ──────────────────────────────────────────────── */
 
-function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo, puedeCrear = true }) {
+function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo, puedeGestionar = true }) {
   return (
     <div className="space-y-10">
       <CatalogoPanel
@@ -413,18 +416,20 @@ function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEli
         conPrecio={true}
         conCategoria={true}
         categoriaLibre={true}
-        puedeCrear={puedeCrear}
+        puedeGestionar={puedeGestionar}
       />
-      <AsignacionIngredientesPanel
-        items={ingredientes}
-        platillos={platillos}
-        guardarPlatillo={guardarPlatillo}
-      />
+      {puedeGestionar && (
+        <AsignacionIngredientesPanel
+          items={ingredientes}
+          platillos={platillos}
+          guardarPlatillo={guardarPlatillo}
+        />
+      )}
     </div>
   );
 }
 
-function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo, puedeCrear = true }) {
+function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo, puedeGestionar = true }) {
   return (
     <div className="space-y-10">
       <CatalogoPanel
@@ -440,7 +445,7 @@ function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guard
         asignacionPlatillos={platillos}
         asignacionTipoKey="extras"
         asignacionGuardar={guardarPlatillo}
-        puedeCrear={puedeCrear}
+        puedeGestionar={puedeGestionar}
       />
     </div>
   );
@@ -455,7 +460,7 @@ const CATEGORIAS_EXTRA = [
   { value: "complemento", label: "Complemento" },
 ];
 
-function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria, categoriaLibre = false, conTamanos = false, conSabores = false, asignacionPlatillos = null, asignacionTipoKey = null, asignacionGuardar = null, puedeCrear = true }) {
+function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria, categoriaLibre = false, conTamanos = false, conSabores = false, asignacionPlatillos = null, asignacionTipoKey = null, asignacionGuardar = null, puedeGestionar = true }) {
   const [nombre, setNombre] = useState("");
   const [precio, setPrecio] = useState("");
   const [categoria, setCategoria] = useState("");
@@ -630,7 +635,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         <p className="text-xs text-gray-400">{filtrados.length}/{items.length} registrados</p>
       </div>
 
-      {puedeCrear && (
+      {puedeGestionar && (
       <>
       <form id={`crear-${titulo.toLowerCase().replace(/\s+/g, "-")}-form`} onSubmit={handleCrear} className="flex gap-2 flex-wrap">
         <input
@@ -764,70 +769,86 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
             {editandoId === item.id ? (
               <div className="flex flex-col gap-2 px-4 py-3">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <input
-                    value={editNombre}
-                    onChange={(e) => setEditNombre(e.target.value)}
-                    className="flex-1 min-w-28 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
-                    autoFocus
-                  />
-                  {conPrecio && (
+                  <fieldset disabled={!puedeGestionar} className="contents">
                     <input
-                      value={editPrecio}
-                      onChange={(e) => setEditPrecio(e.target.value)}
-                      type="number"
-                      min="0"
-                      step="0.50"
-                      placeholder="$Precio"
-                      className="w-24 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                      value={editNombre}
+                      onChange={(e) => setEditNombre(e.target.value)}
+                      className="flex-1 min-w-28 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                      autoFocus
                     />
-                  )}
-                  {conCategoria && !categoriaLibre && (
-                    <select
-                      value={editCategoria}
-                      onChange={(e) => setEditCategoria(e.target.value)}
-                      className="border border-orange-300 focus:border-orange-400 rounded-lg px-2 py-1 text-sm outline-none bg-white text-gray-600"
+                    {conPrecio && (
+                      <input
+                        value={editPrecio}
+                        onChange={(e) => setEditPrecio(e.target.value)}
+                        type="number"
+                        min="0"
+                        step="0.50"
+                        placeholder="$Precio"
+                        className="w-24 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                      />
+                    )}
+                    {conCategoria && !categoriaLibre && (
+                      <select
+                        value={editCategoria}
+                        onChange={(e) => setEditCategoria(e.target.value)}
+                        className="border border-orange-300 focus:border-orange-400 rounded-lg px-2 py-1 text-sm outline-none bg-white text-gray-600"
+                      >
+                        {CATEGORIAS_EXTRA.map((c) => (
+                          <option key={c.value} value={c.value}>{c.label}</option>
+                        ))}
+                      </select>
+                    )}
+                    {conCategoria && categoriaLibre && (
+                      <input
+                        value={editCategoria}
+                        onChange={(e) => setEditCategoria(e.target.value)}
+                        placeholder="Categoría"
+                        className="w-32 border border-orange-300 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                      />
+                    )}
+                  </fieldset>
+                  {puedeGestionar ? (
+                    <>
+                      <button
+                        onClick={() => handleGuardarEdit(item)}
+                        disabled={guardandoEdit}
+                        className="text-xs text-white bg-orange-500 hover:bg-orange-600 font-semibold px-3 py-1 rounded-lg transition-all disabled:opacity-50"
+                      >
+                        {guardandoEdit ? "..." : "Guardar"}
+                      </button>
+                      <button
+                        onClick={() => setEditandoId(null)}
+                        className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-50 transition-all"
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setEditandoId(null)}
+                      className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-50 transition-all"
                     >
-                      {CATEGORIAS_EXTRA.map((c) => (
-                        <option key={c.value} value={c.value}>{c.label}</option>
-                      ))}
-                    </select>
+                      Cerrar
+                    </button>
                   )}
-                  {conCategoria && categoriaLibre && (
-                    <input
-                      value={editCategoria}
-                      onChange={(e) => setEditCategoria(e.target.value)}
-                      placeholder="Categoría"
-                      className="w-32 border border-orange-300 focus:border-orange-400 focus:ring-1 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
-                    />
-                  )}
-                  <button
-                    onClick={() => handleGuardarEdit(item)}
-                    disabled={guardandoEdit}
-                    className="text-xs text-white bg-orange-500 hover:bg-orange-600 font-semibold px-3 py-1 rounded-lg transition-all disabled:opacity-50"
-                  >
-                    {guardandoEdit ? "..." : "Guardar"}
-                  </button>
-                  <button
-                    onClick={() => setEditandoId(null)}
-                    className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-50 transition-all"
-                  >
-                    Cancelar
-                  </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input
-                    value={editImagen}
-                    onChange={(e) => setEditImagen(e.target.value)}
-                    placeholder="URL imagen (opcional)"
-                    className="flex-1 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
-                  />
-                  {editImagen && (
-                    <img src={editImagen} alt="preview" className="w-8 h-8 rounded-lg object-cover border border-orange-200 shrink-0" onError={(e) => (e.target.style.display = "none")} />
-                  )}
+                  <fieldset disabled={!puedeGestionar} className="contents">
+                    <input
+                      value={editImagen}
+                      onChange={(e) => setEditImagen(e.target.value)}
+                      placeholder="URL imagen (opcional)"
+                      className="flex-1 border border-orange-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-lg px-2 py-1 text-sm outline-none"
+                    />
+                    {editImagen && (
+                      <img src={editImagen} alt="preview" className="w-8 h-8 rounded-lg object-cover border border-orange-200 shrink-0" onError={(e) => (e.target.style.display = "none")} />
+                    )}
+                  </fieldset>
                 </div>
 
                 {/* Tamaños en modo edición */}
                 {conTamanos && (
+                  <fieldset disabled={!puedeGestionar} className="contents">
                   <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 space-y-1.5">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tamaños</p>
                     <div className="flex gap-2 flex-wrap">
@@ -846,10 +867,12 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       </div>
                     )}
                   </div>
+                  </fieldset>
                 )}
 
                 {/* Sabores en modo edición */}
                 {conSabores && (
+                  <fieldset disabled={!puedeGestionar} className="contents">
                   <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 space-y-1.5">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sabores</p>
                     <div className="flex gap-2">
@@ -867,6 +890,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       </div>
                     )}
                   </div>
+                  </fieldset>
                 )}
               </div>
             ) : (
@@ -913,23 +937,25 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       onClick={() => handleStartEdit(item)}
                       className="text-xs text-orange-500 hover:text-orange-600 font-semibold px-2 py-1 rounded-lg hover:bg-orange-50 transition-all"
                     >
-                      Editar
+                      {puedeGestionar ? "Editar" : "Ver detalle"}
                     </button>
-                    {confirmandoEliminarId === item.id ? (
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => handleEliminar(item.id)} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-all">Sí</button>
-                        <button onClick={() => setConfirmandoEliminarId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-100 transition-all">No</button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setConfirmandoEliminarId(item.id)}
-                        disabled={eliminando === item.id}
-                        className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all disabled:opacity-50"
-                      >
-                        {eliminando === item.id ? "..." : "Eliminar"}
-                      </button>
+                    {puedeGestionar && (
+                      confirmandoEliminarId === item.id ? (
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => handleEliminar(item.id)} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-all">Sí</button>
+                          <button onClick={() => setConfirmandoEliminarId(null)} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-lg hover:bg-gray-100 transition-all">No</button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmandoEliminarId(item.id)}
+                          disabled={eliminando === item.id}
+                          className="text-xs text-red-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-all disabled:opacity-50"
+                        >
+                          {eliminando === item.id ? "..." : "Eliminar"}
+                        </button>
+                      )
                     )}
-                    {asignacionPlatillos && (
+                    {puedeGestionar && asignacionPlatillos && (
                       <button
                         onClick={() => setAsignacionExpandida(asignacionExpandida === item.id ? null : item.id)}
                         className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all ${
@@ -943,7 +969,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                     )}
                   </div>
                 </div>
-                {asignacionPlatillos && asignacionExpandida === item.id && (() => {
+                {puedeGestionar && asignacionPlatillos && asignacionExpandida === item.id && (() => {
                   const asignados = asignacionPlatillos.filter((p) => (p[asignacionTipoKey] ?? []).includes(item.id));
                   const todosSeleccionados = asignacionPlatillos.length > 0 && asignados.length === asignacionPlatillos.length;
                   const algunosSeleccionados = asignados.length > 0 && !todosSeleccionados;
@@ -1284,7 +1310,7 @@ function AsignacionPanel({ titulo, subtitulo, items, platillos, tipoKey, guardar
 
 /* ══════════════════════════════════════════════════════ */
 
-function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, error }) {
+function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, error, readOnly = false }) {
   const [form, setForm] = useState({
     ...platillo,
     ingredientes: platillo.ingredientes ?? [],
@@ -1326,11 +1352,12 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-orange-100 modal-bg">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold text-gray-900">{platillo.id ? "Editar platillo" : "Nuevo platillo"}</h2>
+            <h2 className="text-lg font-bold text-gray-900">{readOnly ? "Detalle del platillo" : platillo.id ? "Editar platillo" : "Nuevo platillo"}</h2>
             <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg">×</button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit}>
+          <fieldset disabled={readOnly} className="space-y-5 border-0 p-0 m-0 min-w-0">
             <div>
               <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
               <input
@@ -1512,16 +1539,25 @@ function EditModal({ platillo, ingredientes, extras, onSave, onClose, saving, er
                 )}
               </div>
             </div>
+          </fieldset>
 
             {error && <div className="px-4 py-2.5 bg-red-50 border border-red-100 rounded-xl text-sm text-red-500">{error}</div>}
 
             <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-              <button type="button" onClick={onClose} disabled={saving} className="text-sm text-gray-400 hover:text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50">
-                Cancelar
-              </button>
-              <button type="submit" disabled={saving} className="bg-orange-500 hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-6 py-2 rounded-xl transition-all shadow-md shadow-orange-200">
-                {saving ? "Guardando..." : "Guardar"}
-              </button>
+              {readOnly ? (
+                <button type="button" onClick={onClose} className="text-sm text-gray-400 hover:text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-50 transition-all">
+                  Cerrar
+                </button>
+              ) : (
+                <>
+                  <button type="button" onClick={onClose} disabled={saving} className="text-sm text-gray-400 hover:text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50">
+                    Cancelar
+                  </button>
+                  <button type="submit" disabled={saving} className="bg-orange-500 hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-6 py-2 rounded-xl transition-all shadow-md shadow-orange-200">
+                    {saving ? "Guardando..." : "Guardar"}
+                  </button>
+                </>
+              )}
             </div>
           </form>
         </div>

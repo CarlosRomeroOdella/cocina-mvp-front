@@ -102,7 +102,7 @@ export function ProductsProvider({ children }) {
     const actualizado = { ...platillo, disponible: !platillo.disponible };
     setPlatillos((prev) => prev.map((p) => (p.id === id ? actualizado : p)));
     try {
-      await updateProduct(id, actualizado);
+      await updateProduct(id, { disponible: actualizado.disponible });
     } catch {
       setPlatillos((prev) => prev.map((p) => (p.id === id ? platillo : p)));
     }
