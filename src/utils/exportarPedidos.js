@@ -2,8 +2,9 @@
  * utils/exportarPedidos.js — Exportar pedidos a Excel (.xlsx)
  *
  * Genera un libro con una fila por pedido (número, cliente, fecha, ítems,
- * modalidad, estado, pagado, total y nota) y dispara la descarga en el
- * navegador. No depende del backend: recibe los pedidos ya cargados.
+ * ingredientes, extras, modalidad, estado, pagado, total y nota) y dispara
+ * la descarga en el navegador. No depende del backend: recibe los pedidos
+ * ya cargados.
  */
 import * as XLSX from "xlsx";
 import { STATUS_CONFIG } from "../lib/estadosPedido";
@@ -16,6 +17,18 @@ function formatearItems(items) {
     .join(", ");
 }
 
+function formatearIngredientes(items) {
+  return (items ?? [])
+    .flatMap((i) => (Array.isArray(i.ingredientes) ? i.ingredientes.map((ing) => ing.nombre) : []))
+    .join(", ");
+}
+
+function formatearExtras(items) {
+  return (items ?? [])
+    .flatMap((i) => (Array.isArray(i.extras) ? i.extras.map((e) => e.nombre) : []))
+    .join(", ");
+}
+
 /**
  * @param {Array} pedidos - pedidos a incluir (ya filtrados/buscados en pantalla)
  */
@@ -25,6 +38,8 @@ export function exportarPedidosExcel(pedidos) {
     Cliente: p.cliente?.nombre ?? "—",
     Fecha: new Date(p.createdAt),
     "Ítems": formatearItems(p.items),
+    Ingredientes: formatearIngredientes(p.items),
+    Extras: formatearExtras(p.items),
     Modalidad: MODALIDAD_LABEL[p.modalidad] ?? p.modalidad,
     Estado: STATUS_CONFIG[p.status]?.label ?? p.status,
     Pagado: p.pagado ? "Sí" : "No",
