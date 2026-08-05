@@ -557,12 +557,11 @@ export default function ClientMenu() {
                   <div
                     key={p.id}
                     onClick={() => { if (!isSelected) { setSelectedPlatilloId(p.id); setIngredientesSeleccionados([]); setExtrasCantidad({}); setCantidad(1); setMostrarIngredientes(false); } }}
-                    className={`relative rounded-2xl border overflow-hidden transition-all duration-500 ${
+                    className={`relative rounded-2xl border overflow-hidden transition-all duration-500 modal-bg ${
                       isSelected
                         ? "border-brand-400 col-span-1 sm:col-span-2 lg:col-span-3 shadow-xl shadow-brand-100"
-                        : "border-brand-100 bg-white hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100 cursor-pointer"
+                        : "border-brand-100 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100 cursor-pointer"
                     } ${selectedPlatilloId && !isSelected ? "opacity-40 scale-95" : ""}`}
-                    style={isSelected ? { background: "rgba(255,255,255,0.97)" } : {}}
                   >
                     <div
                       className={`icon-bg flex items-center justify-center transition-all duration-500 ${isSelected ? "h-48 sm:h-64" : "h-40"}`}
@@ -756,7 +755,7 @@ export default function ClientMenu() {
       {carritoAbierto && (
         <>
           <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.2)", backdropFilter: "blur(4px)" }} onClick={() => setCarritoAbierto(false)} />
-          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-brand-100" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)" }}>
+          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-brand-100 modal-bg" style={{ backdropFilter: "blur(20px)" }}>
             <div className="flex justify-between items-center px-6 py-5 border-b border-brand-100">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Tu pedido</h2>
@@ -862,7 +861,7 @@ export default function ClientMenu() {
       {historialAbierto && (
         <>
           <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.2)", backdropFilter: "blur(4px)" }} onClick={() => setHistorialAbierto(false)} />
-          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-brand-100" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)" }}>
+          <div className="fixed right-0 top-0 h-full w-full sm:w-96 z-50 flex flex-col shadow-2xl border-l border-brand-100 modal-bg" style={{ backdropFilter: "blur(20px)" }}>
             <div className="flex justify-between items-center px-6 py-5 border-b border-brand-100 shrink-0">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Mis pedidos</h2>
@@ -946,7 +945,7 @@ export default function ClientMenu() {
       {modalExtra && (
         <>
           <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }} onClick={() => setModalExtra(null)} />
-          <div className="fixed inset-x-4 top-10 bottom-6 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[min(90vw,820px)] z-50 flex flex-col rounded-2xl shadow-2xl border border-brand-100 overflow-hidden" style={{ background: "rgba(255,255,255,0.98)" }}>
+          <div className="fixed inset-x-4 top-10 bottom-6 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[min(90vw,820px)] z-50 flex flex-col rounded-2xl shadow-2xl border border-brand-100 overflow-hidden modal-bg">
             <div className="flex items-center justify-between px-5 py-4 border-b border-brand-100 shrink-0">
               <h2 className="text-base font-bold text-gray-900">
                 {modalExtra === "bebidas" ? "🥤 Bebidas" : "🍰 Postres"}
@@ -1250,7 +1249,7 @@ function NotifModal({ onActivar, onSinNotif }) {
     <>
       <div className="fixed inset-0 z-[70]" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }} />
       <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
-        <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl" style={{ background: "rgba(255,255,255,0.98)" }}>
+        <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl modal-bg">
 
           {/* Cabecera naranja */}
           <div className="bg-brand-500 px-6 pt-8 pb-6 text-center">

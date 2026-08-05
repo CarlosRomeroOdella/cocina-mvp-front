@@ -354,7 +354,7 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeGes
             <div className="p-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 {/* Ícono imagen */}
-                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg,#fef3e8,#fde8d0)" }}>
+                <div className="icon-bg w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm">
                   {p.imagen ? (
                     <img
                       src={p.imagen}
