@@ -6,6 +6,8 @@ import { useTheme } from "../context/ThemeContext";
 import { useProducts } from "../context/ProductsContext";
 import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen, actualizarNota, eliminarItemPedido, getYoutubeUrl, setYoutubeUrl } from "../services/pedidosService";
 import { getUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, resetPassword } from "../services/usuariosService";
+import { exportarPedidosExcel } from "../utils/exportarPedidos";
+import { STATUS_CONFIG } from "../lib/estadosPedido";
 
 const TABS_JEFE_COCINA = ["pedidos", "reportes", "platillos", "ingredientes", "extras"];
 const TABS_ADMIN = ["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios", "ajustes"];
@@ -172,7 +174,7 @@ export default function AdminDashboard() {
       {/* CONTENIDO */}
       <main className="max-w-6xl mx-auto p-6 space-y-6">
         {activeTab === "pedidos" && (
-          <PedidosTab onPendientesChange={setPendientesCobro} />
+          <PedidosTab onPendientesChange={setPendientesCobro} role={user?.role} />
         )}
         {activeTab === "reportes" && (
           <ReportesTab role={user?.role} />
@@ -1778,14 +1780,6 @@ function ReportesTab({ role }) {
 
 /* ══════════════════════════════════════════════════════ */
 
-const STATUS_CONFIG = {
-  en_espera:      { label: "En espera",      color: "bg-yellow-100 text-yellow-700 border-yellow-200", dot: "bg-yellow-400"  },
-  en_preparacion: { label: "En preparación", color: "bg-blue-100 text-blue-700 border-blue-200",       dot: "bg-blue-400"    },
-  listo:          { label: "Listo",          color: "bg-green-100 text-green-700 border-green-200",    dot: "bg-green-500"   },
-  cancelado:      { label: "Cancelado",      color: "bg-red-100 text-red-600 border-red-200",          dot: "bg-red-400"     },
-  en_revision:    { label: "En revisión",    color: "bg-purple-100 text-purple-700 border-purple-200", dot: "bg-purple-500"  },
-};
-
 const ALL_STATUSES = [
   { value: "en_espera",      label: "En espera" },
   { value: "en_preparacion", label: "En prep." },
@@ -1844,7 +1838,8 @@ function DetallePedidoModal({ pedido, onClose }) {
   );
 }
 
-function PedidosTab({ onPendientesChange }) {
+function PedidosTab({ onPendientesChange, role }) {
+  const puedeExportar = role === "admin";
   const [pedidos, setPedidos] = useState([]);
   const [loadingPedidos, setLoadingPedidos] = useState(true);
   const [cambiando, setCambiando] = useState(null);
@@ -1906,6 +1901,8 @@ function PedidosTab({ onPendientesChange }) {
     (p.cliente?.nombre ?? "").toLowerCase().includes(busquedaPedidos.trim().toLowerCase()) ||
     String(p.id).includes(busquedaPedidos.trim());
 
+  const pedidosExportables = pedidos.filter(matchPedido);
+
   const enEspera       = pedidos.filter((p) => p.status === "en_espera"       && matchPedido(p));
   const enPreparacion  = pedidos.filter((p) => p.status === "en_preparacion"  && matchPedido(p));
   const listos         = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
@@ -1956,6 +1953,17 @@ function PedidosTab({ onPendientesChange }) {
             <input value={busquedaPedidos} onChange={(e) => setBusquedaPedidos(e.target.value)} placeholder="Buscar cliente o #id..." className="pl-9 pr-4 py-2 text-sm border border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 rounded-xl outline-none transition-all bg-white w-52" />
             {busquedaPedidos && <button onClick={() => setBusquedaPedidos("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>}
           </div>
+          {puedeExportar && (
+            <button
+              onClick={() => exportarPedidosExcel(pedidosExportables)}
+              disabled={pedidosExportables.length === 0}
+              title="Exportar a Excel"
+              className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-orange-500 bg-white border border-gray-200 hover:border-orange-200 px-3 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16" /></svg>
+              <span className="hidden sm:inline">Exportar Excel</span>
+            </button>
+          )}
         </div>
         {hayNuevos && (
           <button
