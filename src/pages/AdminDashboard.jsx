@@ -13,6 +13,7 @@ const TABS_ADMIN = ["pedidos", "reportes", "platillos", "ingredientes", "extras"
 export default function AdminDashboard() {
   const { user, logout } = useContext(AuthContext);
   const visibleTabs = user?.role === "jefe_cocina" ? TABS_JEFE_COCINA : TABS_ADMIN;
+  const puedeCrear = user?.role !== "jefe_cocina";
   const { dark, toggle: toggleTheme } = useTheme();
   const ctx = useProducts();
   const platillos = ctx?.platillos ?? [];
@@ -186,6 +187,7 @@ export default function AdminDashboard() {
             onEdit={handleEdit}
             onAdd={handleAddPlatillo}
             onDelete={handleDelete}
+            puedeCrear={puedeCrear}
           />
         )}
         {activeTab === "ingredientes" && (
@@ -196,6 +198,7 @@ export default function AdminDashboard() {
             onActualizar={actualizarIngrediente}
             onEliminar={eliminarIngrediente}
             guardarPlatillo={guardarPlatillo}
+            puedeCrear={puedeCrear}
           />
         )}
         {activeTab === "extras" && (
@@ -206,6 +209,7 @@ export default function AdminDashboard() {
             onActualizar={actualizarExtra}
             onEliminar={eliminarExtra}
             guardarPlatillo={guardarPlatillo}
+            puedeCrear={puedeCrear}
           />
         )}
         {activeTab === "ajustes" && <AjustesTab />}
@@ -298,7 +302,7 @@ function AjustesTab() {
 
 /* ═══════════════════════════════════════════════════════ */
 
-function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
+function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete, puedeCrear = true }) {
   const [busqueda, setBusqueda] = useState("");
   const [filtroDisp, setFiltroDisp] = useState("todos");
   const [confirmandoDeleteId, setConfirmandoDeleteId] = useState(null);
@@ -315,9 +319,11 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
           <h2 className="text-lg font-bold text-gray-900">Platillos</h2>
           <p className="text-xs text-gray-400">{filtrados.length}/{platillos.length} registrados</p>
         </div>
-        <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 flex items-center gap-1.5">
-          <span className="text-lg leading-none">+</span> Agregar platillo
-        </button>
+        {puedeCrear && (
+          <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 flex items-center gap-1.5">
+            <span className="text-lg leading-none">+</span> Agregar platillo
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">
@@ -395,7 +401,7 @@ function PlatillosPanel({ platillos, onToggle, onEdit, onAdd, onDelete }) {
 
 /* ──────────────────────────────────────────────── */
 
-function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo }) {
+function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo, puedeCrear = true }) {
   return (
     <div className="space-y-10">
       <CatalogoPanel
@@ -407,6 +413,7 @@ function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEli
         conPrecio={true}
         conCategoria={true}
         categoriaLibre={true}
+        puedeCrear={puedeCrear}
       />
       <AsignacionIngredientesPanel
         items={ingredientes}
@@ -417,7 +424,7 @@ function IngredientesTab({ ingredientes, platillos, onCrear, onActualizar, onEli
   );
 }
 
-function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo }) {
+function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guardarPlatillo, puedeCrear = true }) {
   return (
     <div className="space-y-10">
       <CatalogoPanel
@@ -433,6 +440,7 @@ function ExtrasTab({ extras, platillos, onCrear, onActualizar, onEliminar, guard
         asignacionPlatillos={platillos}
         asignacionTipoKey="extras"
         asignacionGuardar={guardarPlatillo}
+        puedeCrear={puedeCrear}
       />
     </div>
   );
@@ -447,7 +455,7 @@ const CATEGORIAS_EXTRA = [
   { value: "complemento", label: "Complemento" },
 ];
 
-function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria, categoriaLibre = false, conTamanos = false, conSabores = false, asignacionPlatillos = null, asignacionTipoKey = null, asignacionGuardar = null }) {
+function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPrecio, conCategoria, categoriaLibre = false, conTamanos = false, conSabores = false, asignacionPlatillos = null, asignacionTipoKey = null, asignacionGuardar = null, puedeCrear = true }) {
   const [nombre, setNombre] = useState("");
   const [precio, setPrecio] = useState("");
   const [categoria, setCategoria] = useState("");
@@ -622,6 +630,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
         <p className="text-xs text-gray-400">{filtrados.length}/{items.length} registrados</p>
       </div>
 
+      {puedeCrear && (
+      <>
       <form id={`crear-${titulo.toLowerCase().replace(/\s+/g, "-")}-form`} onSubmit={handleCrear} className="flex gap-2 flex-wrap">
         <input
           value={nombre}
@@ -718,6 +728,8 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
       >
         {guardando ? "..." : "Agregar"}
       </button>
+      </>
+      )}
 
       {apiError && (
         <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{apiError}</p>
