@@ -2427,7 +2427,7 @@ function UsuariosTab() {
       <div className="space-y-2">
         {usuariosFiltrados.length === 0 && usuarios.length > 0 && <p className="text-sm text-gray-400 text-center py-4">Sin resultados</p>}
         {usuariosFiltrados.map((u) => (
-          <div key={u.id} className={`bg-white border border-brand-100 rounded-xl p-4 flex items-center justify-between gap-3 transition-all ${!u.activo ? "opacity-50" : ""}`}>
+          <div key={u.id} className={`bg-white border border-brand-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-all ${!u.activo ? "opacity-50" : ""}`}>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold text-gray-900">{u.nombre}</p>
@@ -2454,7 +2454,7 @@ function UsuariosTab() {
               </div>
               <p className="text-xs text-gray-400 mt-0.5">{u.correo}</p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
               <button
                 onClick={() => { setError(null); setResetModal({ id: u.id, nombre: u.nombre }); }}
                 className="text-xs text-brand-500 hover:text-brand-600 font-semibold px-2 py-1 rounded-lg hover:bg-brand-50 transition-all"

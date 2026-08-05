@@ -339,7 +339,7 @@ export default function ClientMenu() {
       setCarrito([]);
       setNota("");
       setCarritoAbierto(false);
-      mostrarToast(STATUS_LABEL[pedido.status]);
+      mostrarToast("¡Gracias por tu pedido! En un momento se comenzará a preparar.");
     } catch (err) {
       alert(err.message || "Error al enviar el pedido");
     } finally {
@@ -379,7 +379,7 @@ export default function ClientMenu() {
     <div className="min-h-screen font-sans page-bg">
 
       {toastMsg && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] bg-gray-900 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl animate-bounce">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] bg-gray-900 text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-xl animate-bounce max-w-[calc(100vw-2rem)] sm:max-w-sm text-center">
           {toastMsg}
         </div>
       )}
