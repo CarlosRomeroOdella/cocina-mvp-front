@@ -7,7 +7,7 @@ import { useProducts } from "../context/ProductsContext";
 import { getPedidos, actualizarStatusPedido, marcarPagado, getCocinaEstado, setCocinaEstado, getResumen, actualizarNota, eliminarItemPedido, getYoutubeUrl, setYoutubeUrl } from "../services/pedidosService";
 import { getUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, resetPassword } from "../services/usuariosService";
 
-const TABS_JEFE_COCINA = ["pedidos", "platillos", "ingredientes", "extras"];
+const TABS_JEFE_COCINA = ["pedidos", "reportes", "platillos", "ingredientes", "extras"];
 const TABS_ADMIN = ["pedidos", "reportes", "platillos", "ingredientes", "extras", "usuarios", "ajustes"];
 
 export default function AdminDashboard() {
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
           <PedidosTab onPendientesChange={setPendientesCobro} />
         )}
         {activeTab === "reportes" && (
-          <ReportesTab />
+          <ReportesTab role={user?.role} />
         )}
         {activeTab === "usuarios" && (
           <UsuariosTab />
@@ -1527,18 +1527,22 @@ const PERIODOS = [
   { key: "todoElTiempo", label: "Total" },
 ];
 
-function ReportesTab() {
+function ReportesTab({ role }) {
+  const soloDeudores = role === "jefe_cocina";
   const [data, setData] = useState(null);
   const [deudores, setDeudores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState("hoy");
+  const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
 
   useEffect(() => {
-    Promise.all([getResumen(), getPedidos("listo", false)])
+    // jefe_cocina no tiene acceso a /pedidos/resumen (requireAdmin) — solo se le pide Deudores
+    const fetchResumen = soloDeudores ? Promise.resolve(null) : getResumen();
+    Promise.all([fetchResumen, getPedidos("listo", false)])
       .then(([resumen, lista]) => { setData(resumen); setDeudores(lista); })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [soloDeudores]);
 
   if (loading) return (
     <div className="flex justify-center py-20">
@@ -1546,14 +1550,16 @@ function ReportesTab() {
     </div>
   );
 
-  if (!data) return <p className="text-sm text-red-400 py-10 text-center">Error cargando reportes</p>;
+  if (!soloDeudores && !data) return <p className="text-sm text-red-400 py-10 text-center">Error cargando reportes</p>;
 
-  const cur = data[periodo];
-  const maxCant = data.topItems[0]?.cantidad ?? 1;
+  const cur = !soloDeudores ? data[periodo] : null;
+  const maxCant = !soloDeudores ? (data.topItems[0]?.cantidad ?? 1) : 1;
 
   return (
     <div className="space-y-6 max-w-3xl">
 
+      {!soloDeudores && (
+      <>
       {/* ── Header + selector + número principal ── */}
       <div className="bg-white border border-orange-100 rounded-2xl p-5">
         <div className="flex items-center justify-between mb-4">
@@ -1656,6 +1662,8 @@ function ReportesTab() {
           <p className="text-gray-300 text-xs mt-1">Aparecerán cuando marques pedidos como pagados</p>
         </div>
       )}
+      </>
+      )}
 
       {/* Deudores: pedidos listos y sin cobrar */}
       <div className="space-y-2">
@@ -1685,7 +1693,15 @@ function ReportesTab() {
               <tbody>
                 {deudores.map((p) => (
                   <tr key={p.id} className="border-b border-orange-50 last:border-0">
-                    <td className="px-4 py-2.5 text-gray-400">#{p.id}</td>
+                    <td className="px-4 py-2.5">
+                      <button
+                        onClick={() => setPedidoSeleccionado(p)}
+                        className="text-gray-400 hover:text-orange-500 underline decoration-dotted transition-colors"
+                        title="Ver detalle del pedido"
+                      >
+                        #{p.id}
+                      </button>
+                    </td>
                     <td className="px-4 py-2.5 font-semibold text-gray-800">{p.cliente?.nombre ?? "—"}</td>
                     <td className="px-4 py-2.5 text-gray-400">
                       {new Date(p.createdAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
@@ -1704,6 +1720,10 @@ function ReportesTab() {
           </div>
         )}
       </div>
+
+      {pedidoSeleccionado && (
+        <DetallePedidoModal pedido={pedidoSeleccionado} onClose={() => setPedidoSeleccionado(null)} />
+      )}
     </div>
   );
 }
@@ -1724,6 +1744,57 @@ const ALL_STATUSES = [
   { value: "listo",          label: "Listo" },
   { value: "en_revision",    label: "Revisión" },
 ];
+
+/** Detalle de solo lectura de un pedido (ítems, extras, nota, total) — usado desde el reporte de Deudores. */
+function DetallePedidoModal({ pedido, onClose }) {
+  const fecha = new Date(pedido.createdAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
+  const cfg = STATUS_CONFIG[pedido.status] ?? STATUS_CONFIG.en_espera;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }} onClick={onClose}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-orange-100 modal-bg" onClick={(e) => e.stopPropagation()}>
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <p className="text-xs text-gray-400 font-medium">Pedido #{pedido.id} · {fecha}</p>
+              <p className="text-sm font-bold text-gray-900 mt-0.5">{pedido.cliente?.nombre ?? "Cliente"}</p>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 flex items-center justify-center transition-all text-lg">×</button>
+          </div>
+
+          <div className="space-y-1.5 mb-3">
+            {pedido.items.map((item) => (
+              <div key={item.id} className="flex items-start gap-2">
+                <span className="text-xs text-gray-300 mt-0.5 shrink-0">·</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-semibold text-gray-700">{item.nombre}</span>
+                  {(item.cantidad ?? 1) > 1 && (
+                    <span className="ml-1 text-xs text-gray-400">×{item.cantidad}</span>
+                  )}
+                  {Array.isArray(item.ingredientes) && item.ingredientes.length > 0 && (
+                    <p className="text-xs text-gray-400 truncate">{item.ingredientes.map((i) => i.nombre).join(", ")}</p>
+                  )}
+                  {Array.isArray(item.extras) && item.extras.length > 0 && (
+                    <p className="text-xs text-orange-400 truncate">+ {item.extras.map((e) => e.nombre).join(", ")}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {pedido.nota && (
+            <p className="text-xs text-gray-500 bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-1.5 mb-3 italic">"{pedido.nota}"</p>
+          )}
+
+          <div className="flex items-center justify-between pt-3 border-t border-orange-50">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${cfg.color}`}>{cfg.label}</span>
+            <p className="text-sm font-bold text-orange-500">${Number(pedido.total).toFixed(0)}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function PedidosTab({ onPendientesChange }) {
   const [pedidos, setPedidos] = useState([]);
