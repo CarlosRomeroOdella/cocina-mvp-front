@@ -12,18 +12,19 @@ export default {
         // brand-400 = Bright Blue oficial (acentos/hover claros)
         // brand-900 = Navy PANTONE 282C oficial (los tonos 500-900 son azules
         // oscuros a propósito: son los que se usan en botones/bordes solidos)
-        // Version desaturada/suave para que sea comoda a la vista;
-        // brand-900 se deja en el Navy oficial exacto como ancla de marca.
+        // Basada en las variables reales de https://odellaglobal.com/
+        // (--odella-azul:#041E42, --odella-gris-bg:#f5f5f5, hover:#08316B).
+        // Sin azul vivo ni morado: solo navy + gris, como el sitio oficial.
         brand: {
-          50:  "#f0f2f6",
-          100: "#c0d4ec",
-          200: "#90b4e1",
-          300: "#6196d6",
-          400: "#3077cc",
-          500: "#2a65ae",
-          600: "#235490",
-          700: "#1c4272",
-          800: "#153154",
+          50:  "#f5f5f5",
+          100: "#ced4de",
+          200: "#a6b4c7",
+          300: "#7f93b0",
+          400: "#577299",
+          500: "#305282",
+          600: "#08316b",
+          700: "#072b5d",
+          800: "#052450",
           900: "#041e42",
         },
         // Purple secundario oficial (desaturado), para diferenciarse del azul/navy primario
