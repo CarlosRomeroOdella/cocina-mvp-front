@@ -1901,7 +1901,23 @@ function PedidosTab({ onPendientesChange, role }) {
     (p.cliente?.nombre ?? "").toLowerCase().includes(busquedaPedidos.trim().toLowerCase()) ||
     String(p.id).includes(busquedaPedidos.trim());
 
-  const pedidosExportables = pedidos.filter(matchPedido);
+  const [exportando, setExportando] = useState(false);
+  const [exportError, setExportError] = useState(null);
+
+  const handleExportar = async () => {
+    setExportando(true);
+    setExportError(null);
+    try {
+      // Trae TODOS los estatus (incluye cancelado), a diferencia del tablero
+      // en vivo, que solo carga los estatus activos.
+      const todos = await getPedidos("en_espera,en_preparacion,listo,en_revision,cancelado");
+      exportarPedidosExcel(todos.filter(matchPedido));
+    } catch (err) {
+      setExportError(err.message || "Error al exportar");
+    } finally {
+      setExportando(false);
+    }
+  };
 
   const enEspera       = pedidos.filter((p) => p.status === "en_espera"       && matchPedido(p));
   const enPreparacion  = pedidos.filter((p) => p.status === "en_preparacion"  && matchPedido(p));
@@ -1955,16 +1971,17 @@ function PedidosTab({ onPendientesChange, role }) {
           </div>
           {puedeExportar && (
             <button
-              onClick={() => exportarPedidosExcel(pedidosExportables)}
-              disabled={pedidosExportables.length === 0}
-              title="Exportar a Excel"
+              onClick={handleExportar}
+              disabled={exportando}
+              title="Exportar a Excel (todos los pedidos, incluye cancelados)"
               className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-orange-500 bg-white border border-gray-200 hover:border-orange-200 px-3 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16" /></svg>
-              <span className="hidden sm:inline">Exportar Excel</span>
+              <span className="hidden sm:inline">{exportando ? "Exportando..." : "Exportar Excel"}</span>
             </button>
           )}
         </div>
+        {exportError && <p className="text-xs text-red-500">{exportError}</p>}
         {hayNuevos && (
           <button
             onClick={() => { setHayNuevos(false); cargarPedidos(); }}
