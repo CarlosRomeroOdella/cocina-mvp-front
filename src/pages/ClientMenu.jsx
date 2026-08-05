@@ -377,7 +377,7 @@ export default function ClientMenu() {
 
       {pedidoActivo && (
         <div
-          className={`${pedidoActivo.status === "en_revision" ? "bg-purple-600" : STATUS_COLOR[pedidoActivo.status]} text-white px-6 py-2.5 flex items-center justify-between gap-4 ${pedidoActivo.status === "en_revision" ? "cursor-pointer hover:bg-purple-700 transition-colors" : ""}`}
+          className={`${pedidoActivo.status === "en_revision" ? "bg-accent-600" : STATUS_COLOR[pedidoActivo.status]} text-white px-6 py-2.5 flex items-center justify-between gap-4 ${pedidoActivo.status === "en_revision" ? "cursor-pointer hover:bg-accent-700 transition-colors" : ""}`}
           onClick={pedidoActivo.status === "en_revision" ? () => getPedido(pedidoActivo.id).then(setPedidoRevision).catch(() => {}) : undefined}
         >
           <div className="flex items-center gap-3">
@@ -800,7 +800,7 @@ export default function ClientMenu() {
                       </div>
                     )}
                     {item.sabor && (
-                      <span className="inline-block text-xs text-purple-600 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full font-medium mb-1">
+                      <span className="inline-block text-xs text-accent-600 bg-accent-50 border border-accent-200 px-2 py-0.5 rounded-full font-medium mb-1">
                         Sabor: {item.sabor}
                       </span>
                     )}
@@ -896,7 +896,7 @@ export default function ClientMenu() {
                   en_preparacion: { label: "En preparación", color: "bg-blue-100 text-blue-700" },
                   listo:          { label: "Listo",          color: "bg-green-100 text-green-700" },
                   cancelado:      { label: "Cancelado",      color: "bg-red-100 text-red-500" },
-                  en_revision:    { label: "En revisión",    color: "bg-purple-100 text-purple-700" },
+                  en_revision:    { label: "En revisión",    color: "bg-accent-100 text-accent-700" },
                 };
                 const cfg = STATUS_CFG[pedido.status] ?? STATUS_CFG.en_espera;
                 const fecha = new Date(pedido.createdAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
@@ -1381,18 +1381,18 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
       <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl bg-white flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="px-6 pt-5 pb-4 border-b border-purple-100 shrink-0">
+        <div className="px-6 pt-5 pb-4 border-b border-accent-100 shrink-0">
           <div className="flex justify-between items-start">
             <div>
-              <span className="text-xs font-bold text-purple-600 uppercase tracking-widest">Pedido #{pedido.id} — En revisión</span>
+              <span className="text-xs font-bold text-accent-600 uppercase tracking-widest">Pedido #{pedido.id} — En revisión</span>
               <h2 className="text-base font-bold text-gray-900 mt-0.5">Modifica tu pedido</h2>
             </div>
-            <button onClick={onCerrar} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-purple-100 text-gray-400 hover:text-purple-500 flex items-center justify-center text-lg transition-all">×</button>
+            <button onClick={onCerrar} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-accent-100 text-gray-400 hover:text-accent-500 flex items-center justify-center text-lg transition-all">×</button>
           </div>
           {pedido.nota && (
-            <div className="mt-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-2.5">
-              <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-0.5">Mensaje de cocina</p>
-              <p className="text-sm text-purple-800 italic">"{pedido.nota}"</p>
+            <div className="mt-3 bg-accent-50 border border-accent-200 rounded-xl px-4 py-2.5">
+              <p className="text-xs font-semibold text-accent-600 uppercase tracking-wider mb-0.5">Mensaje de cocina</p>
+              <p className="text-sm text-accent-800 italic">"{pedido.nota}"</p>
             </div>
           )}
         </div>
@@ -1433,7 +1433,7 @@ function RevisionModal({ pedido, platillos, ingredientes, onReenviar, onCancelar
                     {item.tipo === "platillo" && ingredientesOpcionales.length > 0 && (
                       <button
                         onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                        className="text-xs text-purple-500 hover:text-purple-700 border border-purple-200 hover:border-purple-400 px-2 py-1 rounded-full transition-all"
+                        className="text-xs text-accent-500 hover:text-accent-700 border border-accent-200 hover:border-accent-400 px-2 py-1 rounded-full transition-all"
                       >
                         {isExpanded ? "Cerrar" : "Editar"}
                       </button>

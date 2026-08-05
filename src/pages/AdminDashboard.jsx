@@ -717,9 +717,9 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
           {sabores.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {sabores.map((s, i) => (
-                <span key={i} className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full font-medium">
+                <span key={i} className="flex items-center gap-1 text-xs bg-accent-100 text-accent-700 border border-accent-200 px-2 py-0.5 rounded-full font-medium">
                   {s}
-                  <button type="button" onClick={() => setSabores((prev) => prev.filter((_, j) => j !== i))} className="text-purple-400 hover:text-red-500 ml-0.5 leading-none">×</button>
+                  <button type="button" onClick={() => setSabores((prev) => prev.filter((_, j) => j !== i))} className="text-accent-400 hover:text-red-500 ml-0.5 leading-none">×</button>
                 </span>
               ))}
             </div>
@@ -884,9 +884,9 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                     {editSabores.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {editSabores.map((s, i) => (
-                          <span key={i} className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full">
+                          <span key={i} className="flex items-center gap-1 text-xs bg-accent-100 text-accent-700 border border-accent-200 px-2 py-0.5 rounded-full">
                             {s}
-                            <button type="button" onClick={() => setEditSabores((prev) => prev.filter((_, j) => j !== i))} className="text-purple-400 hover:text-red-500 leading-none">×</button>
+                            <button type="button" onClick={() => setEditSabores((prev) => prev.filter((_, j) => j !== i))} className="text-accent-400 hover:text-red-500 leading-none">×</button>
                           </span>
                         ))}
                       </div>
@@ -917,7 +917,7 @@ function CatalogoPanel({ titulo, items, onCrear, onActualizar, onEliminar, conPr
                       </span>
                     )}
                     {Array.isArray(item.sabores) && item.sabores.length > 0 && (
-                      <span className="text-xs text-purple-500 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full font-medium">
+                      <span className="text-xs text-accent-500 bg-accent-50 border border-accent-100 px-2 py-0.5 rounded-full font-medium">
                         {item.sabores.length} sabor{item.sabores.length !== 1 ? "es" : ""}
                       </span>
                     )}
@@ -1996,11 +1996,11 @@ function PedidosTab({ onPendientesChange, role }) {
       {/* EN REVISIÓN — esperando respuesta del cliente */}
       {enRevision.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center gap-3 pb-2 border-b border-purple-100">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
-            <h3 className="text-sm font-bold text-purple-700">En revisión — esperando al cliente</h3>
-            <span className="text-xs font-semibold bg-purple-100 text-purple-600 border border-purple-200 px-2 py-0.5 rounded-full">{enRevision.length}</span>
-            <span className="text-xs text-purple-400 ml-1">El cliente puede modificar o cancelar su pedido</span>
+          <div className="flex items-center gap-3 pb-2 border-b border-accent-100">
+            <span className="w-2.5 h-2.5 rounded-full bg-accent-500 animate-pulse" />
+            <h3 className="text-sm font-bold text-accent-700">En revisión — esperando al cliente</h3>
+            <span className="text-xs font-semibold bg-accent-100 text-accent-600 border border-accent-200 px-2 py-0.5 rounded-full">{enRevision.length}</span>
+            <span className="text-xs text-accent-400 ml-1">El cliente puede modificar o cancelar su pedido</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {enRevision.map((pedido) => (
