@@ -17,10 +17,14 @@ export async function crearPedido(data) {
 /**
  * Lista pedidos del servidor.
  * @param {string} [statusFilter] - Filtrar por status (ej: "en_espera,en_preparacion")
+ * @param {boolean} [pagado] - Filtrar por estado de pago (ej: false para deudores)
  */
-export async function getPedidos(statusFilter) {
-  const qs = statusFilter ? `?status=${statusFilter}` : "";
-  return apiFetch(`/pedidos${qs}`);
+export async function getPedidos(statusFilter, pagado) {
+  const params = new URLSearchParams();
+  if (statusFilter) params.set("status", statusFilter);
+  if (pagado !== undefined) params.set("pagado", String(pagado));
+  const qs = params.toString();
+  return apiFetch(`/pedidos${qs ? `?${qs}` : ""}`);
 }
 
 /** Obtiene un pedido por su ID */

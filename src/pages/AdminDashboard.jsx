@@ -1529,12 +1529,13 @@ const PERIODOS = [
 
 function ReportesTab() {
   const [data, setData] = useState(null);
+  const [deudores, setDeudores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState("hoy");
 
   useEffect(() => {
-    getResumen()
-      .then(setData)
+    Promise.all([getResumen(), getPedidos("listo", false)])
+      .then(([resumen, lista]) => { setData(resumen); setDeudores(lista); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -1655,6 +1656,54 @@ function ReportesTab() {
           <p className="text-gray-300 text-xs mt-1">Aparecerán cuando marques pedidos como pagados</p>
         </div>
       )}
+
+      {/* Deudores: pedidos listos y sin cobrar */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Deudores</p>
+          {deudores.length > 0 && (
+            <span className="text-xs font-semibold text-red-500 bg-red-50 border border-red-100 px-2.5 py-1 rounded-full">
+              ${deudores.reduce((s, p) => s + Number(p.total), 0).toFixed(0)} pendiente{deudores.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
+        {deudores.length === 0 ? (
+          <p className="text-sm text-gray-400 bg-white border border-orange-100 rounded-xl px-4 py-6 text-center">Sin pedidos pendientes por pagar</p>
+        ) : (
+          <div className="bg-white border border-orange-100 rounded-xl overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-orange-100">
+                  <th className="px-4 py-2.5">#</th>
+                  <th className="px-4 py-2.5">Cliente</th>
+                  <th className="px-4 py-2.5">Fecha</th>
+                  <th className="px-4 py-2.5 text-right">Total</th>
+                  <th className="px-4 py-2.5 text-right">Saldo pendiente</th>
+                  <th className="px-4 py-2.5">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deudores.map((p) => (
+                  <tr key={p.id} className="border-b border-orange-50 last:border-0">
+                    <td className="px-4 py-2.5 text-gray-400">#{p.id}</td>
+                    <td className="px-4 py-2.5 font-semibold text-gray-800">{p.cliente?.nombre ?? "—"}</td>
+                    <td className="px-4 py-2.5 text-gray-400">
+                      {new Date(p.createdAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
+                    </td>
+                    <td className="px-4 py-2.5 text-right font-semibold text-gray-800">${Number(p.total).toFixed(0)}</td>
+                    <td className="px-4 py-2.5 text-right font-bold text-red-500">${Number(p.total).toFixed(0)}</td>
+                    <td className="px-4 py-2.5">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${STATUS_CONFIG[p.status]?.color ?? ""}`}>
+                        {STATUS_CONFIG[p.status]?.label ?? p.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1743,8 +1792,7 @@ function PedidosTab({ onPendientesChange }) {
   const listos         = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
   const enRevision     = pedidos.filter((p) => p.status === "en_revision"     && matchPedido(p));
   const pendientesPago = pedidos.filter((p) => p.status === "listo" && !p.pagado && matchPedido(p));
-  const hoy = new Date().toDateString();
-  const cobrados       = pedidos.filter((p) => p.pagado && matchPedido(p) && new Date(p.createdAt).toDateString() === hoy).slice(-8);
+  const cobrados       = pedidos.filter((p) => p.pagado && matchPedido(p)).slice(-8);
 
   const totalPendientesCobro = pedidos.filter((p) => p.status === "listo" && !p.pagado).length;
   useEffect(() => { onPendientesChange?.(totalPendientesCobro); }, [totalPendientesCobro]);
@@ -1931,6 +1979,7 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
   const [notaEdit, setNotaEdit] = useState(pedido.nota ?? "");
   const [notaGuardando, setNotaGuardando] = useState(false);
   const [confirmandoCancelar, setConfirmandoCancelar] = useState(false);
+  const [confirmandoRevertirPago, setConfirmandoRevertirPago] = useState(false);
 
   useEffect(() => {
     if (!notaEditando) setNotaEdit(pedido.nota ?? "");
@@ -2080,19 +2129,36 @@ function PedidoCard({ pedido, cambiando, onCambiarStatus, onPagado, onActualizar
 
       <div className="flex items-center justify-between pt-3 border-t border-orange-50">
         <p className="text-sm font-bold text-orange-500">${Number(pedido.total).toFixed(0)}</p>
-        <button
-          onClick={() => onPagado(pedido)}
-          disabled={loadingPago}
-          className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
-            pedido.pagado
-              ? "bg-green-500 border-green-500 text-white"
-              : resaltarPago
-                ? "bg-red-50 border-red-300 text-red-500 hover:bg-red-500 hover:text-white"
-                : "border-gray-200 text-gray-400 hover:border-green-400 hover:text-green-600"
-          } disabled:opacity-50`}
-        >
-          {loadingPago ? "..." : pedido.pagado ? "✓ Pagado" : "Marcar pagado"}
-        </button>
+        {pedido.pagado && confirmandoRevertirPago ? (
+          <div className="flex gap-1">
+            <button
+              onClick={() => { setConfirmandoRevertirPago(false); onPagado(pedido); }}
+              className="text-xs py-1 px-2.5 rounded-full bg-red-500 border border-red-500 text-white font-semibold transition-all"
+            >
+              Sí, revertir
+            </button>
+            <button
+              onClick={() => setConfirmandoRevertirPago(false)}
+              className="text-xs py-1 px-2.5 rounded-full border border-gray-200 text-gray-400 hover:text-gray-600 transition-all"
+            >
+              No
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => (pedido.pagado ? setConfirmandoRevertirPago(true) : onPagado(pedido))}
+            disabled={loadingPago}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
+              pedido.pagado
+                ? "bg-green-500 border-green-500 text-white"
+                : resaltarPago
+                  ? "bg-red-50 border-red-300 text-red-500 hover:bg-red-500 hover:text-white"
+                  : "border-gray-200 text-gray-400 hover:border-green-400 hover:text-green-600"
+            } disabled:opacity-50`}
+          >
+            {loadingPago ? "..." : pedido.pagado ? "✓ Pagado" : "Marcar pagado"}
+          </button>
+        )}
       </div>
     </div>
   );
