@@ -10,19 +10,20 @@
 
 /* ── CSS variables por tema (paleta oficial Odella) ────────── */
 :root {
-  --page-bg:      #f4f7fc;
+  --page-bg:      #f2f4f7;
   --header-bg:    rgba(255, 255, 255, 0.75);
   --tabs-bg:      rgba(255, 255, 255, 0.60);
   --modal-bg:     rgba(255, 255, 255, 0.97);
-  --icon-bg:      linear-gradient(135deg, #eef4fe, #c0dafd);
+  --icon-bg:      linear-gradient(135deg, #f0f2f6, #c0d4ec);
 }
 
+/* Dark mode desaturado y sin negro puro, para que sea comodo a la vista */
 html.dark {
-  --page-bg:      radial-gradient(ellipse at 60% 35%, #0c2c52 0%, #071a30 45%, #020609 100%);
-  --header-bg:    rgba(2, 8, 16, 0.88);
-  --tabs-bg:      rgba(2, 8, 16, 0.80);
-  --modal-bg:     #081524;
-  --icon-bg:      linear-gradient(135deg, #0c2c52, #082036);
+  --page-bg:      radial-gradient(ellipse at 60% 35%, #182d45 0%, #0e1a29 45%, #0a0e14 100%);
+  --header-bg:    rgba(10, 15, 22, 0.88);
+  --tabs-bg:      rgba(10, 15, 22, 0.80);
+  --modal-bg:     #0f1b28;
+  --icon-bg:      linear-gradient(135deg, #182d45, #101f30);
 }
 
 .page-bg    { background: var(--page-bg); }
@@ -34,68 +35,68 @@ html.dark {
 /* ── Overrides globales dark mode ────────────────────────── */
 /* Usan doble clase (.dark + la utility) para mayor especificidad */
 
-/* Fondos */
-.dark .bg-white                 { background-color: #081524 !important; }
-.dark .bg-gray-50               { background-color: #050f1c !important; }
-.dark .bg-gray-100              { background-color: #0e1f33 !important; }
-.dark .bg-gray-200              { background-color: #16304d !important; }
-.dark .bg-brand-50              { background-color: #0d2440 !important; }
-.dark .bg-brand-100             { background-color: #123258 !important; }
-.dark .bg-yellow-50             { background-color: #2a2200 !important; }
-.dark .bg-red-50                { background-color: #2a0d10 !important; }
-.dark .bg-green-50              { background-color: #06251a !important; }
-.dark .bg-blue-50               { background-color: #0d2440 !important; }
+/* Fondos — tonos desaturados, sin negro puro, para reducir fatiga visual */
+.dark .bg-white                 { background-color: #141d28 !important; }
+.dark .bg-gray-50               { background-color: #101720 !important; }
+.dark .bg-gray-100              { background-color: #1b2735 !important; }
+.dark .bg-gray-200              { background-color: #26384d !important; }
+.dark .bg-brand-50              { background-color: #1c2d40 !important; }
+.dark .bg-brand-100             { background-color: #243b55 !important; }
+.dark .bg-yellow-50             { background-color: #26220f !important; }
+.dark .bg-red-50                { background-color: #2a1418 !important; }
+.dark .bg-green-50              { background-color: #10241c !important; }
+.dark .bg-blue-50               { background-color: #1c2d40 !important; }
 
 /* Bordes */
-.dark .border-brand-100          { border-color: #1c4570 !important; }
-.dark .border-brand-50           { border-color: #16304d !important; }
-.dark .border-brand-200          { border-color: #235794 !important; }
-.dark .border-gray-100          { border-color: #0e1f33 !important; }
-.dark .border-gray-200          { border-color: #16304d !important; }
-.dark .border-red-100           { border-color: #4a1620 !important; }
-.dark .border-red-200           { border-color: #5c1c28 !important; }
-.dark .border-green-200         { border-color: #0c3d2b !important; }
-.dark .border-yellow-100        { border-color: #3a3200 !important; }
-.dark .border-blue-100          { border-color: #1c4570 !important; }
+.dark .border-brand-100          { border-color: #314d6b !important; }
+.dark .border-brand-50           { border-color: #26384d !important; }
+.dark .border-brand-200          { border-color: #3c608b !important; }
+.dark .border-gray-100          { border-color: #1b2735 !important; }
+.dark .border-gray-200          { border-color: #26384d !important; }
+.dark .border-red-100           { border-color: #452530 !important; }
+.dark .border-red-200           { border-color: #55303a !important; }
+.dark .border-green-200         { border-color: #1a3d30 !important; }
+.dark .border-yellow-100        { border-color: #362f18 !important; }
+.dark .border-blue-100          { border-color: #314d6b !important; }
 
-/* Textos */
-.dark .text-gray-900            { color: #eef3fb !important; }
-.dark .text-gray-800            { color: #dbe6f5 !important; }
-.dark .text-gray-700            { color: #b9c9e0 !important; }
-.dark .text-gray-600            { color: #90a5c4 !important; }
-.dark .text-gray-500            { color: #7086a8 !important; }
-.dark .text-gray-400            { color: #59708f !important; }
-.dark .text-gray-300            { color: #3d5470 !important; }
-.dark .text-red-500             { color: #f87171 !important; }
-.dark .text-red-400             { color: #fca5a5 !important; }
-.dark .text-green-600           { color: #4ade80 !important; }
-.dark .text-blue-500            { color: #60a5fa !important; }
-.dark .text-blue-400            { color: #93c5fd !important; }
+/* Textos — menos contraste extremo (ni blanco puro ni gris invisible) */
+.dark .text-gray-900            { color: #d8e1ec !important; }
+.dark .text-gray-800            { color: #c2cede !important; }
+.dark .text-gray-700            { color: #a7b6cb !important; }
+.dark .text-gray-600            { color: #8695ab !important; }
+.dark .text-gray-500            { color: #6d7c92 !important; }
+.dark .text-gray-400            { color: #58677c !important; }
+.dark .text-gray-300            { color: #445468 !important; }
+.dark .text-red-500             { color: #e08585 !important; }
+.dark .text-red-400             { color: #eeb0b0 !important; }
+.dark .text-green-600           { color: #6cc48f !important; }
+.dark .text-blue-500            { color: #7aa8e0 !important; }
+.dark .text-blue-400            { color: #a8c5ea !important; }
 
 /* Inputs, selects, textareas */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .dark textarea,
 .dark select {
-  background-color: #050f1c !important;
-  border-color:     #1c4570 !important;
-  color:            #eef3fb !important;
+  background-color: #101720 !important;
+  border-color:     #314d6b !important;
+  color:            #d8e1ec !important;
 }
 .dark input::placeholder,
-.dark textarea::placeholder { color: #59708f !important; }
-.dark select option          { background-color: #081524; color: #eef3fb; }
+.dark textarea::placeholder { color: #58677c !important; }
+.dark select option          { background-color: #141d28; color: #d8e1ec; }
 
 /* Hover sobre fondos claros */
-.dark .hover\:bg-brand-50:hover   { background-color: #0d2440 !important; }
-.dark .hover\:bg-brand-200:hover  { background-color: #1b4a78 !important; }
-.dark .hover\:bg-gray-50:hover    { background-color: #0a1a2c !important; }
-.dark .hover\:bg-gray-100:hover   { background-color: #0e1f33 !important; }
-.dark .hover\:bg-gray-200:hover   { background-color: #16304d !important; }
-.dark .hover\:bg-red-50:hover     { background-color: #2a0d10 !important; }
+.dark .hover\:bg-brand-50:hover   { background-color: #1c2d40 !important; }
+.dark .hover\:bg-brand-200:hover  { background-color: #315272 !important; }
+.dark .hover\:bg-gray-50:hover    { background-color: #131b26 !important; }
+.dark .hover\:bg-gray-100:hover   { background-color: #1b2735 !important; }
+.dark .hover\:bg-gray-200:hover   { background-color: #26384d !important; }
+.dark .hover\:bg-red-50:hover     { background-color: #2a1418 !important; }
 
 /* Bordes dashed vacíos */
-.dark .border-dashed { border-color: #16304d !important; }
+.dark .border-dashed { border-color: #26384d !important; }
 
 /* Scrollbar discreta en dark */
 .dark ::-webkit-scrollbar        { width: 6px; height: 6px; }
-.dark ::-webkit-scrollbar-track  { background: #050f1c; }
-.dark ::-webkit-scrollbar-thumb  { background: #1c4570; border-radius: 3px; }
+.dark ::-webkit-scrollbar-track  { background: #101720; }
+.dark ::-webkit-scrollbar-thumb  { background: #314d6b; border-radius: 3px; }
