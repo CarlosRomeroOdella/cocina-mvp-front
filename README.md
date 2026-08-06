@@ -1,6 +1,6 @@
 # Cocina MVP — Frontend
 
-Interfaz web para el sistema de gestión de cocina/restaurante de Odella. Permite a los clientes explorar el menú, hacer pedidos y hacer seguimiento en tiempo real; y a los administradores gestionar el catálogo, pedidos, usuarios, reportes y configuración general.
+Interfaz web para el sistema de gestión de cocina/restaurante de Odella. Permite a los clientes explorar el menú, hacer pedidos y hacer seguimiento en tiempo real; y al personal de cocina (Admin y Jefe de Cocina) gestionar pedidos, catálogo, reportes, usuarios y configuración general, cada uno con el nivel de acceso que le corresponde.
 
 ---
 
@@ -16,6 +16,7 @@ Interfaz web para el sistema de gestión de cocina/restaurante de Odella. Permit
 | Axios | 1.13 | Cliente HTTP con interceptores |
 | MSAL Browser | 5.11 | Autenticación Microsoft (Azure AD) |
 | Teams JS SDK | 2.53 | Integración con Microsoft Teams |
+| xlsx (SheetJS) | 0.18 | Exportación de pedidos a Excel (.xlsx), client-side |
 | Vercel | — | Deploy y hosting |
 
 ---
@@ -74,6 +75,20 @@ VITE_API_URL=https://tu-backend.onrender.com/api
 
 ---
 
+## Roles
+
+La app reconoce tres roles (el backend normaliza `cliente` → `client` al iniciar sesión):
+
+| Rol | Rutas permitidas | Qué ve |
+|-----|-------------------|--------|
+| `admin` | `/admin`, `/menu` | Panel completo: 7 pestañas. |
+| `jefe_cocina` | `/admin`, `/menu` | Panel reducido: 5 pestañas (Pedidos, Reportes, Platillos, Ingredientes, Extras). En Platillos/Ingredientes/Extras solo puede consultar y activar/inactivar; no ve los formularios de alta, edición ni los botones de eliminar/asignar. En Reportes solo ve la tabla de Deudores. Sin acceso a Usuarios ni Ajustes. |
+| `client` (`cliente` en BD) | `/menu` | Menú de pedidos y seguimiento; sin acceso al panel de administración. |
+
+Este control se aplica en dos capas: `<PrivateRoute allowedRoles={[...]}>` bloquea la ruta completa, y dentro de `AdminDashboard.jsx` la variable `puedeGestionar = user?.role !== "jefe_cocina"` oculta o convierte en solo-lectura los controles de creación/edición/eliminación (usando `<fieldset disabled>` sobre el formulario/modal existente, sin duplicar vistas).
+
+---
+
 ## Estructura del proyecto
 
 ```
@@ -89,7 +104,7 @@ cocina-mvp-front/
 │   │
 │   ├── pages/                         # Pantallas principales de la app
 │   │   ├── Login.jsx                  # Autenticación (email/contraseña + Microsoft)
-│   │   ├── AdminDashboard.jsx         # Panel completo de administración (7 pestañas)
+│   │   ├── AdminDashboard.jsx         # Panel de administración (7 pestañas admin / 5 jefe_cocina)
 │   │   ├── ClientMenu.jsx             # Menú interactivo para clientes
 │   │   ├── Layout.jsx                 # Contenedor base con <Outlet>
 │   │   ├── Unauthorized.jsx           # Página 403 — acceso denegado
@@ -117,7 +132,11 @@ cocina-mvp-front/
 │   │   └── usuariosService.js         # CRUD de usuarios
 │   │
 │   ├── lib/
-│   │   └── msalConfig.js              # Configuración Azure AD (MSAL)
+│   │   ├── msalConfig.js              # Configuración Azure AD (MSAL)
+│   │   └── estadosPedido.js           # STATUS_CONFIG: labels y colores de cada status de pedido
+│   │
+│   ├── utils/
+│   │   └── exportarPedidos.js         # exportarPedidosExcel(): genera el .xlsx de pedidos (SheetJS)
 │   │
 │   ├── data/                          # Datos estáticos para desarrollo sin backend
 │   │   ├── platillos.js
@@ -145,12 +164,12 @@ cocina-mvp-front/
 | Ruta | Componente | Acceso | Descripción |
 |------|-----------|--------|-------------|
 | `/login` | `Login` | Público | Pantalla de inicio de sesión |
-| `/admin` | `AdminDashboard` | Solo `admin` | Panel de administración completo |
-| `/menu` | `ClientMenu` | `admin` y `cliente` | Menú interactivo para pedidos |
+| `/admin` | `AdminDashboard` | `admin`, `jefe_cocina` | Panel de administración (contenido varía por rol) |
+| `/menu` | `ClientMenu` | `admin`, `jefe_cocina`, `client` | Menú interactivo para pedidos |
 | `/unauthorized` | `Unauthorized` | Público | Página de acceso denegado |
 | `*` | — | — | Redirige a `/login` |
 
-Las rutas `/admin` y `/menu` están protegidas con el componente `<PrivateRoute>` que valida que haya sesión activa y que el rol sea el correcto. Si la validación falla, redirige a `/unauthorized`.
+Las rutas `/admin` y `/menu` están protegidas con el componente `<PrivateRoute allowedRoles={[...]}>` que valida que haya sesión activa y que el rol esté en la lista permitida. Si la validación falla, redirige a `/unauthorized`.
 
 ---
 
@@ -192,8 +211,10 @@ Al cargar la app dentro de Teams:
 - Si el usuario ya tiene sesión en Teams, el login ocurre sin intervención
 - Usa `POST /api/auth/login-teams` para validar el token de Teams en el backend
 
+En los tres métodos, el rol devuelto por el backend (`admin` | `jefe_cocina` | `cliente`) se normaliza a `role` en el frontend, mapeando `cliente` → `client`; `admin` y `jefe_cocina` se conservan tal cual.
+
 ### Persistencia de sesión
-El token JWT se guarda en `localStorage["app_user"]` y se adjunta automáticamente a todas las peticiones de axios mediante un interceptor. Si el backend devuelve un error 401, el interceptor limpia la sesión y redirige a `/login`.
+El token JWT se guarda en `localStorage["app_user"]` y se adjunta automáticamente a todas las peticiones de axios mediante un interceptor. Si el backend devuelve un error 401, el interceptor limpia la sesión y redirige a `/login`. Si devuelve 429 (límite de solicitudes excedido — 60/min por usuario en el backend), se debe mostrar el mensaje de error tal cual llega, sin reintentos automáticos.
 
 ---
 
@@ -211,7 +232,7 @@ const { user, login, logout, loading } = useAuth()
   id: 5,
   correo: "usuario@odella.com",
   nombre: "Juan",
-  role: "admin",  // "admin" | "cliente"
+  role: "admin",  // "admin" | "jefe_cocina" | "client"
   token: "eyJhbGciOiJIUzI1NiJ9..."
 }
 ```
@@ -240,6 +261,7 @@ const {
 - Se carga automáticamente cuando el usuario se autentica
 - Los métodos de escritura hacen actualizaciones optimistas en el estado local antes de confirmar con la API
 - Si la API falla, el estado se revierte
+- `toggleDisponible(id)` envía únicamente `{ disponible }` en el `PUT` (no el objeto completo del platillo) — necesario porque el backend valida, para el rol `jefe_cocina`, que el body de esa ruta no traiga otros campos
 
 ---
 
@@ -257,51 +279,43 @@ const { dark, toggle } = useTheme()
 
 ## Panel de administración (`/admin`)
 
-El panel tiene 7 pestañas:
+El contenido varía por rol: **Admin** ve las 7 pestañas; **Jefe de Cocina** ve solo Pedidos, Reportes, Platillos, Ingredientes y Extras, con el catálogo en modo de solo consulta.
 
 ### Pedidos
-- Lista en tiempo real de todos los pedidos activos
+- Lista en tiempo real de todos los pedidos activos (polling cada 5s)
 - Filtros por status y estado de pago
-- **Cambiar status:** `en_espera → en_preparacion → listo`
-- **Marcar como pagado:** toggle por pedido
+- **Cambiar status:** `en_espera → en_preparacion → listo`, o `en_revision`
+- **Marcar como pagado / revertir pago:** toggle por pedido; revertir un pago ya hecho pide confirmación explícita (Sí, revertir / No). Cada cambio queda registrado en el backend (`PedidoPagoLog`) para auditoría.
 - **Agregar nota:** campo editable por pedido
-- **Eliminar ítem:** quitar un producto individual del pedido
+- **Eliminar ítem:** quitar un producto individual del pedido (solo mientras está en `en_espera`)
+- **"Cobrados recientes":** los últimos 8 pedidos pagados que coincidan con la búsqueda, sin restringirse al día actual
+- **Exportar a Excel** (solo Admin): botón junto al buscador que descarga un `.xlsx` con **todos** los pedidos que coincidan con la búsqueda, de cualquier estatus (incluye cancelados) — trae su propio fetch fresco al backend con todos los status, independiente de lo ya cargado en el tablero. Columnas: N° de pedido, cliente, fecha, ítems, ingredientes, extras, modalidad, estado, pagado, deudor, total y nota.
 
 ### Reportes
-- Ingresos del día, semana, mes y total histórico
-- Número de pedidos pendientes de pago
-- Top 10 ítems más vendidos (por cantidad)
-- Tabla de últimas 15 transacciones
+- **Admin:** ingresos del día/semana/mes/total, número de pedidos pendientes de pago, top 10 ítems más vendidos, tabla de últimas 15 transacciones, y la tabla de Deudores.
+- **Jefe de Cocina:** solo la tabla de **Deudores** — pedidos en `listo` sin cobrar (número, cliente, fecha, total, saldo pendiente, estado). El número de pedido es clicable y abre un modal de solo lectura (`DetallePedidoModal`) con el detalle completo (ítems, ingredientes, extras, nota, total), sin salir de Reportes.
 
 ### Platillos
-- Lista de platillos con imagen, precio y estado de disponibilidad
-- **Crear platillo:** nombre, descripción, precio, imagen, ingredientes gratis
-- **Editar platillo:** modificar todos sus campos
-- **Asignar ingredientes:** seleccionar cuáles son requeridos (no se pueden quitar) y cuáles son opcionales
-- **Asignar extras:** bebidas y postres disponibles para ese platillo
-- **Toggle disponibilidad:** activar/desactivar sin eliminar
+- **Admin:** lista con imagen, precio y disponibilidad; crear, editar (nombre, descripción, precio, imagen, ingredientes gratis, ingredientes/extras asignados), eliminar, y toggle de disponibilidad.
+- **Jefe de Cocina:** puede consultar el listado, ver el detalle de cada platillo ("Ver detalle" — el mismo modal de edición pero de solo lectura, vía `<fieldset disabled>`) y alternar disponibilidad. No ve el formulario de alta ni el botón de eliminar.
 
 ### Ingredientes
-- Lista con categoría, precio y estado
-- **Crear/Editar/Eliminar** ingredientes
-- **Asignar categoría:** para agruparlos en el menú del cliente
-- **Precio:** costo extra cuando el cliente lo agrega sobre el límite de ingredientes gratis
+- **Admin:** lista con categoría, precio y estado; crear/editar/eliminar; asignación a platillos.
+- **Jefe de Cocina:** solo consulta, "Ver detalle" de solo lectura, y toggle de disponibilidad. Sin formulario de alta, sin eliminar, sin panel de asignación a platillos.
 
 ### Extras (bebidas y postres)
-- Lista de bebidas, postres y otros extras
-- **Crear/Editar/Eliminar** extras
-- **Tamaños con precio diferenciado:** ej. Pequeño $30, Grande $50
-- **Sabores disponibles:** lista de opciones (Coca-Cola, Sprite, etc.)
+- **Admin:** lista de bebidas, postres y otros extras; crear/editar/eliminar; tamaños con precio diferenciado (ej. Pequeño $30, Grande $50); sabores disponibles.
+- **Jefe de Cocina:** solo consulta, "Ver detalle" (tamaños y sabores configurados, de solo lectura), y toggle de disponibilidad.
 
-### Usuarios
+### Usuarios (solo Admin)
 - Lista de todos los usuarios registrados
-- **Crear usuario:** correo, nombre, contraseña temporal, rol
-- **Editar usuario:** nombre, rol (`admin`/`cliente`), estado activo
+- **Crear usuario:** correo, nombre, contraseña temporal, rol (`admin`, `jefe_cocina` o `cliente`)
+- **Editar usuario:** nombre, rol, estado activo
 - **Resetear contraseña:** el admin asigna una contraseña nueva
-- **Eliminar usuario**
+- **Eliminar usuario** (un admin no puede eliminarse a sí mismo)
 
-### Ajustes
-- **Estado de la cocina:** botón para abrir o cerrar (cuando está cerrada, los clientes no pueden hacer pedidos)
+### Ajustes (solo Admin)
+- **Estado de la cocina:** el toggle real de abrir/cerrar cocina vive en el encabezado (visible en cualquier pestaña, para Admin y Jefe de Cocina), no en esta pestaña
 - **URL de YouTube:** el admin pega una URL de YouTube que los clientes ven como música ambiente mientras esperan su pedido
 
 ---
@@ -326,20 +340,22 @@ El panel tiene 7 pestañas:
    - Elegir modalidad: comer en cocina o para llevar
        ↓
 6. Tracking en tiempo real
-   (polling cada 3 segundos al backend)
+   (polling al backend)
        ↓
-7. Notificación del navegador cuando el pedido está listo
+7. Notificación del navegador cuando el pedido cambia de estado
 ```
 
 ### Pestañas del menú
-- **Platillos** — con imagen, descripción, precio y selector de ingredientes
+- **Platillos** — con imagen, descripción, precio y selector de ingredientes. Si la cocina está cerrada, no se pueden agregar platillos nuevos al carrito (bebidas y postres siguen disponibles).
 - **Bebidas** — con selector de tamaño y sabor
 - **Postres** — con selector de tamaño y sabor
 
 ### Funcionalidades adicionales
-- **Carrito flotante:** resumen siempre visible con subtotales y total
-- **Historial de pedidos:** almacenado en `localStorage` y sincronizado con la API
-- **Pedido en revisión:** si el admin lo devuelve, el cliente puede editarlo y reenviarlo
+- **Carrito flotante:** resumen siempre visible con subtotales, total, modalidad ("para llevar") y nota
+- **Notificaciones del navegador:** modal opcional al confirmar el primer pedido; si se aceptan, cada cambio de estado llega como notificación aunque la pestaña no esté abierta
+- **Pedido en revisión:** si cocina lo marca como `en_revision` (por ejemplo, un ingrediente agotado), el cliente puede editar los ingredientes opcionales o quitar un ítem, reenviarlo (vuelve a `en_espera`) o cancelarlo
+- **"Mis pedidos" (historial):** accesible desde el ícono de reloj; el pedido más reciente tiene un botón destacado "Repetir pedido" que reconstruye el carrito con los mismos productos
+- **Cambio de contraseña:** modal accesible desde "Mi contraseña", pide la contraseña actual, la nueva y su confirmación
 - **YouTube player:** reproductor flotante en la esquina inferior si el admin configuró una URL
 - **Modo oscuro/claro:** toggle disponible para el cliente
 
@@ -366,19 +382,19 @@ logout()                             // POST /auth/logout
 // Platillos
 getProducts()
 createProduct(data)
-updateProduct(id, data)
+updateProduct(id, data)              // jefe_cocina: solo puede enviar { disponible }
 deleteProduct(id)
 
 // Ingredientes
 getIngredientes()
 createIngrediente(data)
-updateIngrediente(id, data)
+updateIngrediente(id, data)          // jefe_cocina: solo puede enviar { disponible }
 deleteIngrediente(id)
 
 // Extras
 getExtras()
 createExtra(data)
-updateExtra(id, data)
+updateExtra(id, data)                // jefe_cocina: solo puede enviar { disponible }
 deleteExtra(id)
 
 // Relaciones
@@ -388,22 +404,22 @@ getRelaciones()
 ### `pedidosService.js`
 ```js
 crearPedido(data)
-getPedidos(statusFilter)
+getPedidos(statusFilter, pagado)      // ?status=...&pagado=... — usado también para el reporte de Deudores
 getPedido(id)
 getMisPedidos()
 actualizarStatusPedido(id, status)
-marcarPagado(id, pagado)
+marcarPagado(id, pagado)              // registra PedidoPagoLog en el backend
 reenviarPedido(id, items)
 cancelarPedido(id)
 actualizarNota(id, nota)
 eliminarItemPedido(pedidoId, itemId)
-getResumen()                          // estadísticas admin
+getResumen()                          // estadísticas financieras — solo admin
 
 // Configuración
 getCocinaEstado()
-setCocinaEstado(abierta)
+setCocinaEstado(abierta)              // admin y jefe_cocina
 getYoutubeUrl()
-setYoutubeUrl(url)
+setYoutubeUrl(url)                    // solo admin
 ```
 
 ### `usuariosService.js`
@@ -414,6 +430,14 @@ actualizarUsuario(id, data)
 resetPassword(id, contrasena)
 eliminarUsuario(id)
 changeMyPassword(actual, nueva)
+```
+
+### `exportarPedidos.js`
+```js
+exportarPedidosExcel(pedidos)
+// Genera y descarga un .xlsx (SheetJS) con una fila por pedido:
+// N° Pedido, Cliente, Fecha, Ítems, Ingredientes, Extras, Modalidad,
+// Estado, Pagado, Deudor, Total, Nota.
 ```
 
 ---
@@ -463,4 +487,3 @@ El scope solicitado es `["openid", "profile", "email"]`. La inicialización de M
 - Todas las rutas se reescriben a `index.html` para que funcione el enrutamiento SPA
 - Los headers CSP permiten que la app sea embebida en Teams, Office y SharePoint
 - El archivo `public/blank.html` se usa como redirect URI de MSAL para flujos dentro de iframes
-
